@@ -45,7 +45,6 @@ public class JavaConnector extends ModuleConnector {
             frame.getBrowser().loadURL(JavaStorage.getUrlBase()+"library.html");
         } else if(request.equals("mje-settings")) {
             String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"settings.html";
-            System.out.println(settings);
             frame.executeJavaScript("setContent('settings-custom','minecraft.java-edition','"+settings+"');");
         } else if(request.equals("settings")) {
             frame.executeJavaScript("addModuleSetting('bx bx-cube','Minecraft: Java Edition','java.init.mje-settings','minecraft.java-edition',false);");
