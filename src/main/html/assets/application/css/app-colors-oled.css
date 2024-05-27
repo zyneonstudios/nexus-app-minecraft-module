@@ -1,15 +1,15 @@
 :root {
-    --background: #070707;
+    --background: #0a0a0a;
     --background1: var(--background);
     --background2: #000000;
     --background3: #0a0a0a;
-    --background4: #0c0c0c;
-    --background5: #0f0f0f;
+    --background4: #0a0a0a;
+    --background5: #000000;
     --background6: #000000;
 
-    --border: #1b1b1b;
+    --border: var(--background);
     --border1: var(--border);
-    --border2: #353535;
+    --border2: #1c1c1c;
 
     --shadow: #ffffff99;
     --shadow1: var(--shadow);
