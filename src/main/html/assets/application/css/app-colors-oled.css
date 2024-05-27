@@ -5,7 +5,7 @@
     --background3: #0a0a0a;
     --background4: #0a0a0a;
     --background5: #000000;
-    --background6: #000000;
+    --background6: #0a0a0a;
 
     --border: var(--background);
     --border1: var(--border);
@@ -28,4 +28,8 @@
 body {
     background: var(--background);
     transition: background ease 0ms !important;
+}
+
+.search {
+    background: black !important;
 }

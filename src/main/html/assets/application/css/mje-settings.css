@@ -46,6 +46,11 @@ body {
     transition: all 0.25s ease;
 }
 
+.settings .settings-content .group {
+    transition: all 0.25s ease !important;
+    padding: 0.5rem 0 0.5rem 0;
+}
+
 .settings .settings-content .group:hover {
     background: var(--background);
     padding: 0.5rem;
