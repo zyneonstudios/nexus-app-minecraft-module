@@ -1,0 +1,14 @@
+{
+  "modules": [
+    {
+      "authors": [
+        "Zyneon Studios",
+        "NEXUS Team",
+        "nerotvlive"
+      ],
+      "main": "com.zyneonstudios.application.MinecraftJavaAddon",
+      "name": "Minecraft: Java Edition",
+      "version": "2024.5-alpha.5"
+    }
+  ]
+}
