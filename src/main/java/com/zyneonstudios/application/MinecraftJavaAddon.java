@@ -17,11 +17,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class MinecraftJavaAddon extends ApplicationModule {
 
+    public static final Config properties = new Config(FileUtil.getResourceFile("nexus.json", MinecraftJavaAddon.class));
     private MicrosoftAuthenticator authenticator = null;
     private AuthState authState = AuthState.LOGGED_OUT;
 
     public MinecraftJavaAddon(NexusApplication application) {
-        super(application, "minecraft-java-edition", "Minecraft: Java Edition", "2024.5-alpha.6", "Zyneon Studios & NEXUS Team: nerotvlive");
+        super(application, "minecraft-java-edition", "Minecraft: Java Edition", "", "Zyneon Studios & NEXUS Team: nerotvlive");
     }
 
     public MicrosoftAuthenticator getAuthenticator() {
@@ -68,7 +69,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
         NexusApplication.getLogger().log("Authors: "+getAuthor());
         NexusApplication.getLogger().log("Version: "+getVersion());
-        NexusApplication.getLogger().log("====================================================================(NEXUS Team)==");
+        NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
         String prefix = "["+getName()+"] ";
         NexusApplication.getLogger().log(prefix+"Loading...");
 
@@ -101,7 +102,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
         NexusApplication.getLogger().log("Authors: "+getAuthor());
         NexusApplication.getLogger().log("Version: "+getVersion());
-        NexusApplication.getLogger().log("====================================================================(NEXUS Team)==");
+        NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
         String prefix = "["+getName()+"] ";
         NexusApplication.getLogger().log(prefix+"Enabling...");
         NexusApplication.getLogger().log(prefix+"Setting module connector to new JavaConnector...");
@@ -117,23 +118,11 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
         NexusApplication.getLogger().log("Authors: "+getAuthor());
         NexusApplication.getLogger().log("Version: "+getVersion());
-        NexusApplication.getLogger().log("====================================================================(NEXUS Team)==");
+        NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
         String prefix = "["+getName()+"] ";
         NexusApplication.getLogger().log(prefix+"Disabling...");
         NexusApplication.getLogger().log(prefix+"Disabled!");
         NexusApplication.getLogger().log(" ");
-    }
-
-    public static void main(String[] args) {
-        ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
-        arguments.add("--test");
-        arguments.add("--path:A:/Sync/OneDrive/Projekte/Code/Zyneon-Application/application-main/target/run/");
-        arguments.add("--ui:A:/Sync/OneDrive/Projekte/Code/Zyneon-Application/application-ui/content/");
-        args = arguments.toArray(new String[0]);
-        new ApplicationConfig(args);
-        NexusApplication application = new NexusApplication();
-        application.getModuleLoader().loadModule(new MinecraftJavaAddon(application));
-        application.launch();
     }
 
     public enum AuthState {
@@ -146,16 +135,30 @@ public class MinecraftJavaAddon extends ApplicationModule {
         Logger logger = NexusApplication.getLogger();
         try {
             if(new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").exists()) {
-                logger.debug("[APP] Deleted old ui files: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").delete());
+                logger.debug("[Minecraft: Java Edition] Deleted old ui files: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").delete());
             }
-            logger.debug("[APP] Created new ui path: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").mkdirs());
+            logger.debug("[Minecraft: Java Edition] Created new ui path: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").mkdirs());
             FileUtil.extractResourceFile("html.zip",ApplicationConfig.getApplicationPath()+"temp/mje.zip", MinecraftJavaAddon.class);
             FileUtil.unzipFile(ApplicationConfig.getApplicationPath()+"temp/mje.zip", ApplicationConfig.getApplicationPath() + "temp/ui/mje");
-            logger.debug("[APP] Deleted ui archive: "+new File(ApplicationConfig.getApplicationPath()+"temp/mje.zip").delete());
+            logger.debug("[Minecraft: Java Edition] Deleted ui archive: "+new File(ApplicationConfig.getApplicationPath()+"temp/mje.zip").delete());
         } catch (Exception e) {
-            logger.error("[APP] Couldn't update application user interface: "+e.getMessage());
+            logger.error("[Minecraft: Java Edition] Couldn't update application user interface: "+e.getMessage());
         }
-        logger.debug("[APP] Deleted old updatar json: "+new File(ApplicationConfig.getApplicationPath() + "updater.json").delete());
-        logger.debug("[APP] Deleted older updater json: "+new File(ApplicationConfig.getApplicationPath() + "version.json").delete());
+        logger.debug("[Minecraft: Java Edition] Deleted old updatar json: "+new File(ApplicationConfig.getApplicationPath() + "updater.json").delete());
+        logger.debug("[Minecraft: Java Edition] Deleted older updater json: "+new File(ApplicationConfig.getApplicationPath() + "version.json").delete());
+    }
+
+    public static void main(String[] args) {
+        ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
+        arguments.add("--test");
+        arguments.add("--path:A:/Sync/OneDrive/Projekte/Code/Zyneon-Application/application-main/target/run/");
+        arguments.add("--ui:A:/Sync/OneDrive/Projekte/Code/Zyneon-Application/application-ui/content/");
+        args = arguments.toArray(new String[0]);
+        new ApplicationConfig(args);
+        NexusApplication application = new NexusApplication();
+        try {
+            application.getModuleLoader().loadModule(new MinecraftJavaAddon(application));
+        } catch (Exception ignore) {}
+        application.launch();
     }
 }

@@ -6,7 +6,7 @@
 
     <groupId>com.zyneonstudios</groupId>
     <artifactId>minecraft-java-addon</artifactId>
-    <version>2024.5-alpha.8</version>
+    <version>2024.6-alpha.2</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -18,9 +18,9 @@
         <dependency>
             <groupId>com.zyneonstudios.nexus</groupId>
             <artifactId>application</artifactId>
-            <version>2024.5-beta.1</version>
+            <version>2024.6-beta.1</version>
             <scope>system</scope>
-            <systemPath>A:\Sync\OneDrive\Projekte\Code\Zyneon-Application\application-main\target\application-main-2024.5-beta.1.jar</systemPath>
+            <systemPath>A:\Sync\OneDrive\Projekte\Code\Zyneon-Application\application-main\target\application-main-2024.6-beta.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.zyneonstudios</groupId>

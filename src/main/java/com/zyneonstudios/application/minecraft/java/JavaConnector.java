@@ -42,6 +42,7 @@ public class JavaConnector extends ModuleConnector {
 
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
+            frame.executeJavaScript("deactivateMenu('menu',true);");
             frame.getBrowser().loadURL(JavaStorage.getUrlBase()+"library.html");
         } else if(request.equals("mje-settings")) {
             String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"settings.html";

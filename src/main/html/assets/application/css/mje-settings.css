@@ -43,19 +43,19 @@ body {
     padding: 0.125rem 0.5rem 0.25rem 0.5rem;
     border-radius: 0.5rem;
     margin: 0 0.5rem 0.5rem 0.5rem;
-    transition: all 0.25s ease;
+    transition: background-color 0.25s ease;
 }
 
 .settings .settings-content .group {
-    transition: all 0.25s ease !important;
+    transition: background-color 0.25s ease !important;
     padding: 0.5rem 0 0.5rem 0;
+    border-radius: 0.5rem;
 }
 
 .settings .settings-content .group:hover {
     background: var(--background);
     padding: 0.5rem;
     transition: all 0.25s ease;
-    border-radius: 0.5rem;
 }
 
 .settings .settings-content .group:hover h4 {

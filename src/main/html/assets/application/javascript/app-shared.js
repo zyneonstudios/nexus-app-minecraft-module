@@ -61,6 +61,18 @@ function initMainMenu(active) {
     }
 }
 
+function changeThemeColors() {
+    if(colors==="automatic") {
+        setColors("automatic");
+    } else if(colors==="../assets/cronos/css/app-colors-dark.css") {
+        setColors("../assets/cronos/css/app-colors-light.css");
+    } else if(colors==="../assets/cronos/css/app-colors-light.css") {
+        setColors("../assets/application/css/app-colors-zyneon.css");
+    } else {
+        setColors("../assets/cronos/css/app-colors-dark.css");
+    }
+}
+
 function preventClick(id) {
     document.getElementById(id).addEventListener('click', function(event) {
         event.preventDefault();
