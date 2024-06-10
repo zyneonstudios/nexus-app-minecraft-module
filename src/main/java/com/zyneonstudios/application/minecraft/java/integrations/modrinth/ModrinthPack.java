@@ -66,7 +66,7 @@ public class ModrinthPack {
                         versions.add(version);
                     }
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse game version: " + e.getMessage());
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't parse game version: " + e.getMessage());
                 }
             }
             String[] gV;
@@ -74,7 +74,7 @@ public class ModrinthPack {
                 gV = versions.toArray(new String[0]);
             } catch (Exception e) {
                 gV = null;
-                NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse game versions: " + e.getMessage());
+                NexusApplication.getLogger().error("[Minecraft] Couldn't parse game versions: " + e.getMessage());
             }
             this.gameVersions = gV;
         } else {
@@ -216,7 +216,7 @@ public class ModrinthPack {
                         categories_.add(category);
                     }
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse category: " + e.getMessage());
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't parse category: " + e.getMessage());
                 }
             }
             String[] c;
@@ -224,7 +224,7 @@ public class ModrinthPack {
                 c = categories_.toArray(new String[0]);
             } catch (Exception e) {
                 c = null;
-                NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse categories: " + e.getMessage());
+                NexusApplication.getLogger().error("[Minecraft] Couldn't parse categories: " + e.getMessage());
             }
             this.categories = c;
         } else {
@@ -241,7 +241,7 @@ public class ModrinthPack {
                         categories_.add(category);
                     }
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse additional category: " + e.getMessage());
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't parse additional category: " + e.getMessage());
                 }
             }
             String[] c;
@@ -249,7 +249,7 @@ public class ModrinthPack {
                 c = categories_.toArray(new String[0]);
             } catch (Exception e) {
                 c = null;
-                NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse additional categories: " + e.getMessage());
+                NexusApplication.getLogger().error("[Minecraft] Couldn't parse additional categories: " + e.getMessage());
             }
             this.additionalCategories = c;
         } else {
@@ -266,7 +266,7 @@ public class ModrinthPack {
                         loaders_.add(loader);
                     }
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse loader: " + e.getMessage());
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't parse loader: " + e.getMessage());
                 }
             }
             String[] l;
@@ -274,7 +274,7 @@ public class ModrinthPack {
                 l = loaders_.toArray(new String[0]);
             } catch (Exception e) {
                 l = null;
-                NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse loaders: " + e.getMessage());
+                NexusApplication.getLogger().error("[Minecraft] Couldn't parse loaders: " + e.getMessage());
             }
             this.loaders = l;
         } else {
@@ -291,7 +291,7 @@ public class ModrinthPack {
                         versions_.add(version);
                     }
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse version: " + e.getMessage());
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't parse version: " + e.getMessage());
                 }
             }
             String[] v;
@@ -299,7 +299,7 @@ public class ModrinthPack {
                 v = versions_.toArray(new String[0]);
             } catch (Exception e) {
                 v = null;
-                NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't parse versions: " + e.getMessage());
+                NexusApplication.getLogger().error("[Minecraft] Couldn't parse versions: " + e.getMessage());
             }
             this.versions = v;
         } else {
@@ -573,7 +573,7 @@ public class ModrinthPack {
                 }
             }
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't get latest pack version: " + e.getMessage());
+            NexusApplication.getLogger().error("[Minecraft] Couldn't get latest pack version: " + e.getMessage());
         }
         return null;
     }

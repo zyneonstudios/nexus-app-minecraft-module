@@ -1,5 +1,8 @@
 package com.zyneonstudios.application;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaConnector;
@@ -10,19 +13,68 @@ import live.nerotv.shademebaby.file.Config;
 import live.nerotv.shademebaby.logger.Logger;
 import live.nerotv.shademebaby.utils.FileUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 public class MinecraftJavaAddon extends ApplicationModule {
 
-    public static final Config properties = new Config(FileUtil.getResourceFile("nexus.json", MinecraftJavaAddon.class));
+    public static final File properties = FileUtil.getResourceFile("nexus.json", MinecraftJavaAddon.class);
+    private static String version ="Unknown";
+    private static String id ="nexus-minecraft-module";
+    private static String name ="Minecraft";
+    private static String authors ="Zyneon Studios & NEXUS Team: nerotvlive";
     private MicrosoftAuthenticator authenticator = null;
     private AuthState authState = AuthState.LOGGED_OUT;
 
     public MinecraftJavaAddon(NexusApplication application) {
-        super(application, "minecraft-java-edition", "Minecraft: Java Edition", "", "Zyneon Studios & NEXUS Team: nerotvlive");
+        super(application, id, name, version, authors);
+        try {
+            JsonObject properties = new Gson().fromJson(new BufferedReader(new InputStreamReader(new FileInputStream(MinecraftJavaAddon.properties))), JsonObject.class).getAsJsonArray("modules").get(0).getAsJsonObject();
+            version = properties.get("version").getAsString();
+            id = properties.get("id").getAsString();
+            name = properties.get("name").getAsString();
+            StringBuilder authors = new StringBuilder();
+            for(JsonElement name : properties.getAsJsonArray("authors")) {
+                String author = name.getAsString();
+                if(authors.isEmpty()) {
+                    authors = new StringBuilder(author);
+                } else {
+                    authors.append(" ,").append(author);
+                }
+            }
+            MinecraftJavaAddon.authors = authors.toString();
+        } catch (Exception e) {
+            NexusApplication.getLogger().error("[Minecraft] Couldn't parse nexus.json properties: "+e.getMessage());
+        }
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override @Deprecated
+    public String getAuthor() {
+        return authors;
+    }
+
+    public String getAuthors() {
+        return authors;
     }
 
     public MicrosoftAuthenticator getAuthenticator() {
@@ -47,13 +99,13 @@ public class MinecraftJavaAddon extends ApplicationModule {
             authenticator = null;
             System.gc();
             if(!old.delete()) {
-                NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't delete old auth file...");
+                NexusApplication.getLogger().error("[Minecraft] Couldn't delete old auth file...");
                 Config oldAuth = new Config(old);
                 try {
                     oldAuth.delete("op");
                     oldAuth.delete("opapi");
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft: Java Edition] Couldn't reset auth credentials...");
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't reset auth credentials...");
                     return null;
                 }
             }
@@ -134,18 +186,18 @@ public class MinecraftJavaAddon extends ApplicationModule {
     private void update() {
         Logger logger = NexusApplication.getLogger();
         try {
-            if(new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").exists()) {
-                logger.debug("[Minecraft: Java Edition] Deleted old ui files: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").delete());
+            if(new File(ApplicationConfig.getApplicationPath() + "temp/ui/").exists()) {
+                logger.debug("[Minecraft] Deleted old ui files: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/").delete());
             }
-            logger.debug("[Minecraft: Java Edition] Created new ui path: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/mje/").mkdirs());
+            logger.debug("[Minecraft] Created new ui path: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/").mkdirs());
             FileUtil.extractResourceFile("html.zip",ApplicationConfig.getApplicationPath()+"temp/mje.zip", MinecraftJavaAddon.class);
-            FileUtil.unzipFile(ApplicationConfig.getApplicationPath()+"temp/mje.zip", ApplicationConfig.getApplicationPath() + "temp/ui/mje");
-            logger.debug("[Minecraft: Java Edition] Deleted ui archive: "+new File(ApplicationConfig.getApplicationPath()+"temp/mje.zip").delete());
+            FileUtil.unzipFile(ApplicationConfig.getApplicationPath()+"temp/mje.zip", ApplicationConfig.getApplicationPath() + "temp/ui");
+            logger.debug("[Minecraft] Deleted ui archive: "+new File(ApplicationConfig.getApplicationPath()+"temp/mje.zip").delete());
         } catch (Exception e) {
-            logger.error("[Minecraft: Java Edition] Couldn't update application user interface: "+e.getMessage());
+            logger.error("[Minecraft] Couldn't update application user interface: "+e.getMessage());
         }
-        logger.debug("[Minecraft: Java Edition] Deleted old updatar json: "+new File(ApplicationConfig.getApplicationPath() + "updater.json").delete());
-        logger.debug("[Minecraft: Java Edition] Deleted older updater json: "+new File(ApplicationConfig.getApplicationPath() + "version.json").delete());
+        logger.debug("[Minecraft] Deleted old updatar json: "+new File(ApplicationConfig.getApplicationPath() + "updater.json").delete());
+        logger.debug("[Minecraft] Deleted older updater json: "+new File(ApplicationConfig.getApplicationPath() + "version.json").delete());
     }
 
     public static void main(String[] args) {

@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public record JavaStorage() {
 
     private static String modulePath = ApplicationConfig.getApplicationPath()+"modules/shared/";
-    private static String urlBase = ApplicationConfig.getApplicationPath()+"temp/ui/mje/";
+    private static String urlBase = ApplicationConfig.getApplicationPath()+"temp/ui/";
 
     private static Zyndex zyndex = null;
 
@@ -29,6 +29,10 @@ public record JavaStorage() {
             Strings.pleaseWait = "Bitte warten";
             Strings.local = "Lokaler";
             Strings.library = "Bibliothek";
+            Strings.instance = "Instanz";
+            Strings.instances = "Instanzen";
+            Strings.addInstance = "Instanz hinzufügen";
+            Strings.refreshInstances = "Instanzen neuladen";
         } else {
             Strings.notLoggedIn = "Not logged in";
             Strings.loggingIn = "Logging in";
@@ -37,6 +41,9 @@ public record JavaStorage() {
             Strings.pleaseWait = "Please wait";
             Strings.local = "Local";
             Strings.library = "Library";
+            Strings.instance = "Instance";
+            Strings.instances = "Instances";
+            Strings.addInstance = "Add instance";
         }
         Config index = new Config(modulePath+"zyndex/index.json");
         index.set("name",Strings.local+" Zyndex");
@@ -67,6 +74,10 @@ public record JavaStorage() {
         public static String pleaseWait = "Please wait";
         public static String local = "Local";
         public static String library = "Library";
+        public static String instance = "Instance";
+        public static String instances = "Instances";
+        public static String addInstance = "Add instance";
+        public static String refreshInstances = "Refresh instances";
 
     }
 }

@@ -7,7 +7,8 @@
         "nerotvlive"
       ],
       "main": "com.zyneonstudios.application.MinecraftJavaAddon",
-      "name": "Minecraft: Java Edition",
+      "id": "nexus-minecraft-module",
+      "name": "Minecraft",
       "version": "${project.version}"
     }
   ]

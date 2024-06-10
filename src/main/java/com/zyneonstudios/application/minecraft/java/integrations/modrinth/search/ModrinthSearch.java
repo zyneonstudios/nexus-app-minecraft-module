@@ -133,7 +133,7 @@ public class ModrinthSearch {
             }
             return GsonUtil.getObject(searchRequest);
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft: Java Edition] Could not search through Modrinth: " + e.getMessage());
+            NexusApplication.getLogger().error("[Minecraft] Could not search through Modrinth: " + e.getMessage());
             return null;
         }
     }

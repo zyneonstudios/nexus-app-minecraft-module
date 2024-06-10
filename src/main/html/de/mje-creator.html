@@ -8,13 +8,13 @@
         <link rel="stylesheet" id="css-colors" href="../assets/cronos/css/app-colors-dark.css">
         <link rel="stylesheet" id="css-menu" href="../assets/cronos/css/app-menu-side.css">
         <link rel="stylesheet" id="css-card" href="../assets/cronos/css/app-cards.css">
-        <link rel="stylesheet" id="css-shared" href="../assets/application/css/app-shared.css">
-        <link rel="stylesheet" id="css-page" href="../assets/application/css/mje-instance-creator.css">
+        <link rel="stylesheet" id="css-shared" href="../assets/minecraft/css/app-shared.css">
+        <link rel="stylesheet" id="css-page" href="../assets/minecraft/css/mje-instance-creator.css">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
         <script src="../assets/cronos/javascript/app-base.js"></script>
         <script src="../assets/cronos/javascript/app-menu.js"></script>
         <script src="../assets/application/javascript/app-shared.js"></script>
-        <script src="../assets/application/javascript/mje-instance-creator.js"></script>
+        <script src="../assets/minecraft/javascript/mje-instance-creator.js"></script>
         <script>connector("java.init.creator"); connector("java.sync.creator"); init();</script>
     </head>
     <body>
@@ -25,7 +25,7 @@
                         <h3>Instanz hinzufügen</h3>
                         <h5>Minecraft: Java Edition</h5>
                     </div>
-                    <div onclick="connector('sync.library.module.minecraft-java-edition');" class="card button danger">
+                    <div onclick="connector('java.sync.library');" class="card button danger">
                         <h3>Hinzufügen beenden <i class='bx bxs-exit'></i></h3>
                     </div>
                     <div id="mje-discover-modpacks" onclick="connector('java.sync.discover')" class="card button highlight">

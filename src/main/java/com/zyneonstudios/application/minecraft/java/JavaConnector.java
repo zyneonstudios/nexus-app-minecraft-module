@@ -16,10 +16,14 @@ public class JavaConnector extends ModuleConnector {
         this.frame = (ApplicationFrame)this.module.getApplication().getFrame();
     }
 
-    @Override
+    @Override @SuppressWarnings("deprecation")
     public void resolveRequest(String request) {
         if(request.startsWith("java.auth.")) {
             resolveAuthRequest(request.replaceFirst("java.auth.", ""));
+        } else if(request.equals("sync.library.module.nexus-minecraft-module_java")) {
+            resolveInitRequest("library");
+        } else if(request.startsWith("java.overlay")) {
+            frame.executeJavaScript("enableOverlay('https://www.zyneonstudios.com');");
         } else if(request.startsWith("java.init.")) {
             resolveInitRequest(request.replaceFirst("java.init.", ""));
         } else if(request.startsWith("java.sync.")) {
@@ -28,31 +32,28 @@ public class JavaConnector extends ModuleConnector {
             resolveOpenRequest(request.replaceFirst("java.open.", ""));
         } else if(request.startsWith("java.run.")) {
             resolveRunRequest(request.replaceFirst("java.run.", ""));
-        } else if(request.equals("init.settings")) {
-            resolveInitRequest("settings");
+        } else if(request.equals("init.settings.modules")) {
+            resolveInitRequest("settings.modules");
         } else if(request.equals("init.library")) {
-            frame.executeJavaScript("addModuleToList('" + module.getName() + "','" + module.getId() + "');");
+            frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId()+"_java" + "');");
         } else if(request.startsWith("sync.language.")) {
             ApplicationConfig.language = request.replaceFirst("sync.language.","");
             JavaStorage.init(module.getId());
-        } else if(request.equals("sync.library.module.minecraft-java-edition")) {
-            resolveInitRequest("library");
         }
     }
 
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
-            frame.executeJavaScript("deactivateMenu('menu',true);");
-            frame.getBrowser().loadURL(JavaStorage.getUrlBase()+"library.html");
+            frame.executeJavaScript("addAction('"+JavaStorage.Strings.addInstance+"','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('"+JavaStorage.Strings.refreshInstances+"','bx bx-refresh','location.reload();','mje-refresh-instances');");
         } else if(request.equals("mje-settings")) {
-            String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"settings.html";
+            String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"mje-settings.html";
             frame.executeJavaScript("setContent('settings-custom','minecraft.java-edition','"+settings+"');");
-        } else if(request.equals("settings")) {
+        } else if(request.equals("settings.modules")) {
             frame.executeJavaScript("addModuleSetting('bx bx-cube','Minecraft: Java Edition','java.init.mje-settings','minecraft.java-edition',false);");
         } else if(request.startsWith("instances.")) {
             request = request.replaceFirst("instances.","");
             if(request.equals("creator")) {
-                frame.openCustomPage(JavaStorage.Strings.library+" - Minecraft: Java Edition","mje-instance-creator","file://"+JavaStorage.getUrlBase()+"instanceCreator.html");
+                frame.openCustomPage(JavaStorage.Strings.library+" - Minecraft: Java Edition","mje-instance-creator","file://"+JavaStorage.getUrlBase()+"mje-creator.html");
             }
         }
     }
@@ -62,15 +63,19 @@ public class JavaConnector extends ModuleConnector {
             request = request.replaceFirst("library.", "");
             if (request.equals("add")) {
                 frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=-1");
+            } else if(request.equals("auth")) {
+                if(module.getAuthenticator().isLoggedIn()) {
+                    frame.executeJavaScript("mjeLogin('"+module.getAuthenticator().getAuthInfos().getUsername()+"','"+module.getAuthenticator().getAuthInfos().getUuid()+"','"+JavaStorage.Strings.logout+"');");
+                } else {
+                    frame.executeJavaScript("mjeLogout('"+JavaStorage.Strings.notLoggedIn+"','"+JavaStorage.Strings.login+"');");
+                }
             } else {
                 frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=" + request);
             }
+        } else if(request.equals("mje-settings")) {
+
         } else if(request.equals("library")) {
-            if(module.getAuthenticator().isLoggedIn()) {
-                frame.executeJavaScript("mjeLogin('"+module.getAuthenticator().getAuthInfos().getUsername()+"','"+module.getAuthenticator().getAuthInfos().getUuid()+"','"+JavaStorage.Strings.logout+"');");
-            } else {
-                frame.executeJavaScript("mjeLogout('"+JavaStorage.Strings.notLoggedIn+"','"+JavaStorage.Strings.login+"');");
-            }
+            frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html");
         } else if(request.startsWith("discoverHover.")) {
             request = request.replaceFirst("discoverHover.", "");
             if(request.equals("on")) {
