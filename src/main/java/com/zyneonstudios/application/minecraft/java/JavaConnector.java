@@ -52,9 +52,9 @@ public class JavaConnector extends ModuleConnector {
 
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
-            JavaStorage.reloadLocalZyndex();
             frame.executeJavaScript("addAction('"+JavaStorage.Strings.addInstance+"','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('"+JavaStorage.Strings.refreshInstances+"','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('"+JavaStorage.Strings.instances+"','mje-instances');");
 
+            JavaStorage.reloadLocalZyndex();
             List<ReadableZynstance> instances = JavaStorage.getLocalZyndex().getInstances();
             instances.sort(Comparator.comparing(Instance::getName));
 
