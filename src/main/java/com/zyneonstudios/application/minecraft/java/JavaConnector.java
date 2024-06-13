@@ -3,7 +3,15 @@ package com.zyneonstudios.application.minecraft.java;
 import com.zyneonstudios.application.MinecraftJavaAddon;
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.application.main.ApplicationConfig;
+import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.modules.ModuleConnector;
+import com.zyneonstudios.nexus.instance.Instance;
+import com.zyneonstudios.nexus.instance.ReadableZynstance;
+
+import java.io.File;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class JavaConnector extends ModuleConnector {
 
@@ -44,7 +52,37 @@ public class JavaConnector extends ModuleConnector {
 
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
-            frame.executeJavaScript("addAction('"+JavaStorage.Strings.addInstance+"','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('"+JavaStorage.Strings.refreshInstances+"','bx bx-refresh','location.reload();','mje-refresh-instances');");
+            JavaStorage.reloadLocalZyndex();
+            frame.executeJavaScript("addAction('"+JavaStorage.Strings.addInstance+"','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('"+JavaStorage.Strings.refreshInstances+"','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('"+JavaStorage.Strings.instances+"','mje-instances');");
+
+            List<ReadableZynstance> instances = JavaStorage.getLocalZyndex().getInstances();
+            instances.sort(Comparator.comparing(Instance::getName));
+
+            for (ReadableZynstance instance : instances) {
+                try {
+                    String title = instance.getName().replace("\"", "''");
+                    String id = instance.getId().replace("\"", "");
+                    String image = "";
+                    if(instance.getIconUrl()!=null) {
+                        image = instance.getIconUrl().replace("\"", "'");
+                    } else {
+                        String path = JavaStorage.getLocalZyndex().getPath(instance);
+                        if(!path.endsWith("/")) {
+                            path = path + "/meta/icon.png";
+                        } else {
+                            path = path + "meta/icon.png";
+                        }
+                        if(new File(path).exists()) {
+                            image = "file://"+path;
+                        }
+                    }
+                    frame.executeJavaScript("addGroupEntry(\"mje-instances\",\"" + title + "\",\"" + id + "\",\"" + image + "\");");
+                } catch (Exception e) {
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't index instance: "+e.getMessage());
+                }
+            }
+        } else if(request.equals("zyndex")) {
+            JavaStorage.reloadLocalZyndex();
         } else if(request.equals("mje-settings")) {
             String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"mje-settings.html";
             frame.executeJavaScript("setContent('settings-custom','minecraft.java-edition','"+settings+"');");
@@ -72,6 +110,8 @@ public class JavaConnector extends ModuleConnector {
             } else {
                 frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=" + request);
             }
+        } else if(request.equals("zyndex")) {
+            JavaStorage.asyncReloadLocalZyndex();
         } else if(request.equals("mje-settings")) {
 
         } else if(request.equals("library")) {

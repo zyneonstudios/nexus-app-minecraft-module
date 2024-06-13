@@ -1,6 +1,7 @@
 package com.zyneonstudios.application;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.ApplicationConfig;
@@ -9,6 +10,7 @@ import com.zyneonstudios.application.minecraft.java.JavaConnector;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
 import com.zyneonstudios.application.minecraft.java.authentication.MicrosoftAuthenticator;
 import com.zyneonstudios.application.modules.ApplicationModule;
+import com.zyneonstudios.nexus.index.Zyndex;
 import live.nerotv.shademebaby.file.Config;
 import live.nerotv.shademebaby.logger.Logger;
 import live.nerotv.shademebaby.utils.FileUtil;
@@ -203,11 +205,13 @@ public class MinecraftJavaAddon extends ApplicationModule {
     public static void main(String[] args) {
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
-        arguments.add("--path:A:/Sync/OneDrive/Projekte/Code/Zyneon-Application/application-main/target/run/");
-        arguments.add("--ui:A:/Sync/OneDrive/Projekte/Code/Zyneon-Application/application-ui/content/");
+        arguments.add("--debug");
+        arguments.add("--path:B:/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
+        arguments.add("--ui:B:/Workspaces/IntelliJ/Zyneon-Application/application-ui/content/");
         args = arguments.toArray(new String[0]);
         new ApplicationConfig(args);
         NexusApplication application = new NexusApplication();
+        NexusApplication.getLogger().setDebugEnabled(true);
         try {
             application.getModuleLoader().loadModule(new MinecraftJavaAddon(application));
         } catch (Exception ignore) {}
