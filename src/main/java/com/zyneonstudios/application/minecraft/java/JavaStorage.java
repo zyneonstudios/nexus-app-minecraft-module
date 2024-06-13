@@ -3,10 +3,8 @@ package com.zyneonstudios.application.minecraft.java;
 import com.google.gson.JsonArray;
 import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
+import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalZyndex;
-import com.zyneonstudios.nexus.index.Zyndex;
-import com.zyneonstudios.nexus.instance.ReadableZynstance;
-import com.zyneonstudios.nexus.instance.Zynstance;
 import live.nerotv.shademebaby.file.Config;
 
 import java.io.File;
@@ -18,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 public record JavaStorage() {
 
+    private static String lastInstance = null;
     private static String modulePath = ApplicationConfig.getApplicationPath()+"modules/shared/";
     private static String urlBase = ApplicationConfig.getApplicationPath()+"temp/ui/";
 
@@ -32,6 +31,9 @@ public record JavaStorage() {
 
         config = new Config(modulePath + "config.json");
         config.checkEntry("settings.zyndex.local.paths",new JsonArray());
+        if(config.get("settings.values.last.instance")!=null) {
+            lastInstance = config.getString("settings.values.last.instance");
+        }
 
         if(ApplicationConfig.language.equals("de")) {
             Strings.notLoggedIn = "Nicht angemeldet";
@@ -120,7 +122,7 @@ public record JavaStorage() {
         NexusApplication.getLogger().debug("[Minecraft]   -> Checking file "+path+"...");
         try {
             Config instance = new Config(file);
-            Zynstance zynstance = new Zynstance(instance);
+            LocalInstance zynstance = new LocalInstance(instance.getJsonFile());
             NexusApplication.getLogger().log("[Minecraft]     -> Found instance "+zynstance.getName()+" v"+zynstance.getVersion()+" by "+zynstance.getAuthor()+"...");
             zyndex.addInstance(zynstance,path);
         } catch (Exception ignore) {}
@@ -164,5 +166,9 @@ public record JavaStorage() {
         public static String addInstance = "Add instance";
         public static String refreshInstances = "Refresh instances";
 
+    }
+
+    public static String getLastInstance() {
+        return config.getString("settings.values.last.instance");
     }
 }

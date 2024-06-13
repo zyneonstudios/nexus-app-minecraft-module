@@ -4,14 +4,13 @@ import com.zyneonstudios.application.MinecraftJavaAddon;
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
+import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
+import com.zyneonstudios.application.minecraft.java.launchers.*;
 import com.zyneonstudios.application.modules.ModuleConnector;
 import com.zyneonstudios.nexus.instance.Instance;
-import com.zyneonstudios.nexus.instance.ReadableZynstance;
 
-import java.io.File;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class JavaConnector extends ModuleConnector {
 
@@ -42,6 +41,11 @@ public class JavaConnector extends ModuleConnector {
             resolveRunRequest(request.replaceFirst("java.run.", ""));
         } else if(request.equals("init.settings.modules")) {
             resolveInitRequest("settings.modules");
+        } else if(request.startsWith("sync.library.module.nexus-minecraft-module_java.")) {
+            resolveSyncRequest(request.replaceFirst("sync.library.module.nexus-minecraft-module_java.",""));
+        } else if(request.startsWith("sync.button.library.menu.group.mje-instances.")) {
+            request = request.replaceFirst("sync.button.library.menu.group.mje-instances.","");
+            resolveButtonRequest("view."+request);
         } else if(request.equals("init.library")) {
             frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId()+"_java" + "');");
         } else if(request.startsWith("sync.language.")) {
@@ -50,36 +54,52 @@ public class JavaConnector extends ModuleConnector {
         }
     }
 
+    public void resolveButtonRequest(String request) {
+        if(request.startsWith("launch.")) {
+            request = request.replaceFirst("launch.", "");
+            LocalInstance instance = JavaStorage.getLocalZyndex().getLocalZynstances().get(request);
+            if(instance.getModloader().equals("Forge")) {
+                new ForgeLauncher().launch(instance);
+            } else if(instance.getModloader().equals("Fabric")) {
+                new FabricLauncher().launch(instance);
+            } else if(instance.getModloader().equals("Quilt")) {
+                new QuiltLauncher().launch(instance);
+            } else if(instance.getModloader().equals("NeoForge")) {
+                new NeoForgeLauncher().launch(instance);
+            } else {
+                new VanillaLauncher().launch(instance);
+            }
+        } else if(request.startsWith("view.")) {
+            request = request.replaceFirst("view.", "");
+            frame.executeJavaScript("showView(\""+request+"\");");
+        }
+    }
+
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
             frame.executeJavaScript("addAction('"+JavaStorage.Strings.addInstance+"','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('"+JavaStorage.Strings.refreshInstances+"','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('"+JavaStorage.Strings.instances+"','mje-instances');");
+            frame.executeJavaScript("document.getElementById(\"select-game-module\").value = 'nexus-minecraft-module_java';");
 
             JavaStorage.reloadLocalZyndex();
-            List<ReadableZynstance> instances = JavaStorage.getLocalZyndex().getInstances();
+            List<LocalInstance> instances = JavaStorage.getLocalZyndex().getLocalInstances();
             instances.sort(Comparator.comparing(Instance::getName));
 
-            for (ReadableZynstance instance : instances) {
+            for (LocalInstance instance : instances) {
                 try {
                     String title = instance.getName().replace("\"", "''");
                     String id = instance.getId().replace("\"", "");
                     String image = "";
                     if(instance.getIconUrl()!=null) {
                         image = instance.getIconUrl().replace("\"", "'");
-                    } else {
-                        String path = JavaStorage.getLocalZyndex().getPath(instance);
-                        if(!path.endsWith("/")) {
-                            path = path + "/meta/icon.png";
-                        } else {
-                            path = path + "meta/icon.png";
-                        }
-                        if(new File(path).exists()) {
-                            image = "file://"+path;
-                        }
                     }
                     frame.executeJavaScript("addGroupEntry(\"mje-instances\",\"" + title + "\",\"" + id + "\",\"" + image + "\");");
                 } catch (Exception e) {
                     NexusApplication.getLogger().error("[Minecraft] Couldn't index instance: "+e.getMessage());
                 }
+            }
+
+            if(JavaStorage.getLastInstance()!=null) {
+                frame.executeJavaScript("showView(\""+JavaStorage.getLastInstance()+"\");");
             }
         } else if(request.equals("zyndex")) {
             JavaStorage.reloadLocalZyndex();
@@ -110,6 +130,27 @@ public class JavaConnector extends ModuleConnector {
             } else {
                 frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=" + request);
             }
+        } else if(request.startsWith("view.")) {
+            request = request.replaceFirst("view.","");
+            JavaStorage.getConfig().set("settings.values.last.instance",request);
+            LocalInstance instance = JavaStorage.getLocalZyndex().getLocalZynstances().get(request);
+            String img = "";
+
+            if(instance.getIconUrl()!=null) {
+                img = instance.getIconUrl();
+            }
+            if(instance.getBackgroundUrl()!=null) {
+                frame.executeJavaScript("document.querySelector(\".cnt\").style.backgroundImage = \"url(\\\""+instance.getBackgroundUrl().replace("\"","'")+"\\\")\";");
+            }
+            if(instance.getLogoUrl()!=null) {
+                frame.executeJavaScript("setViewImage(\""+instance.getLogoUrl()+"\");");
+            }
+
+            String description = "No description";
+            if(instance.getDescription()!=null) {
+                description = instance.getDescription();
+            }
+            frame.executeJavaScript("setTitle(\""+img+"\",\""+instance.getName()+"\"); setViewDescription(\""+description+"\");");
         } else if(request.equals("zyndex")) {
             JavaStorage.asyncReloadLocalZyndex();
         } else if(request.equals("mje-settings")) {

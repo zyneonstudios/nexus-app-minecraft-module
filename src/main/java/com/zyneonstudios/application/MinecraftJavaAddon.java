@@ -1,7 +1,6 @@
 package com.zyneonstudios.application;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.ApplicationConfig;
@@ -10,10 +9,6 @@ import com.zyneonstudios.application.minecraft.java.JavaConnector;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
 import com.zyneonstudios.application.minecraft.java.authentication.MicrosoftAuthenticator;
 import com.zyneonstudios.application.modules.ApplicationModule;
-import com.zyneonstudios.nexus.index.Zyndex;
-import fr.theshark34.openlauncherlib.external.ExternalLaunchProfile;
-import fr.theshark34.openlauncherlib.external.ExternalLauncher;
-import fr.theshark34.openlauncherlib.minecraft.*;
 import live.nerotv.shademebaby.file.Config;
 import live.nerotv.shademebaby.logger.Logger;
 import live.nerotv.shademebaby.utils.FileUtil;
@@ -22,7 +17,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
@@ -207,7 +201,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
     }
 
     public static void main(String[] args) {
-        /*ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
+        ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
         arguments.add("--debug");
         arguments.add("--path:B:/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
@@ -219,6 +213,6 @@ public class MinecraftJavaAddon extends ApplicationModule {
         try {
             application.getModuleLoader().loadModule(new MinecraftJavaAddon(application));
         } catch (Exception ignore) {}
-        application.launch();*/
+        application.launch();
     }
 }

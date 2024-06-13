@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class LocalZyndex extends Zyndex {
 
-    private HashMap<ReadableZynstance, String> instances;
+    private HashMap<LocalInstance, String> instances;
 
     public LocalZyndex(Config config) {
         super(config);
@@ -24,12 +24,12 @@ public class LocalZyndex extends Zyndex {
         instances = new HashMap<>();
     }
 
-    public void setInstances(HashMap<ReadableZynstance, String> instances) {
+    public void setInstances(HashMap<LocalInstance, String> instances) {
         getJson().delete("instances");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonArray array = new JsonArray();
         if(!instances.isEmpty()) {
-            for (ReadableZynstance zynstance : instances.keySet()) {
+            for (LocalInstance zynstance : instances.keySet()) {
                 array.add(instances.get(zynstance));
             }
         }
@@ -38,8 +38,8 @@ public class LocalZyndex extends Zyndex {
         System.gc();
     }
 
-    public void addInstance(ReadableZynstance zynstance, String path) {
-        HashMap<ReadableZynstance, String> instances = this.instances;
+    public void addInstance(LocalInstance zynstance, String path) {
+        HashMap<LocalInstance, String> instances = this.instances;
         if(!instances.containsKey(zynstance)) {
             if(!instances.containsValue(path)) {
                 instances.put(zynstance, path);
@@ -48,8 +48,8 @@ public class LocalZyndex extends Zyndex {
         setInstances(instances);
     }
 
-    public void removeInstance(ReadableZynstance zynstance, String path) {
-        HashMap<ReadableZynstance, String> instances = this.instances;
+    public void removeInstance(LocalInstance zynstance, String path) {
+        HashMap<LocalInstance, String> instances = this.instances;
         instances.remove(zynstance,path);
         instances.remove(zynstance);
         setInstances(instances);
@@ -62,9 +62,21 @@ public class LocalZyndex extends Zyndex {
         return null;
     }
 
+    public ArrayList<LocalInstance> getLocalInstances() {
+        return new ArrayList<>(instances.keySet());
+    }
+
     @Override
     public ArrayList<ReadableZynstance> getInstances() {
         return new ArrayList<>(instances.keySet());
+    }
+
+    public HashMap<String, LocalInstance> getLocalZynstances() {
+        HashMap<String, LocalInstance> zynstances = new HashMap<>();
+        for(LocalInstance zynstance:instances.keySet()) {
+            zynstances.put(zynstance.getId(),zynstance);
+        }
+        return zynstances;
     }
 
     @Override
