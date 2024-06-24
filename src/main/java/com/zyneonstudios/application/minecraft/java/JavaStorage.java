@@ -10,6 +10,9 @@ import live.nerotv.shademebaby.file.Config;
 import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +22,7 @@ public record JavaStorage() {
     private static String lastInstance = null;
     private static String modulePath = ApplicationConfig.getApplicationPath()+"modules/shared/";
     private static String urlBase = ApplicationConfig.getApplicationPath()+"temp/ui/";
+    //private static String urlBase = "file://B:/Workspaces/IntelliJ/nexus-app-minecraft-module/src/main/html/";
 
     private static LocalZyndex zyndex = null;
     private static Config config = null;
@@ -59,14 +63,42 @@ public record JavaStorage() {
             Strings.instances = "Instances";
             Strings.addInstance = "Add instance";
         }
-        reloadLocalZyndex();
     }
 
     private static boolean reloading = false;
+    @SuppressWarnings("unchecked")
     public static boolean reloadLocalZyndex() {
         if(!reloading) {
             try {
                 reloading = true;
+                try {
+                    Config old = new Config(getApplicationConfigPath());
+                    String oldPath = old.getString("settings.path.instances");
+                    if(oldPath!=null) {
+                        if(!oldPath.endsWith("/instances")&&!oldPath.endsWith("/instances/")) {
+                            if(oldPath.endsWith("/")) {
+                                oldPath = oldPath+"instances/";
+                            } else {
+                                oldPath = oldPath+"/instances/";
+                            }
+                        }
+                        String officialPath = oldPath+"official/";
+                        String zyneonPath = officialPath+"zyneonplus/";
+                        ArrayList<String> instancePaths = (ArrayList<String>)config.get("settings.zyndex.local.paths");
+                        if(!instancePaths.contains(oldPath)) {
+                            instancePaths.add(oldPath);
+                        }
+                        if(!instancePaths.contains(officialPath)) {
+                            instancePaths.add(officialPath);
+                        }
+                        if(!instancePaths.contains(zyneonPath)) {
+                            instancePaths.add(zyneonPath);
+                        }
+                        config.set("settings.zyndex.local.paths",instancePaths);
+                    }
+                } catch (Exception e) {
+                    NexusApplication.getLogger().error("Couldn't check old path: "+e.getMessage());
+                }
                 Config index = new Config(modulePath + "zyndex/index.json");
                 index.set("name", Strings.local + " Zyndex");
                 index.set("url", "file://" + URLDecoder.decode(index.getJsonFile().getAbsolutePath().replace("\\\\", "\\").replace("\\", "/"), StandardCharsets.UTF_8));
@@ -123,7 +155,7 @@ public record JavaStorage() {
         try {
             Config instance = new Config(file);
             LocalInstance zynstance = new LocalInstance(instance.getJsonFile());
-            NexusApplication.getLogger().log("[Minecraft]     -> Found instance "+zynstance.getName()+" v"+zynstance.getVersion()+" by "+zynstance.getAuthor()+"...");
+            NexusApplication.getLogger().debug("[Minecraft]     -> Found instance "+zynstance.getName()+" v"+zynstance.getVersion()+" by "+zynstance.getAuthor()+"...");
             zyndex.addInstance(zynstance,path);
         } catch (Exception ignore) {}
     }
@@ -166,6 +198,26 @@ public record JavaStorage() {
         public static String addInstance = "Add instance";
         public static String refreshInstances = "Refresh instances";
 
+    }
+
+    private static String getApplicationConfigPath() {
+        String folderName = "Zyneon/Application";
+        String appData;
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            appData = System.getenv("LOCALAPPDATA");
+        } else if (os.contains("mac")) {
+            appData = System.getProperty("user.home") + "/Library/Application Support";
+        } else {
+            appData = System.getProperty("user.home") + "/.local/share";
+        }
+        Path folderPath = Paths.get(appData, folderName);
+        try {
+            Files.createDirectories(folderPath);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return URLDecoder.decode(folderPath + "/config.json", StandardCharsets.UTF_8);
     }
 
     public static String getLastInstance() {

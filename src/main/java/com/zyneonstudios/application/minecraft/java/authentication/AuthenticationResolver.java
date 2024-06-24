@@ -13,10 +13,12 @@ public class AuthenticationResolver {
     }
 
     public void preAuth() {
-        ((ApplicationFrame)moduleInfo.getApplication().getFrame()).executeJavaScript("mjePreAuth('"+ JavaStorage.Strings.loggingIn +"...','"+JavaStorage.Strings.pleaseWait+" <i class=\\'bx bx-loader-alt bx-spin\\'></i>');");
+        moduleInfo.setAuthState(MinecraftJavaAddon.AuthState.LOGGING_IN);
+        ((ApplicationFrame)moduleInfo.getApplication().getFrame()).executeJavaScript("");
     }
 
     public void postAuth(String username, String uuid) {
-        ((ApplicationFrame)moduleInfo.getApplication().getFrame()).executeJavaScript("mjeLogin('"+username+"','"+uuid+"','"+ JavaStorage.Strings.logout +"');");
+        moduleInfo.setAuthState(MinecraftJavaAddon.AuthState.LOGGED_IN);
+        moduleInfo.getConnector().resolveFrameRequest("java.sync.library");
     }
 }

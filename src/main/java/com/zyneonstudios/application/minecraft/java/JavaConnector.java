@@ -33,6 +33,8 @@ public class JavaConnector extends ModuleConnector {
             frame.executeJavaScript("enableOverlay('https://www.zyneonstudios.com');");
         } else if(request.startsWith("java.init.")) {
             resolveInitRequest(request.replaceFirst("java.init.", ""));
+        } else if(request.startsWith("java.button.")) {
+            resolveButtonRequest(request.replaceFirst("java.button.", ""));
         } else if(request.startsWith("java.sync.")) {
             resolveSyncRequest(request.replaceFirst("java.sync.", ""));
         } else if(request.startsWith("java.open.")) {
@@ -59,15 +61,15 @@ public class JavaConnector extends ModuleConnector {
             request = request.replaceFirst("launch.", "");
             LocalInstance instance = JavaStorage.getLocalZyndex().getLocalZynstances().get(request);
             if(instance.getModloader().equals("Forge")) {
-                new ForgeLauncher().launch(instance);
+                new ForgeLauncher(module).launch(instance);
             } else if(instance.getModloader().equals("Fabric")) {
-                new FabricLauncher().launch(instance);
+                new FabricLauncher(module).launch(instance);
             } else if(instance.getModloader().equals("Quilt")) {
-                new QuiltLauncher().launch(instance);
+                new QuiltLauncher(module).launch(instance);
             } else if(instance.getModloader().equals("NeoForge")) {
-                new NeoForgeLauncher().launch(instance);
+                new NeoForgeLauncher(module).launch(instance);
             } else {
-                new VanillaLauncher().launch(instance);
+                new VanillaLauncher(module).launch(instance);
             }
         } else if(request.startsWith("view.")) {
             request = request.replaceFirst("view.", "");
@@ -77,8 +79,16 @@ public class JavaConnector extends ModuleConnector {
 
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
+            if(!module.getAuthenticator().isLoggedIn()) {
+                frame.openCustomPage("Minecraft: Java Edition Authentication...","mje-authentication",JavaStorage.getUrlBase()+"mje-login.html");
+                return;
+            }
+            String name = module.getAuthenticator().getAuthInfos().getUsername();
+            frame.executeJavaScript("setMenuPanel(\"https://cravatar.eu/helmhead/"+name+"/64.png\",\""+name+"\",\"Profile options\",true);");
+
             frame.executeJavaScript("addAction('"+JavaStorage.Strings.addInstance+"','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('"+JavaStorage.Strings.refreshInstances+"','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('"+JavaStorage.Strings.instances+"','mje-instances');");
             frame.executeJavaScript("document.getElementById(\"select-game-module\").value = 'nexus-minecraft-module_java';");
+
 
             JavaStorage.reloadLocalZyndex();
             List<LocalInstance> instances = JavaStorage.getLocalZyndex().getLocalInstances();
@@ -101,6 +111,13 @@ public class JavaConnector extends ModuleConnector {
             if(JavaStorage.getLastInstance()!=null) {
                 frame.executeJavaScript("showView(\""+JavaStorage.getLastInstance()+"\");");
             }
+        } else if(request.startsWith("auth")) {
+            frame.executeJavaScript("document.getElementById('library-button').classList.add('highlighted');");
+            if(module.getAuthState().equals(MinecraftJavaAddon.AuthState.LOGGED_OUT)) {
+                frame.openCustomPage("Minecraft: Java Edition Login","mje-authentication",JavaStorage.getUrlBase()+"mje-login.html?enable=true");
+            } else if(module.getAuthState().equals(MinecraftJavaAddon.AuthState.LOGGED_IN)) {
+                resolveSyncRequest("library");
+            }
         } else if(request.equals("zyndex")) {
             JavaStorage.reloadLocalZyndex();
         } else if(request.equals("mje-settings")) {
@@ -121,12 +138,6 @@ public class JavaConnector extends ModuleConnector {
             request = request.replaceFirst("library.", "");
             if (request.equals("add")) {
                 frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=-1");
-            } else if(request.equals("auth")) {
-                if(module.getAuthenticator().isLoggedIn()) {
-                    frame.executeJavaScript("mjeLogin('"+module.getAuthenticator().getAuthInfos().getUsername()+"','"+module.getAuthenticator().getAuthInfos().getUuid()+"','"+JavaStorage.Strings.logout+"');");
-                } else {
-                    frame.executeJavaScript("mjeLogout('"+JavaStorage.Strings.notLoggedIn+"','"+JavaStorage.Strings.login+"');");
-                }
             } else {
                 frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=" + request);
             }

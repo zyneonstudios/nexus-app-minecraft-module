@@ -1,5 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.launchers;
 
+import com.zyneonstudios.application.MinecraftJavaAddon;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
 import fr.flowarg.flowupdater.versions.ForgeVersionType;
 import fr.flowarg.openlauncherlib.NoFramework;
@@ -9,12 +10,18 @@ import java.nio.file.Path;
 
 public class ForgeLauncher {
 
+    private final MinecraftJavaAddon addon;
+
+    public ForgeLauncher(MinecraftJavaAddon addon) {
+        this.addon = addon;
+    }
+
     public void launch(LocalInstance instance) {
         launch(instance.getMinecraftVersion(), instance.getForgeVersion(), ForgeVersionType.valueOf(instance.getForgeType().toUpperCase()), instance.getMemory(),instance.getPath(),instance.getId());
     }
 
     public void launch(String minecraftVersion, String forgeVersion, ForgeVersionType forgeType, int ram, Path instancePath, String id) {
-        if (forgeType.equals(ForgeVersionType.NEO_FORGE)) {
+        if (forgeType.equals(ForgeVersionType.NEO_FORGE)||!addon.getAuthenticator().isLoggedIn()) {
             return;
         }
         if (ram < 512) {
@@ -35,7 +42,7 @@ public class ForgeLauncher {
         }
         NoFramework framework = new NoFramework(
                 instancePath,
-                null,
+                addon.getAuthenticator().getAuthInfos(),
                 GameFolder.FLOW_UPDATER
         );
         if (minecraftVersion.equals("1.7.10")) {

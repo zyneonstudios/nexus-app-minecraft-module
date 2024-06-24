@@ -6,7 +6,7 @@
 
     <groupId>com.zyneonstudios</groupId>
     <artifactId>minecraft-java-addon</artifactId>
-    <version>2024.6-alpha.3</version>
+    <version>2024.7-beta.1</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -18,9 +18,9 @@
         <dependency>
             <groupId>com.zyneonstudios.nexus</groupId>
             <artifactId>application</artifactId>
-            <version>2024.6-beta.4</version>
+            <version>2024.7-beta.1</version>
             <scope>system</scope>
-            <systemPath>B:\Workspaces\IntelliJ\Zyneon-Application\application-main\target\application-main-2024.6-beta.4.jar</systemPath>
+            <systemPath>B:\Workspaces\IntelliJ\Zyneon-Application\application-main\target\application-main-2024.7-beta.1.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.zyneonstudios</groupId>
@@ -73,6 +73,27 @@
                         </manifest>
                     </archive>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.zyneonstudios.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>

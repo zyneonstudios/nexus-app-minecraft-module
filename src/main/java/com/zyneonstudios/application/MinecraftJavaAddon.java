@@ -205,7 +205,8 @@ public class MinecraftJavaAddon extends ApplicationModule {
         arguments.add("--test");
         arguments.add("--debug");
         arguments.add("--path:B:/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
-        arguments.add("--ui:B:/Workspaces/IntelliJ/Zyneon-Application/application-ui/content/");
+        arguments.add("--ui:file://B:/Workspaces/IntelliJ/Zyneon-Application/application-ui/content/");
+        //arguments.add("--ui:http://localhost:63342/index.html/application-ui/content/");
         args = arguments.toArray(new String[0]);
         new ApplicationConfig(args);
         NexusApplication application = new NexusApplication();
