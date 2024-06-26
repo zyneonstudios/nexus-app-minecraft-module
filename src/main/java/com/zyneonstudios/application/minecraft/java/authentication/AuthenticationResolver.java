@@ -14,11 +14,13 @@ public class AuthenticationResolver {
 
     public void preAuth() {
         moduleInfo.setAuthState(MinecraftJavaAddon.AuthState.LOGGING_IN);
-        ((ApplicationFrame)moduleInfo.getApplication().getFrame()).executeJavaScript("");
+        ((ApplicationFrame)moduleInfo.getApplication().getFrame()).openCustomPage("Minecraft: Java Edition Login","mje-authentication",JavaStorage.getUrlBase()+"mje-login.html?enable=false");
     }
 
     public void postAuth(String username, String uuid) {
         moduleInfo.setAuthState(MinecraftJavaAddon.AuthState.LOGGED_IN);
-        moduleInfo.getConnector().resolveFrameRequest("java.sync.library");
+        if(((ApplicationFrame)moduleInfo.getApplication().getFrame()).getBrowser().getURL().contains("mje-login.html")) {
+            moduleInfo.getConnector().resolveFrameRequest("java.sync.library");
+        }
     }
 }

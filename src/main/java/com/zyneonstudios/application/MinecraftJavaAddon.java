@@ -23,58 +23,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class MinecraftJavaAddon extends ApplicationModule {
 
-    public static final File properties = FileUtil.getResourceFile("nexus.json", MinecraftJavaAddon.class);
-    private static String version ="Unknown";
-    private static String id ="nexus-minecraft-module";
-    private static String name ="Minecraft";
-    private static String authors ="Zyneon Studios & NEXUS Team: nerotvlive";
     private MicrosoftAuthenticator authenticator = null;
     private AuthState authState = AuthState.LOGGED_OUT;
 
-    public MinecraftJavaAddon(NexusApplication application) {
+    public MinecraftJavaAddon(NexusApplication application, String id, String name, String version, String authors) {
         super(application, id, name, version, authors);
-        try {
-            JsonObject properties = new Gson().fromJson(new BufferedReader(new InputStreamReader(new FileInputStream(MinecraftJavaAddon.properties))), JsonObject.class).getAsJsonArray("modules").get(0).getAsJsonObject();
-            version = properties.get("version").getAsString();
-            id = properties.get("id").getAsString();
-            name = properties.get("name").getAsString();
-            StringBuilder authors = new StringBuilder();
-            for(JsonElement name : properties.getAsJsonArray("authors")) {
-                String author = name.getAsString();
-                if(authors.isEmpty()) {
-                    authors = new StringBuilder(author);
-                } else {
-                    authors.append(" ,").append(author);
-                }
-            }
-            MinecraftJavaAddon.authors = authors.toString();
-        } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] Couldn't parse nexus.json properties: "+e.getMessage());
-        }
-    }
-
-    @Override
-    public String getVersion() {
-        return version;
-    }
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override @Deprecated
-    public String getAuthor() {
-        return authors;
-    }
-
-    public String getAuthors() {
-        return authors;
     }
 
     public MicrosoftAuthenticator getAuthenticator() {
@@ -116,10 +69,14 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
     @Override
     public void onLoad() {
+        CompletableFuture.runAsync(this::load);
+    }
+
+    private void load() {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
         NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
-        NexusApplication.getLogger().log("Authors: "+getAuthor());
+        NexusApplication.getLogger().log("Authors: "+getAuthors());
         NexusApplication.getLogger().log("Version: "+getVersion());
         NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
         String prefix = "["+getName()+"] ";
@@ -149,10 +106,14 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
     @Override
     public void onEnable() {
+        CompletableFuture.runAsync(this::enable);
+    }
+
+    public void enable() {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
         NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
-        NexusApplication.getLogger().log("Authors: "+getAuthor());
+        NexusApplication.getLogger().log("Authors: "+getAuthors());
         NexusApplication.getLogger().log("Version: "+getVersion());
         NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
         String prefix = "["+getName()+"] ";
@@ -168,7 +129,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
         NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
-        NexusApplication.getLogger().log("Authors: "+getAuthor());
+        NexusApplication.getLogger().log("Authors: "+getAuthors());
         NexusApplication.getLogger().log("Version: "+getVersion());
         NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
         String prefix = "["+getName()+"] ";
@@ -204,15 +165,15 @@ public class MinecraftJavaAddon extends ApplicationModule {
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
         arguments.add("--debug");
-        arguments.add("--path:B:/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
-        arguments.add("--ui:file://B:/Workspaces/IntelliJ/Zyneon-Application/application-ui/content/");
+        arguments.add("--path:/var/www/b/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
+        arguments.add("--ui:file:///var/www/b/Workspaces/IntelliJ/Zyneon-Application/application-ui/content/");
         //arguments.add("--ui:http://localhost:63342/index.html/application-ui/content/");
         args = arguments.toArray(new String[0]);
         new ApplicationConfig(args);
         NexusApplication application = new NexusApplication();
         NexusApplication.getLogger().setDebugEnabled(true);
         try {
-            application.getModuleLoader().loadModule(new MinecraftJavaAddon(application));
+            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application,"nexus-minecraft-module","Minecraft (Test)","Test", "Zyneon Studios, Team NEXUS"));
         } catch (Exception ignore) {}
         application.launch();
     }

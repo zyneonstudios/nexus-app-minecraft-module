@@ -50,7 +50,7 @@ body {
     border: 2px solid var(--border2) !important;
 }
 
-.mje-microsoft-login {
+.mje-microsoft-login, #mje-back-to-select {
     position: relative;
     margin: 1rem;
     border-radius: 1rem;
@@ -58,11 +58,11 @@ body {
     display: flex;
 }
 
-.mje-microsoft-login:hover {
+.mje-microsoft-login:hover, #mje-back-to-select:hover {
     cursor: not-allowed;
 }
 
-.mje-microsoft-login.active {
+.mje-microsoft-login.active, #mje-back-to-select.active {
     transition: all 0.25s ease;
     position: relative;
     margin: 1rem;
@@ -72,7 +72,11 @@ body {
     display: flex;
 }
 
-.mje-microsoft-login * {
+#mje-back-to-select.active {
+    background: var(--highlight);
+}
+
+.mje-microsoft-login *, #mje-back-to-select * {
     color: var(--background3);
 }
 
@@ -82,17 +86,27 @@ body {
     cursor: pointer;
 }
 
+#mje-back-to-select.active:hover {
+    background: #d7f9ff;
+    box-shadow: 0 0 0.8rem #d7f9ff;
+    cursor: pointer;
+}
+
 .mje-microsoft-login.active * {
     color: #0f0f0f;
 }
 
-.mje-microsoft-login i {
+#mje-back-to-select.active * {
+    color: var(--background5);
+}
+
+.mje-microsoft-login i, #mje-back-to-select i {
     top: 0.5rem;
     left: 0.5rem;
     position: absolute;
     font-size: 3rem;
 }
 
-.mje-microsoft-login h3 {
+.mje-microsoft-login h3, #mje-back-to-select h3 {
     padding: 0 0 0 4.5rem;
 }

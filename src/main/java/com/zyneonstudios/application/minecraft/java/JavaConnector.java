@@ -27,7 +27,7 @@ public class JavaConnector extends ModuleConnector {
     public void resolveRequest(String request) {
         if(request.startsWith("java.auth.")) {
             resolveAuthRequest(request.replaceFirst("java.auth.", ""));
-        } else if(request.equals("sync.library.module.nexus-minecraft-module_java")) {
+        } else if(request.equals("sync.library.module.nexus-minecraft-module_java")||request.equals("sync.library.module.minecraft-java-edition")) {
             resolveInitRequest("library");
         } else if(request.startsWith("java.overlay")) {
             frame.executeJavaScript("enableOverlay('https://www.zyneonstudios.com');");
@@ -49,6 +49,7 @@ public class JavaConnector extends ModuleConnector {
             request = request.replaceFirst("sync.button.library.menu.group.mje-instances.","");
             resolveButtonRequest("view."+request);
         } else if(request.equals("init.library")) {
+            System.out.println(1);
             frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId()+"_java" + "');");
         } else if(request.startsWith("sync.language.")) {
             ApplicationConfig.language = request.replaceFirst("sync.language.","");
@@ -114,7 +115,7 @@ public class JavaConnector extends ModuleConnector {
         } else if(request.startsWith("auth")) {
             frame.executeJavaScript("document.getElementById('library-button').classList.add('highlighted');");
             if(module.getAuthState().equals(MinecraftJavaAddon.AuthState.LOGGED_OUT)) {
-                frame.openCustomPage("Minecraft: Java Edition Login","mje-authentication",JavaStorage.getUrlBase()+"mje-login.html?enable=true");
+                frame.openCustomPage("Minecraft: Java Edition Login", "mje-authentication", JavaStorage.getUrlBase() + "mje-login.html?enable=true");
             } else if(module.getAuthState().equals(MinecraftJavaAddon.AuthState.LOGGED_IN)) {
                 resolveSyncRequest("library");
             }
@@ -125,6 +126,11 @@ public class JavaConnector extends ModuleConnector {
             frame.executeJavaScript("setContent('settings-custom','minecraft.java-edition','"+settings+"');");
         } else if(request.equals("settings.modules")) {
             frame.executeJavaScript("addModuleSetting('bx bx-cube','Minecraft: Java Edition','java.init.mje-settings','minecraft.java-edition',false);");
+        } else if(request.startsWith("library.")) {
+            request = request.replaceFirst("library.", "");
+            if(request.equals("select")) {
+                frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=-1");
+            }
         } else if(request.startsWith("instances.")) {
             request = request.replaceFirst("instances.","");
             if(request.equals("creator")) {
