@@ -12,13 +12,16 @@ import com.zyneonstudios.application.modules.ApplicationModule;
 import live.nerotv.shademebaby.file.Config;
 import live.nerotv.shademebaby.logger.Logger;
 import live.nerotv.shademebaby.utils.FileUtil;
+import live.nerotv.shademebaby.utils.StringUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.concurrent.CompletableFuture;
 
 public class MinecraftJavaAddon extends ApplicationModule {
@@ -173,7 +176,8 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication application = new NexusApplication();
         NexusApplication.getLogger().setDebugEnabled(true);
         try {
-            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application,"nexus-minecraft-module","Minecraft (Test)","Test", "Zyneon Studios, Team NEXUS"));
+            String v = new SimpleDateFormat("yyyy.M.d/HH-mm-ss").format(Calendar.getInstance().getTime());
+            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application,"nexus-minecraft-module","Minecraft (Test)", v+"_"+StringUtil.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
         } catch (Exception ignore) {}
         application.launch();
     }

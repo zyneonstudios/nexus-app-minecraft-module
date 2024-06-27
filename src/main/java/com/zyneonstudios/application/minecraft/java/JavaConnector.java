@@ -122,7 +122,7 @@ public class JavaConnector extends ModuleConnector {
         } else if(request.equals("zyndex")) {
             JavaStorage.reloadLocalZyndex();
         } else if(request.equals("mje-settings")) {
-            String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"mje-settings.html";
+            String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"mje-settings.html?n="+module.getName()+"&v="+module.getVersion()+"&a="+module.getAuthors();
             frame.executeJavaScript("setContent('settings-custom','minecraft.java-edition','"+settings+"');");
         } else if(request.equals("settings.modules")) {
             frame.executeJavaScript("addModuleSetting('bx bx-cube','Minecraft: Java Edition','java.init.mje-settings','minecraft.java-edition',false);");

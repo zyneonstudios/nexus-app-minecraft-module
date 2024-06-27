@@ -38,7 +38,7 @@ body {
 
 .settings .settings-content h3 {
     position: relative;
-    background: var(--background2);
+    background: var(--background3);
     border: 2px solid var(--border2) !important;
     padding: 0.125rem 0.5rem 0.25rem 0.5rem;
     border-radius: 0.5rem;
