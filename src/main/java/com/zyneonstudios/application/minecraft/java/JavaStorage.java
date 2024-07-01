@@ -62,6 +62,8 @@ public record JavaStorage() {
             Strings.instance = "Instance";
             Strings.instances = "Instances";
             Strings.addInstance = "Add instance";
+            Strings.refreshInstances = "Refresh instances";
+            Strings.aboutMinecraftModule = "About this module";
         }
     }
 
@@ -197,6 +199,7 @@ public record JavaStorage() {
         public static String instances = "Instances";
         public static String addInstance = "Add instance";
         public static String refreshInstances = "Refresh instances";
+        public static String aboutMinecraftModule = "About this module";
 
     }
 

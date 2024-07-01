@@ -81,6 +81,13 @@ body {
     cursor: pointer;
 }
 
+.settings .settings-content h3 span.text {
+    position: absolute;
+    right: 0.5rem;
+    color: var(--foreground2) !important;
+    font-weight: 1;
+}
+
 .settings .settings-content h3 select {
     position: absolute;
     top: 0; right: 0;

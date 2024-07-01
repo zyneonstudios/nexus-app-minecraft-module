@@ -1,14 +1,20 @@
 package com.zyneonstudios.application.minecraft.java;
 
 import com.zyneonstudios.application.MinecraftJavaAddon;
+import com.zyneonstudios.application.frame.FrameConnector;
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
+import com.zyneonstudios.application.minecraft.java.integrations.zyndex.ZyndexSearch;
 import com.zyneonstudios.application.minecraft.java.launchers.*;
 import com.zyneonstudios.application.modules.ModuleConnector;
 import com.zyneonstudios.nexus.instance.Instance;
+import com.zyneonstudios.nexus.instance.ReadableZynstance;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 
@@ -16,16 +22,43 @@ public class JavaConnector extends ModuleConnector {
 
     private final MinecraftJavaAddon module;
     private final ApplicationFrame frame;
+    public final ZyndexSearch search;
 
     public JavaConnector(MinecraftJavaAddon module) {
         super(module);
         this.module = module;
         this.frame = (ApplicationFrame)this.module.getApplication().getFrame();
+        this.search = new ZyndexSearch("https://raw.githubusercontent.com/zyneonstudios/nexus-nex/main/zyndex/index.json");
     }
 
     @Override @SuppressWarnings("deprecation")
     public void resolveRequest(String request) {
-        if(request.startsWith("java.auth.")) {
+        if(request.startsWith("sync.discover.search.nexus-minecraft-module_java")) {
+            String searchTerm = "";
+            if(!request.equals("sync.discover.search.nexus-minecraft-module_java")) {
+                searchTerm = request.replaceFirst("sync.discover.search.nexus-minecraft-module_java.","");
+            }
+            if(search.getCachedResults()==null||!searchTerm.isEmpty()) {
+                search.search(searchTerm);
+            }
+            if(search.getCachedSearchTerm()!=null) {
+                if(!search.getCachedSearchTerm().isEmpty()&&!search.getCachedSearchTerm().isBlank()) {
+                    frame.executeJavaScript("document.getElementById(\"search-bar\").placeholder = \""+search.getCachedSearchTerm()+"\";");
+                }
+            }
+            for(ReadableZynstance result : search.getCachedResults()) {
+                String meta = result.getId()+" | v"+result.getVersion()+" | Hidden: "+result.isHidden();
+                String location = URLEncoder.encode(result.getLocation(), StandardCharsets.UTF_8);
+                String actions = "<a onclick=\\\"connector('java.init.details.instance."+location+"');\\\"><i class='bx bx-spreadsheet'></i> More</a> ";
+                if(NexusApplication.getModuleLoader().getModuleIds().contains(result.getId())) {
+                    actions = "v"+NexusApplication.getModuleLoader().getModules().get(result.getId()).getVersion()+"  <a onclick=\\\"connector('java.init.details.instance."+location+"');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #473e5c !important; color: white!important; cursor: not-allowed !important; box-shadow: 0 0 0.2rem var(--shadow3) !important;\\\"><i class='bx bx-check'></i> Installed</a>";
+                } else {
+                    actions = actions+"<a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('sync.discover.install.module.nexus-minecraft-module');\\\"><i class='bx bx-download'></i> Install</a>";
+                }
+                String command = "addResult(\""+result.getId()+"\",\""+result.getThumbnailUrl()+"\",\""+result.getName()+"\",\""+result.getAuthor()+"\",\""+result.getDescription().replace("\"","''")+"\",\""+meta+"\",\""+actions+"\",\""+location+"\",\"java.init.details.instance."+location+"\");";
+                frame.executeJavaScript(command);
+            }
+        } else if(request.startsWith("java.auth.")) {
             resolveAuthRequest(request.replaceFirst("java.auth.", ""));
         } else if(request.equals("sync.library.module.nexus-minecraft-module_java")||request.equals("sync.library.module.minecraft-java-edition")) {
             resolveInitRequest("library");
@@ -49,7 +82,8 @@ public class JavaConnector extends ModuleConnector {
             request = request.replaceFirst("sync.button.library.menu.group.mje-instances.","");
             resolveButtonRequest("view."+request);
         } else if(request.equals("init.library")) {
-            System.out.println(1);
+            frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId()+"_java" + "');");
+        } else if(request.equals("init.discover")) {
             frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId()+"_java" + "');");
         } else if(request.startsWith("sync.language.")) {
             ApplicationConfig.language = request.replaceFirst("sync.language.","");
@@ -80,14 +114,14 @@ public class JavaConnector extends ModuleConnector {
 
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
-            if(!module.getAuthenticator().isLoggedIn()) {
-                frame.openCustomPage("Minecraft: Java Edition Authentication...","mje-authentication",JavaStorage.getUrlBase()+"mje-login.html");
+            if (!module.getAuthenticator().isLoggedIn()) {
+                frame.openCustomPage("Minecraft: Java Edition Authentication...", "mje-authentication", JavaStorage.getUrlBase() + "mje-login.html");
                 return;
             }
             String name = module.getAuthenticator().getAuthInfos().getUsername();
-            frame.executeJavaScript("setMenuPanel(\"https://cravatar.eu/helmhead/"+name+"/64.png\",\""+name+"\",\"Profile options\",true);");
+            frame.executeJavaScript("setMenuPanel(\"https://cravatar.eu/helmhead/" + name + "/64.png\",\"" + name + "\",\"Profile options\",true);");
 
-            frame.executeJavaScript("addAction('"+JavaStorage.Strings.addInstance+"','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('"+JavaStorage.Strings.refreshInstances+"','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('"+JavaStorage.Strings.instances+"','mje-instances');");
+            frame.executeJavaScript("addAction('" + JavaStorage.Strings.addInstance + "','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('" + JavaStorage.Strings.refreshInstances + "','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('" + JavaStorage.Strings.instances + "','mje-instances');");
             frame.executeJavaScript("document.getElementById(\"select-game-module\").value = 'nexus-minecraft-module_java';");
 
 
@@ -100,17 +134,24 @@ public class JavaConnector extends ModuleConnector {
                     String title = instance.getName().replace("\"", "''");
                     String id = instance.getId().replace("\"", "");
                     String image = "";
-                    if(instance.getIconUrl()!=null) {
+                    if (instance.getIconUrl() != null) {
                         image = instance.getIconUrl().replace("\"", "'");
                     }
                     frame.executeJavaScript("addGroupEntry(\"mje-instances\",\"" + title + "\",\"" + id + "\",\"" + image + "\");");
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft] Couldn't index instance: "+e.getMessage());
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't index instance: " + e.getMessage());
                 }
             }
 
-            if(JavaStorage.getLastInstance()!=null) {
-                frame.executeJavaScript("showView(\""+JavaStorage.getLastInstance()+"\");");
+            if (JavaStorage.getLastInstance() != null) {
+                frame.executeJavaScript("showView(\"" + JavaStorage.getLastInstance() + "\");");
+            }
+        } else if(request.startsWith("details.")) {
+            request = request.replaceFirst("details.", "");
+            if(request.startsWith("instance.")) {
+                request = URLDecoder.decode(request.replaceFirst("instance.", ""),StandardCharsets.UTF_8);
+                ReadableZynstance instance = new ReadableZynstance(request);
+                frame.executeJavaScript("enableOverlay(\""+FrameConnector.initDetails(instance.getName(),instance.getId(),"Minecraft: Java Edition instance",instance.getVersion(),instance.getDescription(),instance.getAuthor(),instance.isHidden(),"No tags",instance.getDescription(),"No changelogs","No version history","","",instance.getBackgroundUrl(),instance.getIconUrl(),instance.getLogoUrl(),instance.getThumbnailUrl()).replace("%plus%","+")+"\");");
             }
         } else if(request.startsWith("auth")) {
             frame.executeJavaScript("document.getElementById('library-button').classList.add('highlighted');");
@@ -125,7 +166,7 @@ public class JavaConnector extends ModuleConnector {
             String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"mje-settings.html?n="+module.getName()+"&v="+module.getVersion()+"&a="+module.getAuthors();
             frame.executeJavaScript("setContent('settings-custom','minecraft.java-edition','"+settings+"');");
         } else if(request.equals("settings.modules")) {
-            frame.executeJavaScript("addModuleSetting('bx bx-cube','Minecraft: Java Edition','java.init.mje-settings','minecraft.java-edition',false);");
+            frame.executeJavaScript("addGroup(\""+module.getName()+"\",\""+module.getId()+"\"); addModuleSetting('bx bx-cube','"+JavaStorage.Strings.aboutMinecraftModule+"','java.init.mje-settings','minecraft.java-edition',false,\""+module.getId()+"\");");
         } else if(request.startsWith("library.")) {
             request = request.replaceFirst("library.", "");
             if(request.equals("select")) {
@@ -168,6 +209,7 @@ public class JavaConnector extends ModuleConnector {
                 description = instance.getDescription();
             }
             frame.executeJavaScript("setTitle(\""+img+"\",\""+instance.getName()+"\"); setViewDescription(\""+description+"\");");
+            frame.executeJavaScript("setLaunch(\"LAUNCH\",\"bx bx-rocket\",\"active hover-wiggle\",\"java.button.launch."+instance.getId()+"\");");
         } else if(request.equals("zyndex")) {
             JavaStorage.asyncReloadLocalZyndex();
         } else if(request.equals("mje-settings")) {

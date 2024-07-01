@@ -1,8 +1,5 @@
 package com.zyneonstudios.application;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaConnector;
@@ -14,10 +11,7 @@ import live.nerotv.shademebaby.logger.Logger;
 import live.nerotv.shademebaby.utils.FileUtil;
 import live.nerotv.shademebaby.utils.StringUtil;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,7 +66,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
     @Override
     public void onLoad() {
-        CompletableFuture.runAsync(this::load);
+        load();
     }
 
     private void load() {
@@ -90,6 +84,12 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
         NexusApplication.getLogger().log(prefix+ "Building UI...");
         update();
+
+        NexusApplication.getLogger().log(prefix+"Setting module connector to new JavaConnector...");
+        setConnector(new JavaConnector(this));
+
+        NexusApplication.getLogger().log(prefix+ "Caching NEX...");
+        ((JavaConnector)getConnector()).search.search("");
 
         authState = AuthState.LOGGING_IN;
         CompletableFuture.runAsync(()->{
@@ -121,8 +121,6 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
         String prefix = "["+getName()+"] ";
         NexusApplication.getLogger().log(prefix+"Enabling...");
-        NexusApplication.getLogger().log(prefix+"Setting module connector to new JavaConnector...");
-        setConnector(new JavaConnector(this));
         NexusApplication.getLogger().log(prefix+"Enabled!");
         NexusApplication.getLogger().log(" ");
     }
