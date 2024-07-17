@@ -5,8 +5,8 @@ import com.zyneonstudios.application.frame.FrameConnector;
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
+import com.zyneonstudios.application.minecraft.java.integrations.zyndex.InstanceSearch;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
-import com.zyneonstudios.application.minecraft.java.integrations.zyndex.ZyndexSearch;
 import com.zyneonstudios.application.minecraft.java.launchers.*;
 import com.zyneonstudios.application.modules.ModuleConnector;
 import com.zyneonstudios.nexus.instance.Instance;
@@ -15,6 +15,7 @@ import com.zyneonstudios.nexus.instance.ReadableZynstance;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -22,42 +23,19 @@ public class JavaConnector extends ModuleConnector {
 
     private final MinecraftJavaAddon module;
     private final ApplicationFrame frame;
-    public final ZyndexSearch search;
+    public final InstanceSearch search;
 
     public JavaConnector(MinecraftJavaAddon module) {
         super(module);
         this.module = module;
         this.frame = (ApplicationFrame)this.module.getApplication().getFrame();
-        this.search = new ZyndexSearch("https://raw.githubusercontent.com/zyneonstudios/nexus-nex/main/zyndex/index.json");
+        this.search = new InstanceSearch("https://raw.githubusercontent.com/zyneonstudios/nexus-nex/main/zyndex/index.json");
     }
 
     @Override @SuppressWarnings("deprecation")
     public void resolveRequest(String request) {
         if(request.startsWith("sync.discover.search.nexus-minecraft-module_java")) {
-            String searchTerm = "";
-            if(!request.equals("sync.discover.search.nexus-minecraft-module_java")) {
-                searchTerm = request.replaceFirst("sync.discover.search.nexus-minecraft-module_java.","");
-            }
-            if(search.getCachedResults()==null||!searchTerm.isEmpty()) {
-                search.search(searchTerm);
-            }
-            if(search.getCachedSearchTerm()!=null) {
-                if(!search.getCachedSearchTerm().isEmpty()&&!search.getCachedSearchTerm().isBlank()) {
-                    frame.executeJavaScript("document.getElementById(\"search-bar\").placeholder = \""+search.getCachedSearchTerm()+"\";");
-                }
-            }
-            for(ReadableZynstance result : search.getCachedResults()) {
-                String meta = result.getId()+" | v"+result.getVersion()+" | Hidden: "+result.isHidden();
-                String location = URLEncoder.encode(result.getLocation(), StandardCharsets.UTF_8);
-                String actions = "<a onclick=\\\"connector('java.init.details.instance."+location+"');\\\"><i class='bx bx-spreadsheet'></i> More</a> ";
-                if(NexusApplication.getModuleLoader().getModuleIds().contains(result.getId())) {
-                    actions = "v"+NexusApplication.getModuleLoader().getModules().get(result.getId()).getVersion()+"  <a onclick=\\\"connector('java.init.details.instance."+location+"');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #473e5c !important; color: white!important; cursor: not-allowed !important; box-shadow: 0 0 0.2rem var(--shadow3) !important;\\\"><i class='bx bx-check'></i> Installed</a>";
-                } else {
-                    actions = actions+"<a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('sync.discover.install.module.nexus-minecraft-module');\\\"><i class='bx bx-download'></i> Install</a>";
-                }
-                String command = "addResult(\""+result.getId()+"\",\""+result.getThumbnailUrl()+"\",\""+result.getName()+"\",\""+result.getAuthor()+"\",\""+result.getDescription().replace("\"","''")+"\",\""+meta+"\",\""+actions+"\",\""+location+"\",\"java.init.details.instance."+location+"\");";
-                frame.executeJavaScript(command);
-            }
+            resolveSearchRequest(request.replaceFirst("sync.discover.search.nexus-minecraft-module_java",""));
         } else if(request.startsWith("java.auth.")) {
             resolveAuthRequest(request.replaceFirst("java.auth.", ""));
         } else if(request.equals("sync.library.module.nexus-minecraft-module_java")||request.equals("sync.library.module.minecraft-java-edition")) {
@@ -94,7 +72,7 @@ public class JavaConnector extends ModuleConnector {
     public void resolveButtonRequest(String request) {
         if(request.startsWith("launch.")) {
             request = request.replaceFirst("launch.", "");
-            LocalInstance instance = JavaStorage.getLocalZyndex().getLocalZynstances().get(request);
+            LocalInstance instance = JavaStorage.getLocalZyndex().getLocalInstancesById().get(request);
             if(instance.getModloader().equals("Forge")) {
                 new ForgeLauncher(module).launch(instance);
             } else if(instance.getModloader().equals("Fabric")) {
@@ -166,7 +144,7 @@ public class JavaConnector extends ModuleConnector {
             String settings = "file://"+JavaStorage.getUrlBase().replace("\\","/")+"mje-settings.html?n="+module.getName()+"&v="+module.getVersion()+"&a="+module.getAuthors();
             frame.executeJavaScript("setContent('settings-custom','minecraft.java-edition','"+settings+"');");
         } else if(request.equals("settings.modules")) {
-            frame.executeJavaScript("addGroup(\""+module.getName()+"\",\""+module.getId()+"\"); addModuleSetting('bx bx-cube','"+JavaStorage.Strings.aboutMinecraftModule+"','java.init.mje-settings','minecraft.java-edition',false,\""+module.getId()+"\");");
+            frame.executeJavaScript("addGroup(\"Minecraft\",\"mc-general\"); addModuleSetting('bx bx-cube',\""+JavaStorage.Strings.aboutMinecraftModule+"\",'java.init.mje-settings','minecraft-about',false,'mc-general');");
         } else if(request.startsWith("library.")) {
             request = request.replaceFirst("library.", "");
             if(request.equals("select")) {
@@ -191,7 +169,7 @@ public class JavaConnector extends ModuleConnector {
         } else if(request.startsWith("view.")) {
             request = request.replaceFirst("view.","");
             JavaStorage.getConfig().set("settings.values.last.instance",request);
-            LocalInstance instance = JavaStorage.getLocalZyndex().getLocalZynstances().get(request);
+            LocalInstance instance = JavaStorage.getLocalZyndex().getLocalInstancesById().get(request);
             String img = "";
 
             if(instance.getIconUrl()!=null) {
@@ -267,6 +245,34 @@ public class JavaConnector extends ModuleConnector {
                 module.setAuthState(MinecraftJavaAddon.AuthState.LOGGED_OUT);
                 module.createNewAuthenticator();
             }
+        }
+    }
+
+    private void resolveSearchRequest(String request) {
+        String query = "";
+        if(request.startsWith(".")) {
+            query = request.replaceFirst(".", "");
+        }
+
+        String searchTerm = "";
+        if(search.getCachedSearchTerm()!=null) {
+            searchTerm = search.getCachedSearchTerm();
+            if(!searchTerm.isEmpty()&&!searchTerm.isBlank()) {
+                frame.executeJavaScript("document.getElementById(\"search-bar\").placeholder = \""+searchTerm+"\";");
+            }
+        }
+
+        if(search.getCachedResults()==null||!searchTerm.equals(query)) {
+            search.search(query);
+        }
+        ArrayList<ReadableZynstance> results = search.getCachedResults();
+        for(ReadableZynstance instance : results) {
+            String tags = "Tags: "+instance.getTagString();
+            String meta = instance.getId()+" | v"+instance.getVersion()+" | Hidden: "+instance.isHidden()+"<br>"+tags;
+            String actions = "<a onclick=\\\"connector('java.init.details.instance."+ URLEncoder.encode(instance.getLocation(), StandardCharsets.UTF_8) +"');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('sync.discover.install.module.nexus-minecraft-module');\\\"><i class='bx bx-download'></i> Install</a>";
+            String command = "addResult(\""+instance.getId()+"\",\""+instance.getThumbnailUrl()+"\",\""+instance.getName()+"\",\""+instance.getAuthor()+"\",\""+instance.getSummary()+"\",\""+meta+"\",\""+actions+"\",\""+instance.getLocation()+"\",\"java.init.details.instance."+instance.getLocation()+"\");";
+            System.out.println(command);
+            frame.executeJavaScript(command);
         }
     }
 }

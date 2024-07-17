@@ -22,12 +22,14 @@ public record JavaStorage() {
     private static String lastInstance = null;
     private static String modulePath = ApplicationConfig.getApplicationPath()+"modules/shared/";
     private static String urlBase = ApplicationConfig.getApplicationPath()+"temp/ui/";
-    //private static String urlBase = "file://B:/Workspaces/IntelliJ/nexus-app-minecraft-module/src/main/html/";
+    //private static String urlBase = "file:///home/nerotvlive/Dokumente/Workspaces/IntelliJ/nexus-app-minecraft-module/src/main/html/";
 
     private static LocalZyndex zyndex = null;
     private static Config config = null;
 
     private static String id = "shared";
+
+    public static int memory = 1024;
 
     public static void init(String id) {
         id=id;

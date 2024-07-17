@@ -66,12 +66,7 @@ public class LocalZyndex extends Zyndex {
         return new ArrayList<>(instances.keySet());
     }
 
-    @Override
-    public ArrayList<ReadableZynstance> getInstances() {
-        return new ArrayList<>(instances.keySet());
-    }
-
-    public HashMap<String, LocalInstance> getLocalZynstances() {
+    public HashMap<String, LocalInstance> getLocalInstancesById() {
         HashMap<String, LocalInstance> zynstances = new HashMap<>();
         for(LocalInstance zynstance:instances.keySet()) {
             zynstances.put(zynstance.getId(),zynstance);
@@ -79,10 +74,20 @@ public class LocalZyndex extends Zyndex {
         return zynstances;
     }
 
-    @Override
-    public HashMap<String, ReadableZynstance> getZynstances() {
+    @Override @Deprecated
+    public ArrayList<ReadableZynstance> getInstances() {
+        ArrayList<ReadableZynstance> instances = new ArrayList<>();
+        for(LocalInstance instance:this.instances.keySet()) {
+            instances.add(new ReadableZynstance(instance.getInstanceFile()));
+        }
+        return instances;
+    }
+
+    @Override @Deprecated
+    public HashMap<String, ReadableZynstance> getInstancesById() {
         HashMap<String, ReadableZynstance> zynstances = new HashMap<>();
-        for(ReadableZynstance zynstance:instances.keySet()) {
+        for(LocalInstance instance:instances.keySet()) {
+            ReadableZynstance zynstance = new ReadableZynstance(instance.getInstanceFile());
             zynstances.put(zynstance.getId(),zynstance);
         }
         return zynstances;

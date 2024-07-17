@@ -18,20 +18,14 @@
         <dependency>
             <groupId>com.zyneonstudios.nexus</groupId>
             <artifactId>application</artifactId>
-            <version>2024.7-beta.11</version>
+            <version>2024.7.1-beta.2</version>
             <scope>system</scope>
-            <systemPath>/var/www/b/Workspaces/IntelliJ/Zyneon-Application/application-main/target/application-main-2024.7-beta.11.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.zyneonstudios</groupId>
-            <artifactId>nexus-zyndex</artifactId>
-            <version>LATEST</version>
-            <scope>compile</scope>
+            <systemPath>/home/nerotvlive/Dokumente/Workspaces/IntelliJ/Zyneon-Application/application-main/target/application-main-2024.7.1-beta.2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.zyneonstudios</groupId>
             <artifactId>nexus-auth</artifactId>
-            <version>LATEST</version>
+            <version>2024.7</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -103,7 +97,6 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
-                    <release>17</release>
                 </configuration>
             </plugin>
 
