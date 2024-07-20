@@ -24,9 +24,11 @@ public class JavaConnector extends ModuleConnector {
     private final MinecraftJavaAddon module;
     private final ApplicationFrame frame;
     public final InstanceSearch search;
+    private final byte[] authKey;
 
-    public JavaConnector(MinecraftJavaAddon module) {
+    public JavaConnector(MinecraftJavaAddon module, byte[] authKey) {
         super(module);
+        this.authKey = authKey;
         this.module = module;
         this.frame = (ApplicationFrame)this.module.getApplication().getFrame();
         this.search = new InstanceSearch("https://raw.githubusercontent.com/zyneonstudios/nexus-nex/main/zyndex/index.json");
@@ -74,15 +76,15 @@ public class JavaConnector extends ModuleConnector {
             request = request.replaceFirst("launch.", "");
             LocalInstance instance = JavaStorage.getLocalZyndex().getLocalInstancesById().get(request);
             if(instance.getModloader().equals("Forge")) {
-                new ForgeLauncher(module).launch(instance);
+                new ForgeLauncher(module,authKey).launch(instance);
             } else if(instance.getModloader().equals("Fabric")) {
-                new FabricLauncher(module).launch(instance);
+                new FabricLauncher(module,authKey).launch(instance);
             } else if(instance.getModloader().equals("Quilt")) {
-                new QuiltLauncher(module).launch(instance);
+                new QuiltLauncher(module,authKey).launch(instance);
             } else if(instance.getModloader().equals("NeoForge")) {
-                new NeoForgeLauncher(module).launch(instance);
+                new NeoForgeLauncher(module,authKey).launch(instance);
             } else {
-                new VanillaLauncher(module).launch(instance);
+                new VanillaLauncher(module,authKey).launch(instance);
             }
         } else if(request.startsWith("view.")) {
             request = request.replaceFirst("view.", "");
@@ -92,11 +94,11 @@ public class JavaConnector extends ModuleConnector {
 
     public void resolveInitRequest(String request) {
         if(request.equals("library")) {
-            if (!module.getAuthenticator().isLoggedIn()) {
+            if (module.getAuthState()!= MinecraftJavaAddon.AuthState.LOGGED_IN) {
                 frame.openCustomPage("Minecraft: Java Edition Authentication...", "mje-authentication", JavaStorage.getUrlBase() + "mje-login.html");
                 return;
             }
-            String name = module.getAuthenticator().getAuthInfos().getUsername();
+            String name = module.getAuthenticator(authKey).getAuthInfos().getUsername();
             frame.executeJavaScript("setMenuPanel(\"https://cravatar.eu/helmhead/" + name + "/64.png\",\"" + name + "\",\"Profile options\",true);");
 
             frame.executeJavaScript("addAction('" + JavaStorage.Strings.addInstance + "','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('" + JavaStorage.Strings.refreshInstances + "','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('" + JavaStorage.Strings.instances + "','mje-instances');");
@@ -133,7 +135,7 @@ public class JavaConnector extends ModuleConnector {
             }
         } else if(request.startsWith("auth")) {
             frame.executeJavaScript("document.getElementById('library-button').classList.add('highlighted');");
-            if(module.getAuthState().equals(MinecraftJavaAddon.AuthState.LOGGED_OUT)) {
+            if(module.getAuthState()!=MinecraftJavaAddon.AuthState.LOGGED_IN&&module.getAuthState()!=MinecraftJavaAddon.AuthState.LOGGING_IN) {
                 frame.openCustomPage("Minecraft: Java Edition Login", "mje-authentication", JavaStorage.getUrlBase() + "mje-login.html?enable=true");
             } else if(module.getAuthState().equals(MinecraftJavaAddon.AuthState.LOGGED_IN)) {
                 resolveSyncRequest("library");
@@ -236,12 +238,14 @@ public class JavaConnector extends ModuleConnector {
 
     public void resolveAuthRequest(String request) {
         if(request.equals("login")) {
-            if(!module.getAuthenticator().isLoggedIn()) {
-                module.getAuthenticator().login();
+            if(module.getAuthState()!=MinecraftJavaAddon.AuthState.LOGGED_IN) {
+                module.getAuthenticator(authKey).login();
             }
         } else if(request.equals("logout")) {
-            if(module.getAuthenticator().isLoggedIn()) {
+            if(module.getAuthState()==MinecraftJavaAddon.AuthState.LOGGED_IN) {
                 frame.executeJavaScript("mjeLogout('"+JavaStorage.Strings.notLoggedIn+"','"+JavaStorage.Strings.login+"');");
+                JavaStorage.map.delete("auth.username");
+                JavaStorage.map.delete("auth.uuid");
                 module.setAuthState(MinecraftJavaAddon.AuthState.LOGGED_OUT);
                 module.createNewAuthenticator();
             }
@@ -271,7 +275,6 @@ public class JavaConnector extends ModuleConnector {
             String meta = instance.getId()+" | v"+instance.getVersion()+" | Hidden: "+instance.isHidden()+"<br>"+tags;
             String actions = "<a onclick=\\\"connector('java.init.details.instance."+ URLEncoder.encode(instance.getLocation(), StandardCharsets.UTF_8) +"');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('sync.discover.install.module.nexus-minecraft-module');\\\"><i class='bx bx-download'></i> Install</a>";
             String command = "addResult(\""+instance.getId()+"\",\""+instance.getThumbnailUrl()+"\",\""+instance.getName()+"\",\""+instance.getAuthor()+"\",\""+instance.getSummary()+"\",\""+meta+"\",\""+actions+"\",\""+instance.getLocation()+"\",\"java.init.details.instance."+instance.getLocation()+"\");";
-            System.out.println(command);
             frame.executeJavaScript(command);
         }
     }

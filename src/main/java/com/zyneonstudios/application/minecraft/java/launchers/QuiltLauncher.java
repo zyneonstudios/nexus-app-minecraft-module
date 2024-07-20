@@ -10,9 +10,11 @@ import java.nio.file.Path;
 public class QuiltLauncher {
 
     private final MinecraftJavaAddon addon;
+    private final byte[] authKey;
 
-    public QuiltLauncher(MinecraftJavaAddon addon) {
+    public QuiltLauncher(MinecraftJavaAddon addon, byte[] authKey) {
         this.addon = addon;
+        this.authKey = authKey;
     }
 
     public void launch(LocalInstance instance) {
@@ -20,7 +22,7 @@ public class QuiltLauncher {
     }
 
     public void launch(String minecraftVersion, String quiltVersion, int ram, Path instancePath, String id) {
-        if(!addon.getAuthenticator().isLoggedIn()) {
+        if(addon.getAuthState()!=MinecraftJavaAddon.AuthState.LOGGED_IN) {
             return;
         }
         if (ram < 512) {
@@ -28,7 +30,7 @@ public class QuiltLauncher {
         }
         NoFramework framework = new NoFramework(
                 instancePath,
-                addon.getAuthenticator().getAuthInfos(),
+                addon.getAuthenticator(authKey).getAuthInfos(),
                 GameFolder.FLOW_UPDATER
         );
         framework.getAdditionalVmArgs().add("-Xms"+ram+"M");

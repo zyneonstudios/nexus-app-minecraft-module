@@ -11,7 +11,9 @@ import live.nerotv.shademebaby.logger.Logger;
 import live.nerotv.shademebaby.utils.FileUtil;
 import live.nerotv.shademebaby.utils.StringUtil;
 
+import javax.crypto.KeyGenerator;
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,16 +24,30 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
     private MicrosoftAuthenticator authenticator = null;
     private AuthState authState = AuthState.LOGGED_OUT;
+    private final byte[] key;
 
     public MinecraftJavaAddon(NexusApplication application, String id, String name, String version, String authors) {
         super(application, id, name, version, authors);
+        try {
+            KeyGenerator keyGenerator;
+            keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(256);
+            key = keyGenerator.generateKey().getEncoded();
+        } catch (NoSuchAlgorithmException e) {
+            onDisable();
+            throw new RuntimeException(e);
+        }
     }
 
-    public MicrosoftAuthenticator getAuthenticator() {
-        if(authenticator==null) {
-            authenticator = createNewAuthenticator();
+    public MicrosoftAuthenticator getAuthenticator(byte[] key) {
+        if(key==this.key) {
+            if (authenticator == null) {
+                authenticator = createNewAuthenticator();
+            }
+            return authenticator;
+        } else {
+            return null;
         }
-        return authenticator;
     }
 
     public AuthState getAuthState() {
@@ -86,16 +102,16 @@ public class MinecraftJavaAddon extends ApplicationModule {
         update();
 
         NexusApplication.getLogger().log(prefix+"Setting module connector to new JavaConnector...");
-        setConnector(new JavaConnector(this));
+        setConnector(new JavaConnector(this,key));
 
         NexusApplication.getLogger().log(prefix+ "Caching NEX...");
         ((JavaConnector)getConnector()).search.search("");
 
-        authState = AuthState.LOGGING_IN;
         CompletableFuture.runAsync(()->{
             NexusApplication.getLogger().log(prefix+ "Loading Microsoft authentication...");
-            if(getAuthenticator().isLoggedIn()) {
-                NexusApplication.getLogger().log(prefix+ "Logged in as "+getAuthenticator().getAuthInfos().getUsername()+": "+getAuthenticator().getAuthInfos().getUuid());
+            createNewAuthenticator();
+            if(authenticator.isLoggedIn()) {
+                NexusApplication.getLogger().log(prefix+ "Logged in as "+authenticator.getAuthInfos().getUsername()+": "+authenticator.getAuthInfos().getUuid());
                 authState = AuthState.LOGGED_IN;
             } else {
                 NexusApplication.getLogger().log(prefix+ "Not logged in...");

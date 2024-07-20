@@ -11,9 +11,11 @@ import java.nio.file.Path;
 public class ForgeLauncher {
 
     private final MinecraftJavaAddon addon;
+    private final byte[] authKey;
 
-    public ForgeLauncher(MinecraftJavaAddon addon) {
+    public ForgeLauncher(MinecraftJavaAddon addon, byte[] authKey) {
         this.addon = addon;
+        this.authKey = authKey;
     }
 
     public void launch(LocalInstance instance) {
@@ -21,7 +23,7 @@ public class ForgeLauncher {
     }
 
     public void launch(String minecraftVersion, String forgeVersion, ForgeVersionType forgeType, int ram, Path instancePath, String id) {
-        if (forgeType.equals(ForgeVersionType.NEO_FORGE)||!addon.getAuthenticator().isLoggedIn()) {
+        if (forgeType.equals(ForgeVersionType.NEO_FORGE)||addon.getAuthState()!= MinecraftJavaAddon.AuthState.LOGGED_IN) {
             return;
         }
         if (ram < 512) {
@@ -42,7 +44,7 @@ public class ForgeLauncher {
         }
         NoFramework framework = new NoFramework(
                 instancePath,
-                addon.getAuthenticator().getAuthInfos(),
+                addon.getAuthenticator(authKey).getAuthInfos(),
                 GameFolder.FLOW_UPDATER
         );
         if (minecraftVersion.equals("1.7.10")) {

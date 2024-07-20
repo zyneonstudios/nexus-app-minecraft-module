@@ -10,9 +10,11 @@ import java.nio.file.Path;
 public class VanillaLauncher {
 
     private final MinecraftJavaAddon addon;
+    private final byte[] authKey;
 
-    public VanillaLauncher(MinecraftJavaAddon addon) {
+    public VanillaLauncher(MinecraftJavaAddon addon, byte[] authKey) {
         this.addon = addon;
+        this.authKey = authKey;
     }
 
     public void launch(LocalInstance instance) {
@@ -21,7 +23,7 @@ public class VanillaLauncher {
     }
 
     public void launch(String version, int ram, Path instancePath, String id) {
-        if(!addon.getAuthenticator().isLoggedIn()) {
+        if(addon.getAuthState()!=MinecraftJavaAddon.AuthState.LOGGED_IN) {
             return;
         }
         if (ram < 512) {
@@ -29,7 +31,7 @@ public class VanillaLauncher {
         }
         NoFramework framework = new NoFramework(
                 instancePath,
-                addon.getAuthenticator().getAuthInfos(),
+                addon.getAuthenticator(authKey).getAuthInfos(),
                 GameFolder.FLOW_UPDATER
         );
         framework.getAdditionalVmArgs().add("-Xms"+ram+"M");

@@ -5,6 +5,7 @@ import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalZyndex;
+import com.zyneonstudios.application.utils.LocalStorage;
 import live.nerotv.shademebaby.file.Config;
 
 import java.io.File;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-public record JavaStorage() {
+public class JavaStorage extends LocalStorage {
 
     private static String lastInstance = null;
     private static String modulePath = ApplicationConfig.getApplicationPath()+"modules/shared/";
@@ -27,12 +28,10 @@ public record JavaStorage() {
     private static LocalZyndex zyndex = null;
     private static Config config = null;
 
-    private static String id = "shared";
-
     public static int memory = 1024;
+    public static final JavaStorage map = new JavaStorage();
 
     public static void init(String id) {
-        id=id;
         modulePath = ApplicationConfig.getApplicationPath()+"modules/"+id+"/";
 
         config = new Config(modulePath + "config.json");
@@ -182,10 +181,6 @@ public record JavaStorage() {
 
     public static Config getConfig() {
         return config;
-    }
-
-    public static String getId() {
-        return id;
     }
 
     public record Strings() {
