@@ -23,13 +23,14 @@ public class JavaStorage extends LocalStorage {
     private static String lastInstance = null;
     private static String modulePath = ApplicationConfig.getApplicationPath()+"modules/shared/";
     private static String urlBase = ApplicationConfig.getApplicationPath()+"temp/ui/";
-    //private static String urlBase = "file:///home/nerotvlive/Dokumente/Workspaces/IntelliJ/nexus-app-minecraft-module/src/main/html/";
 
     private static LocalZyndex zyndex = null;
     private static Config config = null;
 
     public static int memory = 1024;
     public static final JavaStorage map = new JavaStorage();
+
+    private static String searchSource = "official";
 
     public static void init(String id) {
         modulePath = ApplicationConfig.getApplicationPath()+"modules/"+id+"/";
@@ -38,6 +39,9 @@ public class JavaStorage extends LocalStorage {
         config.checkEntry("settings.zyndex.local.paths",new JsonArray());
         if(config.get("settings.values.last.instance")!=null) {
             lastInstance = config.getString("settings.values.last.instance");
+        }
+        if(config.get("settings.search.source")!=null) {
+            searchSource = config.getString("settings.search.source");
         }
 
         if(ApplicationConfig.language.equals("de")) {
@@ -66,6 +70,15 @@ public class JavaStorage extends LocalStorage {
             Strings.refreshInstances = "Refresh instances";
             Strings.aboutMinecraftModule = "About this module";
         }
+    }
+
+    public static void setSearchSource(String newSource) {
+        config.set("settings.search.source",newSource);
+        searchSource = newSource;
+    }
+
+    public static String getSearchSource() {
+        return searchSource;
     }
 
     private static boolean reloading = false;

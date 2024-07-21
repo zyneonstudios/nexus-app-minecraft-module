@@ -1,4 +1,3 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.categories;
 
-public interface Category {
-}
+public interface ModrinthCategory {}

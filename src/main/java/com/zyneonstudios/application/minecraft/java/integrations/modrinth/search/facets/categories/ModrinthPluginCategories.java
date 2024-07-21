@@ -1,6 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.categories;
 
-public enum DatapackCategories implements Category {
+public enum ModrinthPluginCategories implements ModrinthCategory {
 
     adventure,
     cursed,
@@ -10,11 +10,20 @@ public enum DatapackCategories implements Category {
     food,
     game_mechanics,
     library,
+    loader_bukkit,
+    loader_folia,
+    loader_paper,
+    loader_purpur,
+    loader_spigot,
+    loader_sponge,
     magic,
     management,
     minigame,
     mobs,
     optimization,
+    proxy_bungeecord,
+    proxy_velocity,
+    proxy_waterfall,
     social,
     storage,
     technology,

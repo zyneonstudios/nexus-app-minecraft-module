@@ -1,6 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets;
 
-public enum EnvironmentType {
+public enum ModrinthEnvironmentType {
 
     required,
     optional,

@@ -1,6 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.categories;
 
-public enum ModCategories implements Category {
+public enum ModrinthDatapackCategories implements ModrinthCategory {
 
     adventure,
     cursed,
@@ -10,13 +10,6 @@ public enum ModCategories implements Category {
     food,
     game_mechanics,
     library,
-    loader_fabric,
-    loader_forge,
-    loader_liteloader,
-    loader_modloader,
-    loader_neoforge,
-    loader_quilt,
-    loader_rift,
     magic,
     management,
     minigame,

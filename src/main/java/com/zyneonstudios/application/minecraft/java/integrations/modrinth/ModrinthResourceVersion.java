@@ -9,12 +9,12 @@ import live.nerotv.shademebaby.utils.GsonUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModrinthPackVersion {
+public class ModrinthResourceVersion {
 
     private final String url;
     private final JsonObject json;
 
-    private final ModrinthPack pack;
+    private final ModrinthResource pack;
     private final String versionId;
     private final String[] gameVersions;
     private final String[] loaders;
@@ -31,7 +31,7 @@ public class ModrinthPackVersion {
     private final JsonArray files;
     private final JsonArray dependencies;
 
-    public ModrinthPackVersion(ModrinthPack pack, String versionId) {
+    public ModrinthResourceVersion(ModrinthResource pack, String versionId) {
         this.pack = pack;
         boolean versionExists = false;
         for(String version : pack.getVersions()) {
@@ -121,7 +121,7 @@ public class ModrinthPackVersion {
         return json;
     }
 
-    public ModrinthPack getPack() {
+    public ModrinthResource getPack() {
         return pack;
     }
 

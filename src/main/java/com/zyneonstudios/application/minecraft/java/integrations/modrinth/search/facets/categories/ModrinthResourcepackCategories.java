@@ -1,6 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.categories;
 
-public enum ResourcepackCategories implements Category {
+public enum ModrinthResourcepackCategories implements ModrinthCategory {
 
     combat,
     cursed,

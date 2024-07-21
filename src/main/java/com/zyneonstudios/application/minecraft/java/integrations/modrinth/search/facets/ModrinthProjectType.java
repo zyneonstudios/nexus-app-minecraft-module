@@ -1,6 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets;
 
-public enum ProjectType {
+public enum ModrinthProjectType {
 
     datapack,
     mod,

@@ -1,10 +1,13 @@
 package com.zyneonstudios.application;
 
+import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.application.main.ApplicationConfig;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaConnector;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
 import com.zyneonstudios.application.minecraft.java.authentication.MicrosoftAuthenticator;
+import com.zyneonstudios.application.minecraft.java.integrations.curseforge.CurseForgeCategories;
+import com.zyneonstudios.application.minecraft.java.integrations.zyndex.ZyndexIntegration;
 import com.zyneonstudios.application.modules.ApplicationModule;
 import live.nerotv.shademebaby.file.Config;
 import live.nerotv.shademebaby.logger.Logger;
@@ -101,11 +104,14 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication.getLogger().log(prefix+ "Building UI...");
         update();
 
+        NexusApplication.getLogger().log(prefix+ "Initializing CurseForge categories...");
+        CurseForgeCategories.init();
+
         NexusApplication.getLogger().log(prefix+"Setting module connector to new JavaConnector...");
         setConnector(new JavaConnector(this,key));
 
         NexusApplication.getLogger().log(prefix+ "Caching NEX...");
-        ((JavaConnector)getConnector()).search.search("");
+        ZyndexIntegration.searchModpacks("",(ApplicationFrame)getApplication().getFrame());
 
         CompletableFuture.runAsync(()->{
             NexusApplication.getLogger().log(prefix+ "Loading Microsoft authentication...");
@@ -182,12 +188,10 @@ public class MinecraftJavaAddon extends ApplicationModule {
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
         arguments.add("--debug");
-        arguments.add("--path:/home/nerotvlive/Dokumente/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
+        //arguments.add("--path:/home/nerotvlive/Dokumente/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
         arguments.add("--ui:file:///home/nerotvlive/Dokumente/Workspaces/IntelliJ/Zyneon-Application/application-ui/content/");
-        //arguments.add("--ui:http://localhost:63342/index.html/application-ui/content/");
         args = arguments.toArray(new String[0]);
-        new ApplicationConfig(args);
-        NexusApplication application = new NexusApplication();
+        NexusApplication application = new NexusApplication(args);
         NexusApplication.getLogger().setDebugEnabled(true);
         try {
             String v = new SimpleDateFormat("yyyy.M.d/HH-mm-ss").format(Calendar.getInstance().getTime());

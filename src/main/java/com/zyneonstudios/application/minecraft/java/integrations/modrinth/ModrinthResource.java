@@ -5,19 +5,19 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.NexusApplication;
-import com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.EnvironmentType;
+import com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.ModrinthEnvironmentType;
 import live.nerotv.shademebaby.utils.GsonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModrinthPack {
+public class ModrinthResource {
 
     private final String url;
     private final JsonObject json;
 
-    private final EnvironmentType clientSide;
-    private final EnvironmentType serverSide;
+    private final ModrinthEnvironmentType clientSide;
+    private final ModrinthEnvironmentType serverSide;
     private final String[] gameVersions;
     private final String id;
     private final String slug;
@@ -50,11 +50,11 @@ public class ModrinthPack {
     private final String threadId;
     private final String monetizationStatus;
 
-    public ModrinthPack(String id_or_slug) {
+    public ModrinthResource(String id_or_slug) {
         url = "https://api.modrinth.com/v2/project/" + id_or_slug;
         json = new Gson().fromJson(GsonUtil.getFromURL(url), JsonObject.class);
-        clientSide = EnvironmentType.valueOf(json.get("client_side").getAsString());
-        serverSide = EnvironmentType.valueOf(json.get("server_side").getAsString());
+        clientSide = ModrinthEnvironmentType.valueOf(json.get("client_side").getAsString());
+        serverSide = ModrinthEnvironmentType.valueOf(json.get("server_side").getAsString());
 
         JsonArray gameVersions = json.getAsJsonArray("game_versions");
         if (!gameVersions.isEmpty()) {
@@ -407,11 +407,11 @@ public class ModrinthPack {
         return json;
     }
 
-    public EnvironmentType getClientSideState() {
+    public ModrinthEnvironmentType getClientSideState() {
         return clientSide;
     }
 
-    public EnvironmentType getServerSideState() {
+    public ModrinthEnvironmentType getServerSideState() {
         return serverSide;
     }
 
@@ -539,16 +539,16 @@ public class ModrinthPack {
         return monetizationStatus;
     }
 
-    public ModrinthPackVersion getLatestVersion(boolean unstable, boolean unlisted) {
+    public ModrinthResourceVersion getLatestVersion(boolean unstable, boolean unlisted) {
         try {
             if (unstable) {
                 if (unlisted) {
-                    return new ModrinthPackVersion(this, versions[versions.length - 1]);
+                    return new ModrinthResourceVersion(this, versions[versions.length - 1]);
                 } else {
                     for (int i = versions.length-1; i >= 0; i--) {
                         String version = versions[i];
                         try {
-                            ModrinthPackVersion v = new ModrinthPackVersion(this, version);
+                            ModrinthResourceVersion v = new ModrinthResourceVersion(this, version);
                             if (v.getStatus().equals("listed")) {
                                 return v;
                             }
@@ -559,7 +559,7 @@ public class ModrinthPack {
             for (int i = versions.length-1; i >= 0; i--) {
                 String version = versions[i];
                 try {
-                    ModrinthPackVersion v = new ModrinthPackVersion(this, version);
+                    ModrinthResourceVersion v = new ModrinthResourceVersion(this, version);
                     if (v.getVersionType().equals("release")) {
                         if (unlisted) {
                             return v;

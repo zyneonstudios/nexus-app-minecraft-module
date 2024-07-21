@@ -1,6 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.categories;
 
-public enum ModpackCategories implements Category {
+public enum ModrinthModpackCategories implements ModrinthCategory {
 
     adventure,
     challenging,

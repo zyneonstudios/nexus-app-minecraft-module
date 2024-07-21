@@ -1,6 +1,6 @@
 package com.zyneonstudios.application.minecraft.java.integrations.modrinth.search.facets.categories;
 
-public enum ShaderCategories implements Category {
+public enum ModrinthShaderCategories implements ModrinthCategory {
 
     cartoon,
     cursed,
