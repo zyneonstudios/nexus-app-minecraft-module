@@ -188,8 +188,8 @@ public class MinecraftJavaAddon extends ApplicationModule {
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
         arguments.add("--debug");
-        //arguments.add("--path:/home/nerotvlive/Dokumente/Workspaces/IntelliJ/Zyneon-Application/application-main/target/run/");
-        arguments.add("--ui:file:///home/nerotvlive/Dokumente/Workspaces/IntelliJ/Zyneon-Application/application-ui/content/");
+        arguments.add("--path:D:/Workspaces/IntelliJ/nexus-app/application-main/target/run/");
+        arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
         args = arguments.toArray(new String[0]);
         NexusApplication application = new NexusApplication(args);
         NexusApplication.getLogger().setDebugEnabled(true);
