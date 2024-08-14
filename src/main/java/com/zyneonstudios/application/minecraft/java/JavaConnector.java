@@ -297,7 +297,7 @@ public class JavaConnector extends ModuleConnector {
                 OperatingSystemMXBean os = (OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
                 long c = 1024L*1024L;
                 long max = os.getTotalMemorySize() /c;
-                frame.executeJavaScript("enableOverlay('file://"+JavaStorage.getUrlBase()+"mje-memory.html?min=0&max="+max+"&value="+JavaStorage.memory+"');");
+                frame.executeJavaScript("enableOverlay('file://"+ApplicationStorage.urlBase+ApplicationStorage.language+"/mje-memory.html?min=0&max="+max+"&value="+JavaStorage.memory+"');");
             } else if(request.startsWith("memory.")) {
                 try {
                     int i = Integer.parseInt(request.replace("memory.",""));
