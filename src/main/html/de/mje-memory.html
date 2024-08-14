@@ -26,6 +26,21 @@
                     color: var(--highlight);
                 }
             }
+
+            a.button {
+                border-radius: 0.75rem;
+                background: var(--border) !important;
+                border: 2px solid var(--border2) !important;
+                padding: 0.5rem !important;
+                color: var(--foreground2) !important;
+            }
+
+            a.button:hover {
+                cursor: pointer;
+                color: var(--highlight) !important;
+                border-color: var(--accent) !important;
+                animation: wiggle 2s infinite;
+            }
         </style>
     </head>
     <body>
