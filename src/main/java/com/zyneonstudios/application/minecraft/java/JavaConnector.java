@@ -298,6 +298,7 @@ public class JavaConnector extends ModuleConnector {
                 long c = 1024L*1024L;
                 long max = os.getTotalMemorySize() /c;
                 String url = ApplicationStorage.urlBase+ApplicationStorage.language+"/mje-memory.html?min=0&max="+max+"&value="+JavaStorage.memory;
+                url = url.replace("\\","/");
                 System.out.println(url);
                 frame.executeJavaScript("enableOverlay('"+url+"');");
             } else if(request.startsWith("memory.")) {
