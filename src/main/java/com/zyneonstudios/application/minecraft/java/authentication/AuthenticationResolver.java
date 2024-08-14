@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.zyneonstudios.application.MinecraftJavaAddon;
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
-import com.zyneonstudios.application.main.ApplicationConfig;
+import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
 import live.nerotv.shademebaby.utils.GsonUtil;
@@ -35,7 +35,7 @@ public class AuthenticationResolver {
                 for(JsonElement element:team) {
                     if(element.getAsString().equals(uuid.replace("-",""))) {
                         NexusApplication.getLogger().debug("[Minecraft] (AuthResolver) This account does have access to Zyneon Drive.");
-                        ApplicationConfig.enableDriveAccess();
+                        ApplicationStorage.enableDriveAccess();
                         break;
                     } else {
                         NexusApplication.getLogger().debug("[Minecraft] (AuthResolver) This account doesn't have access to Zyneon Drive.");

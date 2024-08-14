@@ -2,7 +2,6 @@ package com.zyneonstudios.application.minecraft.java.integrations.zyndex;
 
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.nexus.instance.Instance;
-import fr.flowarg.flowupdater.versions.ForgeVersionType;
 import live.nerotv.shademebaby.file.Config;
 import java.io.File;
 import java.net.URLDecoder;
@@ -27,7 +26,6 @@ public class LocalInstance implements Instance {
     private ArrayList<String> meta_changelogs = new ArrayList<>();
     private String meta_description = null;
     private String meta_download = null;
-    private ForgeVersionType meta_forgeType = null;
     private String meta_id = null;
     private String meta_infoCard = null;;
     private String meta_infoText = null;
@@ -97,11 +95,6 @@ public class LocalInstance implements Instance {
             meta_download = config.getString("instance.meta.download");
         } else {
             meta_download = "No download...";
-        }
-        if(config.get("instance.meta.forgeType")!=null) {
-            meta_forgeType = ForgeVersionType.valueOf(config.getString("instance.meta.forgeType"));
-        } else {
-            meta_forgeType = null;
         }
         if(config.get("instance.meta.id")!=null) {
             meta_id = config.getString("instance.meta.id");
@@ -200,7 +193,7 @@ public class LocalInstance implements Instance {
             modloader = "Quilt";
         } else if(versions_fabric!=null) {
             modloader = "Fabric";
-        } else if(meta_forgeType!=null&&versions_forge!=null) {
+        } else if(versions_forge!=null) {
             modloader = "Forge";
         } else if(versions_neoforge!=null) {
             modloader = "NeoForge";
@@ -297,15 +290,6 @@ public class LocalInstance implements Instance {
     @Override
     public String getDownloadUrl() {
         return meta_download;
-    }
-
-    @Override
-    public String getForgeType() {
-        return meta_forgeType.toString();
-    }
-
-    public ForgeVersionType getForgeVersionType() {
-        return meta_forgeType;
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.zyneonstudios.application;
 
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
-import com.zyneonstudios.application.main.ApplicationConfig;
+import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaConnector;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
@@ -170,18 +170,18 @@ public class MinecraftJavaAddon extends ApplicationModule {
     private void update() {
         Logger logger = NexusApplication.getLogger();
         try {
-            if(new File(ApplicationConfig.getApplicationPath() + "temp/ui/").exists()) {
-                logger.debug("[Minecraft] Deleted old ui files: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/").delete());
+            if(new File(ApplicationStorage.getApplicationPath() + "temp/ui/").exists()) {
+                logger.debug("[Minecraft] Deleted old ui files: "+new File(ApplicationStorage.getApplicationPath() + "temp/ui/").delete());
             }
-            logger.debug("[Minecraft] Created new ui path: "+new File(ApplicationConfig.getApplicationPath() + "temp/ui/").mkdirs());
-            FileUtil.extractResourceFile("html.zip",ApplicationConfig.getApplicationPath()+"temp/mje.zip", MinecraftJavaAddon.class);
-            FileUtil.unzipFile(ApplicationConfig.getApplicationPath()+"temp/mje.zip", ApplicationConfig.getApplicationPath() + "temp/ui");
-            logger.debug("[Minecraft] Deleted ui archive: "+new File(ApplicationConfig.getApplicationPath()+"temp/mje.zip").delete());
+            logger.debug("[Minecraft] Created new ui path: "+new File(ApplicationStorage.getApplicationPath() + "temp/ui/").mkdirs());
+            FileUtil.extractResourceFile("html.zip",ApplicationStorage.getApplicationPath()+"temp/mje.zip", MinecraftJavaAddon.class);
+            FileUtil.unzipFile(ApplicationStorage.getApplicationPath()+"temp/mje.zip", ApplicationStorage.getApplicationPath() + "temp/ui");
+            logger.debug("[Minecraft] Deleted ui archive: "+new File(ApplicationStorage.getApplicationPath()+"temp/mje.zip").delete());
         } catch (Exception e) {
             logger.error("[Minecraft] Couldn't update application user interface: "+e.getMessage());
         }
-        logger.debug("[Minecraft] Deleted old updatar json: "+new File(ApplicationConfig.getApplicationPath() + "updater.json").delete());
-        logger.debug("[Minecraft] Deleted older updater json: "+new File(ApplicationConfig.getApplicationPath() + "version.json").delete());
+        logger.debug("[Minecraft] Deleted old updatar json: "+new File(ApplicationStorage.getApplicationPath() + "updater.json").delete());
+        logger.debug("[Minecraft] Deleted older updater json: "+new File(ApplicationStorage.getApplicationPath() + "version.json").delete());
     }
 
     public static void main(String[] args) {

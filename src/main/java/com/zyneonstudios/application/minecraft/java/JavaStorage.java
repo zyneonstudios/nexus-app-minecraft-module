@@ -1,7 +1,7 @@
 package com.zyneonstudios.application.minecraft.java;
 
 import com.google.gson.JsonArray;
-import com.zyneonstudios.application.main.ApplicationConfig;
+import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalZyndex;
@@ -21,8 +21,8 @@ import java.util.concurrent.CompletableFuture;
 public class JavaStorage extends LocalStorage {
 
     private static String lastInstance = null;
-    private static String modulePath = ApplicationConfig.getApplicationPath()+"modules/shared/";
-    private static String urlBase = ApplicationConfig.getApplicationPath()+"temp/ui/";
+    private static String modulePath = ApplicationStorage.getApplicationPath()+"modules/shared/";
+    private static String urlBase = ApplicationStorage.getApplicationPath()+"temp/ui/";
 
     private static LocalZyndex zyndex = null;
     private static Config config = null;
@@ -33,18 +33,21 @@ public class JavaStorage extends LocalStorage {
     private static String searchSource = "official";
 
     public static void init(String id) {
-        modulePath = ApplicationConfig.getApplicationPath()+"modules/"+id+"/";
+        modulePath = ApplicationStorage.getApplicationPath()+"modules/"+id+"/";
 
         config = new Config(modulePath + "config.json");
         config.checkEntry("settings.zyndex.local.paths",new JsonArray());
         if(config.get("settings.values.last.instance")!=null) {
             lastInstance = config.getString("settings.values.last.instance");
         }
+        if(config.get("settings.values.memory.default")!=null) {
+            memory = config.getInt("settings.values.memory.default");
+        }
         if(config.get("settings.search.source")!=null) {
             searchSource = config.getString("settings.search.source");
         }
 
-        if(ApplicationConfig.language.equals("de")) {
+        if(ApplicationStorage.language.equals("de")) {
             Strings.notLoggedIn = "Nicht angemeldet";
             Strings.loggingIn = "Wird angemeldet";
             Strings.login = "Anmelden";
@@ -88,7 +91,7 @@ public class JavaStorage extends LocalStorage {
             try {
                 reloading = true;
                 try {
-                    Config old = new Config(getApplicationConfigPath());
+                    Config old = new Config(getApplicationStoragePath());
                     String oldPath = old.getString("settings.path.instances");
                     if(oldPath!=null) {
                         if(!oldPath.endsWith("/instances")&&!oldPath.endsWith("/instances/")) {
@@ -189,7 +192,7 @@ public class JavaStorage extends LocalStorage {
     }
 
     public static String getUrlBase() {
-        return urlBase+ApplicationConfig.language+"/";
+        return urlBase+ApplicationStorage.language+"/";
     }
 
     public static Config getConfig() {
@@ -213,7 +216,7 @@ public class JavaStorage extends LocalStorage {
 
     }
 
-    private static String getApplicationConfigPath() {
+    private static String getApplicationStoragePath() {
         String folderName = "Zyneon/Application";
         String appData;
         String os = System.getProperty("os.name").toLowerCase();

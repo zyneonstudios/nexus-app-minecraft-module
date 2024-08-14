@@ -1,9 +1,10 @@
 package com.zyneonstudios.application.minecraft.java;
 
+import com.sun.management.OperatingSystemMXBean;
 import com.zyneonstudios.application.MinecraftJavaAddon;
 import com.zyneonstudios.application.frame.FrameConnector;
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
-import com.zyneonstudios.application.main.ApplicationConfig;
+import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.integrations.curseforge.CurseForgeIntegration;
 import com.zyneonstudios.application.minecraft.java.integrations.modrinth.ModrinthIntegration;
@@ -14,6 +15,7 @@ import com.zyneonstudios.application.modules.ModuleConnector;
 import com.zyneonstudios.nexus.instance.Instance;
 import com.zyneonstudios.nexus.instance.ReadableZynstance;
 
+import java.lang.management.ManagementFactory;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
@@ -40,6 +42,8 @@ public class JavaConnector extends ModuleConnector {
             resolveAuthRequest(request.replaceFirst("java.auth.", ""));
         } else if(request.equals("sync.library.module.nexus-minecraft-module_java")||request.equals("sync.library.module.minecraft-java-edition")) {
             resolveInitRequest("library");
+        } else if(request.startsWith("java.settings.")) {
+            resolveSettingsRequest(request.replaceFirst("java.settings.", ""));
         } else if(request.startsWith("java.overlay")) {
             frame.executeJavaScript("enableOverlay('https://www.zyneonstudios.com');");
         } else if(request.startsWith("java.init.")) {
@@ -66,8 +70,16 @@ public class JavaConnector extends ModuleConnector {
         } else if(request.equals("init.discover")) {
             frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId()+"_java" + "');");
         } else if(request.startsWith("sync.language.")) {
-            ApplicationConfig.language = request.replaceFirst("sync.language.","");
+            ApplicationStorage.language = request.replaceFirst("sync.language.","");
             JavaStorage.init(module.getId());
+        } else if(request.startsWith("sync.settings.")) {
+            syncSettings(request.replaceFirst("sync.settings.",""));
+        }
+    }
+
+    private void syncSettings(String request) {
+        if(request.equals("init")) {
+            frame.executeJavaScript("addSettingsGroup(\"Minecraft: Java Edition\",\"global\",\"global-mje\"); addValueToGroup('RAM','global-mje','mje-global-memory','java.settings.global.memory','"+JavaStorage.memory+"');");
         }
     }
 
@@ -131,7 +143,8 @@ public class JavaConnector extends ModuleConnector {
             if(request.startsWith("instance.")) {
                 request = URLDecoder.decode(request.replaceFirst("instance.", ""),StandardCharsets.UTF_8);
                 ReadableZynstance instance = new ReadableZynstance(request);
-                frame.executeJavaScript("enableOverlay(\""+FrameConnector.initDetails(instance.getName(),instance.getId(),"Minecraft: Java Edition instance",instance.getVersion(),instance.getDescription(),instance.getAuthor(),instance.isHidden(),"No tags",instance.getDescription(),"No changelogs","No version history","","",instance.getBackgroundUrl(),instance.getIconUrl(),instance.getLogoUrl(),instance.getThumbnailUrl()).replace("%plus%","+")+"\");");
+                //frame.executeJavaScript("enableOverlay(\"file://"+ApplicationStorage.urlBase+ApplicationStorage.language+"/mje-memory.html\");");
+                frame.executeJavaScript("enableOverlay(\""+ FrameConnector.initDetails(instance.getName(),instance.getId(),"Minecraft: Java Edition instance",instance.getVersion(),instance.getDescription(),instance.getAuthor(),instance.isHidden(),"No tags",instance.getDescription(),"No changelogs","No version history","","",instance.getBackgroundUrl(),instance.getIconUrl(),instance.getLogoUrl(),instance.getThumbnailUrl()).replace("%plus%","+")+"\");");
             }
         } else if(request.startsWith("auth")) {
             frame.executeJavaScript("document.getElementById('library-button').classList.add('highlighted');");
@@ -150,7 +163,7 @@ public class JavaConnector extends ModuleConnector {
         } else if(request.startsWith("library.")) {
             request = request.replaceFirst("library.", "");
             if(request.equals("select")) {
-                frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=-1");
+                frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/library.html?moduleId=-1");
             }
         } else if(request.startsWith("instances.")) {
             request = request.replaceFirst("instances.","");
@@ -164,9 +177,9 @@ public class JavaConnector extends ModuleConnector {
         if(request.startsWith("library.")) {
             request = request.replaceFirst("library.", "");
             if (request.equals("add")) {
-                frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=-1");
+                frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/library.html?moduleId=-1");
             } else {
-                frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html?moduleId=" + request);
+                frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/library.html?moduleId=" + request);
             }
         } else if(request.startsWith("view.")) {
             request = request.replaceFirst("view.","");
@@ -193,9 +206,9 @@ public class JavaConnector extends ModuleConnector {
         } else if(request.equals("zyndex")) {
             JavaStorage.asyncReloadLocalZyndex();
         } else if(request.equals("mje-settings")) {
-
+            frame.executeJavaScript("setTitle('Minecraft: Java Edition'); highlight(document.getElementById('minecraft-about'));");
         } else if(request.equals("library")) {
-            frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/library.html");
+            frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/library.html");
         } else if(request.startsWith("discoverHover.")) {
             request = request.replaceFirst("discoverHover.", "");
             if(request.equals("on")) {
@@ -206,11 +219,11 @@ public class JavaConnector extends ModuleConnector {
         } else if(request.equals("creator")) {
             frame.executeJavaScript("document.getElementById('library-button').classList.add('highlighted'); document.getElementById('library-button').onclick = '';");
         } else if(request.equals("home")) {
-            frame.getBrowser().loadURL(ApplicationConfig.urlBase+ApplicationConfig.language+"/start.html");
+            frame.getBrowser().loadURL(ApplicationStorage.urlBase+ApplicationStorage.language+"/start.html");
         } else if(request.equals("discover")) {
-            frame.getBrowser().loadURL(ApplicationConfig.urlBase+ApplicationConfig.language+"/discover.html");
+            frame.getBrowser().loadURL(ApplicationStorage.urlBase+ApplicationStorage.language+"/discover.html");
         } else if(request.equals("settings")) {
-            frame.getBrowser().loadURL(ApplicationConfig.urlBase + ApplicationConfig.language + "/settings.html");
+            frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/settings.html");
         } else if(request.startsWith("instances.")) {
             resolveInstanceSync(request.replaceFirst("instances.",""));
         } else if(request.equals("instances")) {
@@ -220,7 +233,7 @@ public class JavaConnector extends ModuleConnector {
 
     private void resolveInstanceSync(String request) {
         if(request.equals("overview")) {
-            if(ApplicationConfig.language.equals("de")) {
+            if(ApplicationStorage.language.equals("de")) {
                 frame.executeJavaScript("document.getElementById('mje-add-instance-button').innerText = 'Instanz hinzufügen';");
                 frame.executeJavaScript("document.getElementById('mje-menu-title').innerText = 'Instanzen';");
                 frame.executeJavaScript("setTitle('Übersicht');");
@@ -242,7 +255,7 @@ public class JavaConnector extends ModuleConnector {
                 module.getAuthenticator(authKey).login();
             }
         } else if(request.equals("logout")) {
-            ApplicationConfig.disableDriveAccess();
+            ApplicationStorage.disableDriveAccess();
             if(module.getAuthState()==MinecraftJavaAddon.AuthState.LOGGED_IN) {
                 frame.executeJavaScript("mjeLogout('"+JavaStorage.Strings.notLoggedIn+"','"+JavaStorage.Strings.login+"');");
                 JavaStorage.map.delete("auth.username");
@@ -257,7 +270,7 @@ public class JavaConnector extends ModuleConnector {
         String request = filterRequest.replaceFirst("java.searchFilter.","");
         if(request.startsWith("source.")) {
             JavaStorage.setSearchSource(request.replaceFirst("source.",""));
-            frame.getBrowser().loadURL(ApplicationConfig.urlBase+ApplicationConfig.language+"/discover.html?l=search&moduleId="+module.getId()+"_java");
+            frame.getBrowser().loadURL(ApplicationStorage.urlBase+ApplicationStorage.language+"/discover.html?l=search&moduleId="+module.getId()+"_java");
         }
     }
 
@@ -274,6 +287,27 @@ public class JavaConnector extends ModuleConnector {
             case "official" -> ZyndexIntegration.searchModpacks(query, frame);
             case "curseforge" -> CurseForgeIntegration.searchModpacks(query, frame);
             case "modrinth" -> ModrinthIntegration.searchModpacks(query, frame);
+        }
+    }
+
+    private void resolveSettingsRequest(String request) {
+        if(request.startsWith("global.")) {
+            request = request.replaceFirst("global.","");
+            if(request.equals("memory")) {
+                OperatingSystemMXBean os = (OperatingSystemMXBean)ManagementFactory.getOperatingSystemMXBean();
+                long c = 1024L*1024L;
+                long max = os.getTotalMemorySize() /c;
+                frame.executeJavaScript("enableOverlay('file://"+JavaStorage.getUrlBase()+"mje-memory.html?min=0&max="+max+"&value="+JavaStorage.memory+"');");
+            } else if(request.startsWith("memory.")) {
+                try {
+                    int i = Integer.parseInt(request.replace("memory.",""));
+                    JavaStorage.getConfig().set("settings.values.memory.default", i);
+                    JavaStorage.memory = i;
+                } catch (Exception ignore) {
+                    throw new RuntimeException(ignore);
+                }
+                frame.getBrowser().loadURL(ApplicationStorage.urlBase+ApplicationStorage.language+"/settings.html?tab=global");
+            }
         }
     }
 }
