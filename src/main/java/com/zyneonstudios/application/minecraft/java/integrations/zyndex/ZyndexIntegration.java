@@ -2,7 +2,6 @@ package com.zyneonstudios.application.minecraft.java.integrations.zyndex;
 
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.nexus.instance.ReadableZynstance;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

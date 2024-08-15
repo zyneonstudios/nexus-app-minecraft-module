@@ -10,10 +10,11 @@ import com.zyneonstudios.application.minecraft.java.integrations.curseforge.Curs
 import com.zyneonstudios.application.minecraft.java.integrations.modrinth.ModrinthIntegration;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.ZyndexIntegration;
-import com.zyneonstudios.application.minecraft.java.launchers.*;
+import com.zyneonstudios.application.minecraft.java.launchers.BasicLauncher;
 import com.zyneonstudios.application.modules.ModuleConnector;
 import com.zyneonstudios.nexus.instance.Instance;
 import com.zyneonstudios.nexus.instance.ReadableZynstance;
+import fr.flowarg.openlauncherlib.NoFramework;
 
 import java.lang.management.ManagementFactory;
 import java.net.URLDecoder;
@@ -88,15 +89,33 @@ public class JavaConnector extends ModuleConnector {
             request = request.replaceFirst("launch.", "");
             LocalInstance instance = JavaStorage.getLocalZyndex().getLocalInstancesById().get(request);
             if(instance.getModloader().equals("Forge")) {
-                new ForgeLauncher(module,authKey).launch(instance);
+                BasicLauncher launcher = new BasicLauncher(instance.getMinecraftVersion(),instance.getPath(),module.getAuthenticator(authKey).getAuthInfos());
+                launcher.setMemory(instance.getMemory());
+                launcher.setModloader(NoFramework.ModLoader.FORGE);
+                launcher.setModloaderVersion(instance.getForgeVersion());
+                launcher.launch();
             } else if(instance.getModloader().equals("Fabric")) {
-                new FabricLauncher(module,authKey).launch(instance);
+                BasicLauncher launcher = new BasicLauncher(instance.getMinecraftVersion(),instance.getPath(),module.getAuthenticator(authKey).getAuthInfos());
+                launcher.setMemory(instance.getMemory());
+                launcher.setModloader(NoFramework.ModLoader.FABRIC);
+                launcher.setModloaderVersion(instance.getFabricVersion());
+                launcher.launch();
             } else if(instance.getModloader().equals("Quilt")) {
-                new QuiltLauncher(module,authKey).launch(instance);
+                BasicLauncher launcher = new BasicLauncher(instance.getMinecraftVersion(),instance.getPath(),module.getAuthenticator(authKey).getAuthInfos());
+                launcher.setMemory(instance.getMemory());
+                launcher.setModloader(NoFramework.ModLoader.QUILT);
+                launcher.setModloaderVersion(instance.getQuiltVersion());
+                launcher.launch();
             } else if(instance.getModloader().equals("NeoForge")) {
-                new NeoForgeLauncher(module,authKey).launch(instance);
+                BasicLauncher launcher = new BasicLauncher(instance.getMinecraftVersion(),instance.getPath(),module.getAuthenticator(authKey).getAuthInfos());
+                launcher.setMemory(instance.getMemory());
+                launcher.setModloader(NoFramework.ModLoader.NEO_FORGE);
+                launcher.setModloaderVersion(instance.getNeoForgeVersion());
+                launcher.launch();
             } else {
-                new VanillaLauncher(module,authKey).launch(instance);
+                BasicLauncher launcher = new BasicLauncher(instance.getMinecraftVersion(),instance.getPath(),module.getAuthenticator(authKey).getAuthInfos());
+                launcher.setMemory(instance.getMemory());
+                launcher.launch();
             }
         } else if(request.startsWith("view.")) {
             request = request.replaceFirst("view.", "");
@@ -299,7 +318,6 @@ public class JavaConnector extends ModuleConnector {
                 long max = os.getTotalMemorySize() /c;
                 String url = ApplicationStorage.urlBase+ApplicationStorage.language+"/mje-memory.html?min=0&max="+max+"&value="+JavaStorage.memory;
                 url = url.replace("\\","/");
-                System.out.println(url);
                 frame.executeJavaScript("enableOverlay('"+url+"');");
             } else if(request.startsWith("memory.")) {
                 try {

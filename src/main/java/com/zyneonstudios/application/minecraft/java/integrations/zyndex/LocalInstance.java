@@ -1,6 +1,7 @@
 package com.zyneonstudios.application.minecraft.java.integrations.zyndex;
 
 import com.zyneonstudios.application.main.NexusApplication;
+import com.zyneonstudios.application.minecraft.java.JavaStorage;
 import com.zyneonstudios.nexus.instance.Instance;
 import live.nerotv.shademebaby.file.Config;
 import java.io.File;
@@ -245,7 +246,7 @@ public class LocalInstance implements Instance {
                 NexusApplication.getLogger().error("[Minecraft] Couldn't read memory int ("+settings.getPath()+"): "+e.getMessage());
             }
         }
-        return 1024;
+        return JavaStorage.memory;
     }
 
 

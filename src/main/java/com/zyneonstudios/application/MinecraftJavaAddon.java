@@ -110,9 +110,6 @@ public class MinecraftJavaAddon extends ApplicationModule {
         NexusApplication.getLogger().log(prefix+"Setting module connector to new JavaConnector...");
         setConnector(new JavaConnector(this,key));
 
-        NexusApplication.getLogger().log(prefix+ "Caching NEX...");
-        ZyndexIntegration.searchModpacks("",(ApplicationFrame)getApplication().getFrame());
-
         CompletableFuture.runAsync(()->{
             NexusApplication.getLogger().log(prefix+ "Loading Microsoft authentication...");
             createNewAuthenticator();
@@ -124,6 +121,13 @@ public class MinecraftJavaAddon extends ApplicationModule {
                 authState = AuthState.LOGGED_OUT;
             }
         });
+
+        NexusApplication.getLogger().log(prefix+ "Caching NEX...");
+        try {
+            ZyndexIntegration.searchModpacks("", (ApplicationFrame) getApplication().getFrame());
+        } catch (Exception e) {
+            NexusApplication.getLogger().error("[Minecraft] Couldn't cache NEX: "+e.getMessage());
+        }
 
         NexusApplication.getLogger().log(prefix+"Loaded!");
         NexusApplication.getLogger().log(" ");
@@ -188,14 +192,14 @@ public class MinecraftJavaAddon extends ApplicationModule {
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
         arguments.add("--debug");
-        arguments.add("--path:D:/Workspaces/IntelliJ/nexus-app/application-main/target/run/");
-        arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
+        //arguments.add("--path:D:/Workspaces/IntelliJ/nexus-app/application-main/target/run/");
+        //arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
         args = arguments.toArray(new String[0]);
         NexusApplication application = new NexusApplication(args);
         NexusApplication.getLogger().setDebugEnabled(true);
         try {
             String v = new SimpleDateFormat("yyyy.M.d/HH-mm-ss").format(Calendar.getInstance().getTime());
-            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application,"nexus-minecraft-module","Minecraft (Test)", v+"_"+StringUtil.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
+            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application,"nexus-minecraft-module","Minecraft (Test)", v+"_"+ StringUtil.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
         } catch (Exception ignore) {}
         application.launch();
     }

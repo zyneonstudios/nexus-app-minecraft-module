@@ -3,6 +3,7 @@ package com.zyneonstudios.application.minecraft.java;
 import com.google.gson.JsonArray;
 import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
+import com.zyneonstudios.application.minecraft.java.installers.java.OperatingSystem;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalZyndex;
 import com.zyneonstudios.application.utils.LocalStorage;
@@ -72,6 +73,14 @@ public class JavaStorage extends LocalStorage {
             Strings.addInstance = "Add instance";
             Strings.refreshInstances = "Refresh instances";
             Strings.aboutMinecraftModule = "About this module";
+        }
+        String os = System.getProperty("os.name").toLowerCase();
+        if(os.contains("win")) {
+            map.set("system.os", OperatingSystem.Windows);
+        } else if(os.contains("mac")) {
+            map.set("system.os", OperatingSystem.macOS);
+        } else {
+            map.set("system.os", OperatingSystem.Linux);
         }
     }
 

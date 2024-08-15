@@ -1,11 +1,10 @@
 package com.zyneonstudios.application.minecraft.java.integrations.zyndex;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.zyneonstudios.nexus.index.Zyndex;
 import com.zyneonstudios.nexus.instance.ReadableZynstance;
 import live.nerotv.shademebaby.file.Config;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ public class LocalZyndex extends Zyndex {
 
     public void setInstances(HashMap<LocalInstance, String> instances) {
         getJson().delete("instances");
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonArray array = new JsonArray();
         if(!instances.isEmpty()) {
             for (LocalInstance zynstance : instances.keySet()) {
