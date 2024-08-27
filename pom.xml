@@ -6,7 +6,7 @@
 
     <groupId>com.zyneonstudios</groupId>
     <artifactId>minecraft-java-addon</artifactId>
-    <version>2024.8-beta.6</version>
+    <version>2024.8-beta.7</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
