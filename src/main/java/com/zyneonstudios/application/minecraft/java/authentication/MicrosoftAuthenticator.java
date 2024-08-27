@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
 
 public class MicrosoftAuthenticator {
 
@@ -80,12 +79,10 @@ public class MicrosoftAuthenticator {
 
     public void setSaveFilePath(String newPath) {
         saveFile = new File(newPath);
-        CompletableFuture.runAsync(()->{
-            try {
-                saver = new Config(saveFile);
-                new File(saveFile.getParent()).mkdirs();
-            } catch (Exception ignore) {}
-        });
+        try {
+            saver = new Config(saveFile);
+            new File(saveFile.getParent()).mkdirs();
+        } catch (Exception ignore) {}
     }
 
     public boolean isLoggedIn() {
@@ -116,27 +113,23 @@ public class MicrosoftAuthenticator {
     }
 
     public void login() {
-        CompletableFuture.runAsync(()->{
-            resolver.preAuth();
-            try {
-                HashMap<ZyneonAuth.AuthInfo, String> authData = ZyneonAuth.getAuthInfos();
-                authInfos = new AuthInfos(authData.get(ZyneonAuth.AuthInfo.USERNAME), authData.get(ZyneonAuth.AuthInfo.ACCESS_TOKEN), authData.get(ZyneonAuth.AuthInfo.UUID));
-                save(authData);
-            } catch (Exception ignore) {}
-            resolver.postAuth(authInfos.getUsername(),authInfos.getUuid());
-        });
+        resolver.preAuth();
+        try {
+            HashMap<ZyneonAuth.AuthInfo, String> authData = ZyneonAuth.getAuthInfos();
+            authInfos = new AuthInfos(authData.get(ZyneonAuth.AuthInfo.USERNAME), authData.get(ZyneonAuth.AuthInfo.ACCESS_TOKEN), authData.get(ZyneonAuth.AuthInfo.UUID));
+            save(authData);
+        } catch (Exception ignore) {}
+        resolver.postAuth(authInfos.getUsername(), authInfos.getUuid());
     }
 
     public void refresh(String token) {
-        CompletableFuture.runAsync(()->{
-            resolver.preAuth();
-            try {
-                HashMap<ZyneonAuth.AuthInfo, String> authData = ZyneonAuth.getAuthInfos(token);
-                authInfos = new AuthInfos(authData.get(ZyneonAuth.AuthInfo.USERNAME), authData.get(ZyneonAuth.AuthInfo.ACCESS_TOKEN), authData.get(ZyneonAuth.AuthInfo.UUID));
-                save(authData);
-            } catch (Exception ignore) {}
-            resolver.postAuth(authInfos.getUsername(), authInfos.getUuid());
-        });
+        resolver.preAuth();
+        try {
+            HashMap<ZyneonAuth.AuthInfo, String> authData = ZyneonAuth.getAuthInfos(token);
+            authInfos = new AuthInfos(authData.get(ZyneonAuth.AuthInfo.USERNAME), authData.get(ZyneonAuth.AuthInfo.ACCESS_TOKEN), authData.get(ZyneonAuth.AuthInfo.UUID));
+            save(authData);
+        } catch (Exception ignore) {}
+        resolver.postAuth(authInfos.getUsername(), authInfos.getUuid());
     }
 
     @Deprecated
@@ -150,7 +143,7 @@ public class MicrosoftAuthenticator {
         } catch (Exception e) {
             isLoggedIn = false;
         }
-        CompletableFuture.runAsync(() -> resolver.postAuth(authInfos.getUsername(),authInfos.getUuid()));
+        resolver.postAuth(authInfos.getUsername(),authInfos.getUuid());
         return isLoggedIn;
     }
 

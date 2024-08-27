@@ -43,7 +43,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
     }
 
     public MicrosoftAuthenticator getAuthenticator(byte[] key) {
-        if(key==this.key) {
+        if (key == this.key) {
             if (authenticator == null) {
                 authenticator = createNewAuthenticator();
             }
@@ -62,12 +62,12 @@ public class MinecraftJavaAddon extends ApplicationModule {
     }
 
     public MicrosoftAuthenticator createNewAuthenticator() {
-        if(authenticator!=null) {
+        if (authenticator != null) {
             File old = authenticator.getSaveFile();
             authenticator.destroy();
             authenticator = null;
             System.gc();
-            if(!old.delete()) {
+            if (!old.delete()) {
                 NexusApplication.getLogger().error("[Minecraft] Couldn't delete old auth file...");
                 Config oldAuth = new Config(old);
                 try {
@@ -85,69 +85,63 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
     @Override
     public void onLoad() {
-        load();
-    }
-
-    private void load() {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
-        NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
-        NexusApplication.getLogger().log("Authors: "+getAuthors());
-        NexusApplication.getLogger().log("Version: "+getVersion());
+        NexusApplication.getLogger().log("Module: " + getName() + " (id: " + getId() + ")");
+        NexusApplication.getLogger().log("Authors: " + getAuthors());
+        NexusApplication.getLogger().log("Version: " + getVersion());
         NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
-        String prefix = "["+getName()+"] ";
-        NexusApplication.getLogger().log(prefix+"Loading...");
+        String prefix = "[" + getName() + "] ";
+        NexusApplication.getLogger().log(prefix + "Loading...");
 
-        NexusApplication.getLogger().log(prefix+ "Building module storage...");
+        NexusApplication.getLogger().log(prefix + "Building module storage...");
         JavaStorage.init(getId());
 
-        NexusApplication.getLogger().log(prefix+ "Building UI...");
+        NexusApplication.getLogger().log(prefix + "Building UI...");
         update();
 
-        NexusApplication.getLogger().log(prefix+ "Initializing CurseForge categories...");
-        CurseForgeCategories.init();
+        NexusApplication.getLogger().log(prefix + "Setting module connector to new JavaConnector...");
+        setConnector(new JavaConnector(this, key));
 
-        NexusApplication.getLogger().log(prefix+"Setting module connector to new JavaConnector...");
-        setConnector(new JavaConnector(this,key));
-
-        CompletableFuture.runAsync(()->{
-            NexusApplication.getLogger().log(prefix+ "Loading Microsoft authentication...");
+        CompletableFuture.runAsync(()-> {
+            NexusApplication.getLogger().log(prefix + "Loading Microsoft authentication...");
             createNewAuthenticator();
-            if(authenticator.isLoggedIn()) {
-                NexusApplication.getLogger().log(prefix+ "Logged in as "+authenticator.getAuthInfos().getUsername()+": "+authenticator.getAuthInfos().getUuid());
+            if (authenticator.isLoggedIn()) {
+                NexusApplication.getLogger().log(prefix + "Logged in as " + authenticator.getAuthInfos().getUsername() + ": " + authenticator.getAuthInfos().getUuid());
                 authState = AuthState.LOGGED_IN;
             } else {
-                NexusApplication.getLogger().log(prefix+ "Not logged in...");
+                NexusApplication.getLogger().log(prefix + "Not logged in...");
                 authState = AuthState.LOGGED_OUT;
             }
         });
 
-        NexusApplication.getLogger().log(prefix+ "Caching NEX...");
+        CompletableFuture.runAsync(()->{
+            NexusApplication.getLogger().log(prefix + "Initializing CurseForge categories...");
+            CurseForgeCategories.init();
+        });
+
+        NexusApplication.getLogger().log(prefix + "Caching NEX...");
         try {
             ZyndexIntegration.searchModpacks("", (ApplicationFrame) getApplication().getFrame());
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] Couldn't cache NEX: "+e.getMessage());
+            NexusApplication.getLogger().error("[Minecraft] Couldn't cache NEX: " + e.getMessage());
         }
 
-        NexusApplication.getLogger().log(prefix+"Loaded!");
+        NexusApplication.getLogger().log(prefix + "Loaded!");
         NexusApplication.getLogger().log(" ");
     }
 
     @Override
     public void onEnable() {
-        CompletableFuture.runAsync(this::enable);
-    }
-
-    public void enable() {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
-        NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
-        NexusApplication.getLogger().log("Authors: "+getAuthors());
-        NexusApplication.getLogger().log("Version: "+getVersion());
+        NexusApplication.getLogger().log("Module: " + getName() + " (id: " + getId() + ")");
+        NexusApplication.getLogger().log("Authors: " + getAuthors());
+        NexusApplication.getLogger().log("Version: " + getVersion());
         NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
-        String prefix = "["+getName()+"] ";
-        NexusApplication.getLogger().log(prefix+"Enabling...");
-        NexusApplication.getLogger().log(prefix+"Enabled!");
+        String prefix = "[" + getName() + "] ";
+        NexusApplication.getLogger().log(prefix + "Enabling...");
+        NexusApplication.getLogger().log(prefix + "Enabled!");
         NexusApplication.getLogger().log(" ");
     }
 
@@ -155,13 +149,13 @@ public class MinecraftJavaAddon extends ApplicationModule {
     public void onDisable() {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
-        NexusApplication.getLogger().log("Module: "+getName()+" (id: "+getId()+")");
-        NexusApplication.getLogger().log("Authors: "+getAuthors());
-        NexusApplication.getLogger().log("Version: "+getVersion());
+        NexusApplication.getLogger().log("Module: " + getName() + " (id: " + getId() + ")");
+        NexusApplication.getLogger().log("Authors: " + getAuthors());
+        NexusApplication.getLogger().log("Version: " + getVersion());
         NexusApplication.getLogger().log("--------------------------------------------------------------------(NEXUS Team)--");
-        String prefix = "["+getName()+"] ";
-        NexusApplication.getLogger().log(prefix+"Disabling...");
-        NexusApplication.getLogger().log(prefix+"Disabled!");
+        String prefix = "[" + getName() + "] ";
+        NexusApplication.getLogger().log(prefix + "Disabling...");
+        NexusApplication.getLogger().log(prefix + "Disabled!");
         NexusApplication.getLogger().log(" ");
     }
 
@@ -174,32 +168,32 @@ public class MinecraftJavaAddon extends ApplicationModule {
     private void update() {
         Logger logger = NexusApplication.getLogger();
         try {
-            if(new File(ApplicationStorage.getApplicationPath() + "temp/ui/").exists()) {
-                logger.debug("[Minecraft] Deleted old ui files: "+new File(ApplicationStorage.getApplicationPath() + "temp/ui/").delete());
+            if (new File(ApplicationStorage.getApplicationPath() + "temp/ui/").exists()) {
+                logger.debug("[Minecraft] Deleted old ui files: " + new File(ApplicationStorage.getApplicationPath() + "temp/ui/").delete());
             }
-            logger.debug("[Minecraft] Created new ui path: "+new File(ApplicationStorage.getApplicationPath() + "temp/ui/").mkdirs());
-            FileUtil.extractResourceFile("html.zip",ApplicationStorage.getApplicationPath()+"temp/mje.zip", MinecraftJavaAddon.class);
-            FileUtil.unzipFile(ApplicationStorage.getApplicationPath()+"temp/mje.zip", ApplicationStorage.getApplicationPath() + "temp/ui");
-            logger.debug("[Minecraft] Deleted ui archive: "+new File(ApplicationStorage.getApplicationPath()+"temp/mje.zip").delete());
+            logger.debug("[Minecraft] Created new ui path: " + new File(ApplicationStorage.getApplicationPath() + "temp/ui/").mkdirs());
+            FileUtil.extractResourceFile("html.zip", ApplicationStorage.getApplicationPath() + "temp/mje.zip", MinecraftJavaAddon.class);
+            FileUtil.unzipFile(ApplicationStorage.getApplicationPath() + "temp/mje.zip", ApplicationStorage.getApplicationPath() + "temp/ui");
+            logger.debug("[Minecraft] Deleted ui archive: " + new File(ApplicationStorage.getApplicationPath() + "temp/mje.zip").delete());
         } catch (Exception e) {
-            logger.error("[Minecraft] Couldn't update application user interface: "+e.getMessage());
+            logger.error("[Minecraft] Couldn't update application user interface: " + e.getMessage());
         }
-        logger.debug("[Minecraft] Deleted old updatar json: "+new File(ApplicationStorage.getApplicationPath() + "updater.json").delete());
-        logger.debug("[Minecraft] Deleted older updater json: "+new File(ApplicationStorage.getApplicationPath() + "version.json").delete());
+        logger.debug("[Minecraft] Deleted old updatar json: " + new File(ApplicationStorage.getApplicationPath() + "updater.json").delete());
+        logger.debug("[Minecraft] Deleted older updater json: " + new File(ApplicationStorage.getApplicationPath() + "version.json").delete());
     }
 
     public static void main(String[] args) {
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
         arguments.add("--debug");
-        //arguments.add("--path:D:/Workspaces/IntelliJ/nexus-app/application-main/target/run/");
-        //arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
+        arguments.add("--path:D:/Workspaces/IntelliJ/nexus-app/application-main/target/run/");
+        arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
         args = arguments.toArray(new String[0]);
         NexusApplication application = new NexusApplication(args);
         NexusApplication.getLogger().setDebugEnabled(true);
         try {
             String v = new SimpleDateFormat("yyyy.M.d/HH-mm-ss").format(Calendar.getInstance().getTime());
-            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application,"nexus-minecraft-module","Minecraft (Test)", v+"_"+ StringUtil.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
+            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application, "nexus-minecraft-module", "Minecraft (Test)", v + "_" + StringUtil.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
         } catch (Exception ignore) {}
         application.launch();
     }

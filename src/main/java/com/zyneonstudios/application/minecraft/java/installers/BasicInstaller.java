@@ -2,6 +2,7 @@ package com.zyneonstudios.application.minecraft.java.installers;
 
 import com.zyneonstudios.application.main.NexusApplication;
 import fr.flowarg.flowupdater.FlowUpdater;
+import fr.flowarg.flowupdater.utils.UpdaterOptions;
 import fr.flowarg.flowupdater.versions.VanillaVersion;
 import fr.flowarg.flowupdater.versions.fabric.FabricVersion;
 import fr.flowarg.flowupdater.versions.fabric.FabricVersionBuilder;
@@ -96,12 +97,15 @@ public class BasicInstaller implements Installer {
                 }
             }
 
+            UpdaterOptions options = new UpdaterOptions.UpdaterOptionsBuilder().build();
+            builder.withUpdaterOptions(options);
+
             flowUpdater = builder.build();
             flowUpdater.update(instancePath);
 
             return true;
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] (INSTALLER) Couldn't install Minecraft: "+e.getMessage());
+            NexusApplication.getLogger().error("[Minecraft] (BASIC INSTALLER) Couldn't install Minecraft: "+e.getMessage());
         }
         return false;
     }

@@ -1,14 +1,17 @@
 package com.zyneonstudios.application.minecraft.java.integrations.zyndex;
 
+import com.google.gson.JsonArray;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
 import com.zyneonstudios.nexus.instance.Instance;
 import live.nerotv.shademebaby.file.Config;
+
 import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class LocalInstance implements Instance {
 
@@ -54,6 +57,9 @@ public class LocalInstance implements Instance {
     private String scheme = null;
     private String modloader = null;
 
+    // LISTS
+    private final ArrayList<String> modList = new ArrayList<>();
+
     private void init() {
         if(config.get("instance.info.authors")!=null) {
             info_authors = (ArrayList<String>)config.get("instance.info.authors");
@@ -73,8 +79,6 @@ public class LocalInstance implements Instance {
             info_summary = config.getString("instance.info.summary");
         } else if(config.get("instance.info.description")!=null) {
             info_summary = config.getString("instance.info.description");
-        } else {
-            info_summary = "No summary...";
         }
         if(config.get("instance.info.version")!=null) {
             info_version = config.getString("instance.info.version");
@@ -89,8 +93,14 @@ public class LocalInstance implements Instance {
         }
         if(config.get("instance.meta.description")!=null) {
             meta_description = config.getString("instance.meta.description");
-        } else {
+        } else if(config.get("instance.info.summary")!=null) {
+            meta_description = config.getString("instance.info.summary");
+        }
+        if(meta_description==null) {
             meta_description = "No description...";
+        }
+        if(info_summary==null) {
+            info_summary = "No summary...";
         }
         if(config.get("instance.meta.download")!=null) {
             meta_download = config.getString("instance.meta.download");
@@ -207,6 +217,7 @@ public class LocalInstance implements Instance {
         } else {
             scheme = null;
         }
+        settings.checkEntry("settings.java.jvm-arguments",new JsonArray());
     }
 
     public LocalInstance(File file) {
@@ -239,14 +250,32 @@ public class LocalInstance implements Instance {
     }
 
     public int getMemory() {
-        if(settings.get("settings.memory")!=null) {
+        if(settings.get("settings.java.memory")!=null||settings.get("settings.memory")!=null) {
             try {
-                return settings.getInt("settings.memory");
-            } catch (Exception e) {
-                NexusApplication.getLogger().error("[Minecraft] Couldn't read memory int ("+settings.getPath()+"): "+e.getMessage());
+                return settings.getInt("settings.java.memory");
+            } catch (Exception exception) {
+                try {
+                    return settings.getInt("settings.memory");
+                } catch (Exception e) {
+                    NexusApplication.getLogger().error("[Minecraft] Couldn't read memory int ("+settings.getPath()+"): "+e.getMessage());
+                }
             }
         }
-        return JavaStorage.memory;
+        return JavaStorage.map.getInteger("settings.global.memory");
+    }
+
+    public boolean isExperimental() {
+        if(modloader!=null) {
+            if(!modloader.equals("experimental")) {
+                return false;
+            }
+        }
+        settings.checkEntry("settings.game.isExperimental",false);
+        return settings.getBoolean("settings.game.isExperimental");
+    }
+
+    public void setExperimental(boolean experimental) {
+        settings.set("settings.game.isExperimental",experimental);
     }
 
 
@@ -407,5 +436,22 @@ public class LocalInstance implements Instance {
     @Override
     public String getSchemeVersion() {
         return scheme;
+    }
+
+    public String[] getModList() {
+        return modList.toArray(new String[0]);
+    }
+
+    public void scanMods() {
+        modList.clear();
+        NexusApplication.getLogger().debug("[Minecraft] (Instance) Starting mod scan for "+meta_id+"...");
+        File mods = new File(getPath().toString().replace("\\","/")+"/mods");
+        if(mods.exists()) {
+            for(File file : Objects.requireNonNull(mods.listFiles())) {
+                if(file.getName().toLowerCase().endsWith(".jar")) {
+                    modList.add(file.getName());
+                }
+            }
+        }
     }
 }

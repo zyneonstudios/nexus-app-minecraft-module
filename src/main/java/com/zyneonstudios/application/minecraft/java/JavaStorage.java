@@ -15,8 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class JavaStorage extends LocalStorage {
@@ -28,22 +27,25 @@ public class JavaStorage extends LocalStorage {
     private static LocalZyndex zyndex = null;
     private static Config config = null;
 
-    public static int memory = 1024;
     public static final JavaStorage map = new JavaStorage();
+    public static final HashMap<String, UUID> runningInstances = new HashMap<>();
 
     private static String searchSource = "official";
 
     public static void init(String id) {
         modulePath = ApplicationStorage.getApplicationPath()+"modules/"+id+"/";
-
         config = new Config(modulePath + "config.json");
         config.checkEntry("settings.zyndex.local.paths",new JsonArray());
         if(config.get("settings.values.last.instance")!=null) {
             lastInstance = config.getString("settings.values.last.instance");
         }
-        if(config.get("settings.values.memory.default")!=null) {
-            memory = config.getInt("settings.values.memory.default");
-        }
+
+        config.checkEntry("settings.global.memory",1024);
+        map.setInteger("settings.global.memory",config.getInt("settings.global.memory"));
+
+        config.checkEntry("settings.global.minimizeApp",true);
+        map.setBoolean("settings.global.minimizeApp",config.getBoolean("settings.global.minimizeApp"));
+
         if(config.get("settings.search.source")!=null) {
             searchSource = config.getString("settings.search.source");
         }
@@ -82,6 +84,7 @@ public class JavaStorage extends LocalStorage {
         } else {
             map.set("system.os", OperatingSystem.Linux);
         }
+        reloadLocalZyndex();
     }
 
     public static void setSearchSource(String newSource) {
@@ -184,6 +187,7 @@ public class JavaStorage extends LocalStorage {
             Config instance = new Config(file);
             LocalInstance zynstance = new LocalInstance(instance.getJsonFile());
             NexusApplication.getLogger().debug("[Minecraft]     -> Found instance "+zynstance.getName()+" v"+zynstance.getVersion()+" by "+zynstance.getAuthor()+"...");
+            zynstance.scanMods();
             zyndex.addInstance(zynstance,path);
         } catch (Exception ignore) {}
     }
@@ -247,5 +251,9 @@ public class JavaStorage extends LocalStorage {
 
     public static String getLastInstance() {
         return config.getString("settings.values.last.instance");
+    }
+
+    public static boolean isReloading() {
+        return reloading;
     }
 }
