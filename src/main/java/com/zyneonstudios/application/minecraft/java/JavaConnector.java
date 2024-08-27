@@ -273,9 +273,12 @@ public class JavaConnector extends ModuleConnector {
         }
 
         String settingsGameLoaderVersion = "<h3 class='option'>Modloader version <label><select id='"+uuid+"-loader-version' onchange='connector(`java.settings."+id+".loader-version.`+this.value);'>"+settingsLoaderVersions+"</select></label></h3>";
-
         String settingsGame = settingsGameType+settingsGameVersion+settingsGameLoaderVersion;
-        String settings = settingsBase.replace("%",settingsGame);
+
+        String settingsJava = "<div class='option-group'><h4 class='option'>JVM (yes, this is a mess right now sorry)</h4>%</div>";
+        String settingsJVMArgs = "<h3 class='option input-list' id='java.settings."+id+".jvm-arguments'>JVM Arguments <span class='input-list-field'><span class='list-input-content'></span><label><input class='list' type='text'></label></span></h3>";
+
+        String settings = settingsBase.replace("%",settingsGame)+settingsJava.replace("%",settingsJVMArgs);
 
         StringBuilder contents = new StringBuilder("<div class='option-group'><h4 class='option'>Mods</h4>");
         for(String mod : modList) {
@@ -296,7 +299,18 @@ public class JavaConnector extends ModuleConnector {
         };
 
         String syncSettingsType = "document.getElementById('"+uuid+"-type').value = '"+modLoader.toLowerCase()+"'; document.getElementById('"+uuid+"-game-version').value = '"+minecraftVersion+"'; document.getElementById('"+uuid+"-loader-version').value = '"+loaderVersion+"';";
-        frame.executeJavaScript(syncSettingsType);
+        String syncSettingsJava = "initializeListInput('java.settings."+id+".jvm-arguments'); ";
+        try {
+            StringBuilder args = new StringBuilder();
+            for (String arg : (ArrayList<String>) instance.getSettings().get("settings.java.jvm-arguments")) {
+                args.append("listInputs.get('java.settings.").append(id).append(".jvm-arguments').push('").append(arg).append("'); ");
+            }
+            args.append("syncListInput('java.settings.").append(id).append(".jvm-arguments'); ");
+            syncSettingsJava += args.toString();
+        } catch (Exception ex) {
+            NexusApplication.getLogger().error("[Minecraft] (CONNECTOR) Couldn't resolve jvm arguments for "+id+": "+ex.getMessage());
+        }
+        frame.executeJavaScript(syncSettingsType+syncSettingsJava); System.gc();
     }
 
     private void resolveInstanceSync(String request) {
@@ -373,14 +387,36 @@ public class JavaConnector extends ModuleConnector {
                     int i = Integer.parseInt(request.replace("memory.", ""));
                     JavaStorage.getConfig().set("settings.global.memory", i);
                     JavaStorage.map.setInteger("settings.global.memory", i);
-                } catch (Exception ignore) {
-                    throw new RuntimeException(ignore);
-                }
+                } catch (Exception ignore) {}
                 frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/settings.html?t=global");
             } else if (request.startsWith("minimize.")) {
                 boolean minimize = Boolean.parseBoolean(request.replace("minimize.", ""));
                 JavaStorage.getConfig().set("settings.global.minimizeApp", minimize);
                 JavaStorage.map.setBoolean("settings.global.minimizeApp", minimize);
+            }
+        } else {
+            String[] r = request.split("\\.",2);
+            String id = r[0]; request = r[1];
+            if(JavaStorage.getLocalZyndex().getLocalInstancesById().containsKey(id)) {
+                LocalInstance instance = JavaStorage.getLocalZyndex().getLocalInstancesById().get(id);
+                if(request.startsWith("type.")) {
+
+                } else if(request.startsWith("game-version.")) {
+
+                } else if(request.startsWith("loader-version.")) {
+
+                } else if(request.startsWith("jvm-arguments.add.")) {
+                    ArrayList<String> args = (ArrayList<String>)instance.getSettings().get("settings.java.jvm-arguments");
+                    String arg = request.replaceFirst("jvm-arguments.add.","");
+                    if(!args.contains(arg)) {
+                        args.add(arg);
+                    }
+                    instance.getSettings().set("settings.java.jvm-arguments",args);
+                } else if(request.startsWith("jvm-arguments.remove.")) {
+                    ArrayList<String> args = (ArrayList<String>)instance.getSettings().get("settings.java.jvm-arguments");
+                    args.remove(request.replaceFirst("jvm-arguments.remove.",""));
+                    instance.getSettings().set("settings.java.jvm-arguments",args);
+                }
             }
         }
     }
