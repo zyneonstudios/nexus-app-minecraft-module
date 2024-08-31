@@ -105,7 +105,7 @@ public class CurseForgeSearch {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             return gson.fromJson(CurseForgeIntegration.makeRequest(searchRequest), JsonObject.class);
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] Could not search through CurseForge: " + e.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] Could not search through CurseForge: " + e.getMessage());
             return null;
         }
     }

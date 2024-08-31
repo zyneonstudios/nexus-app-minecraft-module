@@ -103,7 +103,7 @@ public class InstanceLauncher extends BasicLauncher {
                 });
                 return true;
             } catch (Exception e) {
-                NexusApplication.getLogger().error("[MINECRAFT] (INSTANCE LAUNCHER) Couldn't start the game: " + e.getMessage());
+                NexusApplication.getLogger().err("[MINECRAFT] (INSTANCE LAUNCHER) Couldn't start the game: " + e.getMessage());
             }
         }
         parentFrame.executeJavaScript("setLaunch(\"LAUNCH\",\"bx bx-rocket\",\"active hover-wiggle\",\"java.button.launch."+instance.getId()+"\");");

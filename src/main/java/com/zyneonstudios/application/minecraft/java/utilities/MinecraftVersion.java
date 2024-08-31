@@ -27,7 +27,7 @@ public class MinecraftVersion {
                     return Type.NEW;
                 }
             } catch (Exception e) {
-                Main.logger.error("[SYSTEM] Couldn't resolve Minecraft version "+version+": "+e.getMessage());
+                Main.logger.err("[SYSTEM] Couldn't resolve Minecraft version "+version+": "+e.getMessage());
             }
         }
         return null;

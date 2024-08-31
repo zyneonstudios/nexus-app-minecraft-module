@@ -9,10 +9,10 @@ import com.zyneonstudios.application.minecraft.java.authentication.MicrosoftAuth
 import com.zyneonstudios.application.minecraft.java.integrations.curseforge.CurseForgeCategories;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.ZyndexIntegration;
 import com.zyneonstudios.application.modules.ApplicationModule;
-import live.nerotv.shademebaby.file.Config;
-import live.nerotv.shademebaby.logger.Logger;
-import live.nerotv.shademebaby.utils.FileUtil;
-import live.nerotv.shademebaby.utils.StringUtil;
+import com.zyneonstudios.nexus.utilities.file.FileExtractor;
+import com.zyneonstudios.nexus.utilities.logger.NexusLogger;
+import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
+import com.zyneonstudios.nexus.utilities.strings.StringGenerator;
 
 import javax.crypto.KeyGenerator;
 import java.io.File;
@@ -68,13 +68,13 @@ public class MinecraftJavaAddon extends ApplicationModule {
             authenticator = null;
             System.gc();
             if (!old.delete()) {
-                NexusApplication.getLogger().error("[Minecraft] Couldn't delete old auth file...");
-                Config oldAuth = new Config(old);
+                NexusApplication.getLogger().err("[Minecraft] Couldn't delete old auth file...");
+                JsonStorage oldAuth = new JsonStorage(old);
                 try {
                     oldAuth.delete("op");
                     oldAuth.delete("opapi");
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft] Couldn't reset auth credentials...");
+                    NexusApplication.getLogger().err("[Minecraft] Couldn't reset auth credentials...");
                     return null;
                 }
             }
@@ -124,7 +124,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
         try {
             ZyndexIntegration.searchModpacks("", (ApplicationFrame) getApplication().getFrame());
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] Couldn't cache NEX: " + e.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] Couldn't cache NEX: " + e.getMessage());
         }
 
         NexusApplication.getLogger().log(prefix + "Loaded!");
@@ -166,20 +166,20 @@ public class MinecraftJavaAddon extends ApplicationModule {
     }
 
     private void update() {
-        Logger logger = NexusApplication.getLogger();
+        NexusLogger logger = NexusApplication.getLogger();
         try {
             if (new File(ApplicationStorage.getApplicationPath() + "temp/ui/").exists()) {
-                logger.debug("[Minecraft] Deleted old ui files: " + new File(ApplicationStorage.getApplicationPath() + "temp/ui/").delete());
+                logger.dbg("[Minecraft] Deleted old ui files: " + new File(ApplicationStorage.getApplicationPath() + "temp/ui/").delete());
             }
-            logger.debug("[Minecraft] Created new ui path: " + new File(ApplicationStorage.getApplicationPath() + "temp/ui/").mkdirs());
-            FileUtil.extractResourceFile("html.zip", ApplicationStorage.getApplicationPath() + "temp/mje.zip", MinecraftJavaAddon.class);
-            FileUtil.unzipFile(ApplicationStorage.getApplicationPath() + "temp/mje.zip", ApplicationStorage.getApplicationPath() + "temp/ui");
-            logger.debug("[Minecraft] Deleted ui archive: " + new File(ApplicationStorage.getApplicationPath() + "temp/mje.zip").delete());
+            logger.dbg("[Minecraft] Created new ui path: " + new File(ApplicationStorage.getApplicationPath() + "temp/ui/").mkdirs());
+            FileExtractor.extractResourceFile("html.zip", ApplicationStorage.getApplicationPath() + "temp/mje.zip", MinecraftJavaAddon.class);
+            FileExtractor.unzipFile(ApplicationStorage.getApplicationPath() + "temp/mje.zip", ApplicationStorage.getApplicationPath() + "temp/ui");
+            logger.dbg("[Minecraft] Deleted ui archive: " + new File(ApplicationStorage.getApplicationPath() + "temp/mje.zip").delete());
         } catch (Exception e) {
-            logger.error("[Minecraft] Couldn't update application user interface: " + e.getMessage());
+            logger.err("[Minecraft] Couldn't update application user interface: " + e.getMessage());
         }
-        logger.debug("[Minecraft] Deleted old updatar json: " + new File(ApplicationStorage.getApplicationPath() + "updater.json").delete());
-        logger.debug("[Minecraft] Deleted older updater json: " + new File(ApplicationStorage.getApplicationPath() + "version.json").delete());
+        logger.dbg("[Minecraft] Deleted old updatar json: " + new File(ApplicationStorage.getApplicationPath() + "updater.json").delete());
+        logger.dbg("[Minecraft] Deleted older updater json: " + new File(ApplicationStorage.getApplicationPath() + "version.json").delete());
     }
 
     public static void main(String[] args) {
@@ -190,10 +190,10 @@ public class MinecraftJavaAddon extends ApplicationModule {
         arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
         args = arguments.toArray(new String[0]);
         NexusApplication application = new NexusApplication(args);
-        NexusApplication.getLogger().setDebugEnabled(true);
+        NexusApplication.getLogger().enableDebug();
         try {
             String v = new SimpleDateFormat("yyyy.M.d/HH-mm-ss").format(Calendar.getInstance().getTime());
-            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application, "nexus-minecraft-module", "Minecraft (Test)", v + "_" + StringUtil.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
+            NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application, "nexus-minecraft-module", "Minecraft (Test)", v + "_" + StringGenerator.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
         } catch (Exception ignore) {}
         application.launch();
     }

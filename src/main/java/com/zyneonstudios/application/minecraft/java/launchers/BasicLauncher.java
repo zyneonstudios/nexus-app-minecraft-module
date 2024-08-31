@@ -120,7 +120,7 @@ public class BasicLauncher implements Launcher {
                 });
                 return true;
             } catch (Exception e) {
-                NexusApplication.getLogger().error("[MINECRAFT] (BASIC LAUNCHER) Couldn't start the game: " + e.getMessage());
+                NexusApplication.getLogger().err("[MINECRAFT] (BASIC LAUNCHER) Couldn't start the game: " + e.getMessage());
             }
         }
         showApp(true);

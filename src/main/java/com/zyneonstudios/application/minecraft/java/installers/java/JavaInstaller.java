@@ -1,10 +1,13 @@
 package com.zyneonstudios.application.minecraft.java.installers.java;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.installers.Installer;
-import live.nerotv.shademebaby.file.OnlineConfig;
-import live.nerotv.shademebaby.utils.FileUtil;
+import com.zyneonstudios.nexus.utilities.file.FileExtractor;
+import com.zyneonstudios.nexus.utilities.file.FileGetter;
+import com.zyneonstudios.nexus.utilities.json.GsonUtility;
 
 import java.io.File;
 
@@ -79,14 +82,14 @@ public class JavaInstaller implements Installer {
             if (versionString.contains("null")) {
                 throw new NullPointerException("Couldn't find such a java version");
             } else {
-                NexusApplication.getLogger().debug("[INSTALLER] (JAVA) Gathering java information...");
-                OnlineConfig index = new OnlineConfig("https://raw.githubusercontent.com/danieldieeins/ZyneonApplicationContent/main/l/application.json");
-                String download = index.getString("runtime." + versionString);
+                NexusApplication.getLogger().dbg("[INSTALLER] (JAVA) Gathering java information...");
+                JsonObject runtimes = new Gson().fromJson(GsonUtility.getFromURL("https://raw.githubusercontent.com/danieldieeins/ZyneonApplicationContent/main/l/application.json"), JsonObject.class).getAsJsonObject("runtime");
+                String download = runtimes.get(versionString).getAsString();
                 String zipPath = ApplicationStorage.getApplicationPath() + "libs/" + runtimeVersion + ".zip";
-                NexusApplication.getLogger().debug("[INSTALLER] (JAVA) Starting download from " + download + " to " + zipPath + "...");
-                FileUtil.downloadFile(download, zipPath);
-                FileUtil.unzipFile(zipPath, ApplicationStorage.getApplicationPath() + "libs/");
-                NexusApplication.getLogger().debug("[INSTALLER] (JAVA) Deleted zip-File: " + new File(zipPath).delete());
+                NexusApplication.getLogger().dbg("[INSTALLER] (JAVA) Starting download from " + download + " to " + zipPath + "...");
+                FileGetter.downloadFile(download, zipPath);
+                FileExtractor.unzipFile(zipPath, ApplicationStorage.getApplicationPath() + "libs/");
+                NexusApplication.getLogger().dbg("[INSTALLER] (JAVA) Deleted zip-File: " + new File(zipPath).delete());
                 NexusApplication.getLogger().log("[INSTALLER] (JAVA) Installed Java Runtime: " + versionString + "!");
             }
             return true;

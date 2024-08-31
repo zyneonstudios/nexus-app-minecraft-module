@@ -3,7 +3,7 @@ package com.zyneonstudios.application.minecraft.java.integrations.zyndex;
 import com.google.gson.JsonArray;
 import com.zyneonstudios.nexus.index.Zyndex;
 import com.zyneonstudios.nexus.instance.ReadableZynstance;
-import live.nerotv.shademebaby.file.Config;
+import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ public class LocalZyndex extends Zyndex {
 
     private HashMap<LocalInstance, String> instances;
 
-    public LocalZyndex(Config config) {
+    public LocalZyndex(JsonStorage config) {
         super(config);
         instances = new HashMap<>();
     }

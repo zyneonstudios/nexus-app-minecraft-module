@@ -91,7 +91,7 @@ public class CurseForgeIntegration {
                     String command = "addResult(\"" + id + "\",\"" + iconUrl + "\",\"" + name + "\",\"" + author + "\",\"" + description + "\",\"" + meta + "\",\"" + actions + "\",\"https://api.curseforge.com/v1/mods/" + id + "\",\"java.init.details.curseForgeInstance." + id + "\");";
                     frame.executeJavaScript(command);
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error(e.getMessage());
+                    NexusApplication.getLogger().err(e.getMessage());
                     e.printStackTrace();
                 }
             }

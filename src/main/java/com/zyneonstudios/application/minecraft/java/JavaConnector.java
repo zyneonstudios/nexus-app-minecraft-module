@@ -124,7 +124,7 @@ public class JavaConnector extends ModuleConnector {
                     }
                     frame.executeJavaScript("addGroupEntry(\"mje-instances\",\"" + title + "\",\"" + id + "\",\"" + image + "\");");
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft] Couldn't index instance: " + e.getMessage());
+                    NexusApplication.getLogger().err("[Minecraft] Couldn't index instance: " + e.getMessage());
                 }
             }
 
@@ -247,7 +247,7 @@ public class JavaConnector extends ModuleConnector {
                 default -> Verget.getMinecraftVersions(MinecraftVerget.Filter.BOTH);
             };
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] (Connector) Couldn't fetch available versions for minecraft: "+e.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't fetch available versions for minecraft: "+e.getMessage());
         }
         StringBuilder settingsGameVersions = new StringBuilder();
         for(String version:gameVersions) {
@@ -265,7 +265,7 @@ public class JavaConnector extends ModuleConnector {
                 default -> new ArrayList<>();
             };
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] (Connector) Couldn't fetch available versions for "+modLoader+": "+e.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't fetch available versions for "+modLoader+": "+e.getMessage());
         }
         StringBuilder settingsLoaderVersions = new StringBuilder();
         for(String version : loaderVersions) {
@@ -308,7 +308,7 @@ public class JavaConnector extends ModuleConnector {
             args.append("syncListInput('java.settings.").append(id).append(".jvm-arguments'); ");
             syncSettingsJava += args.toString();
         } catch (Exception ex) {
-            NexusApplication.getLogger().error("[Minecraft] (CONNECTOR) Couldn't resolve jvm arguments for "+id+": "+ex.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] (CONNECTOR) Couldn't resolve jvm arguments for "+id+": "+ex.getMessage());
         }
         frame.executeJavaScript(syncSettingsType+syncSettingsJava); System.gc();
     }

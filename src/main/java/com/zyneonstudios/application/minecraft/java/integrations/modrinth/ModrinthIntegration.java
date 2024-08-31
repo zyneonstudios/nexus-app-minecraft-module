@@ -82,7 +82,7 @@ public class ModrinthIntegration {
                     String command = "addResult(\"" + id + "\",\"" + iconUrl + "\",\"" + name + "\",\"" + author + "\",\"" + description + "\",\"" + meta + "\",\"" + actions + "\",\"https://api.modrinth.com/v2/project/" + id + "\",\"java.init.details.modrinthInstance." + id + "\");";
                     frame.executeJavaScript(command);
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error(e.getMessage());
+                    NexusApplication.getLogger().err(e.getMessage());
                     e.printStackTrace();
                 }
             }

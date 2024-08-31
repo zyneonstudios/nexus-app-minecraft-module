@@ -2,9 +2,9 @@ package com.zyneonstudios.application.minecraft.java.authentication;
 
 import com.zyneonstudios.application.MinecraftJavaAddon;
 import com.zyneonstudios.application.main.ApplicationStorage;
+import com.zyneonstudios.nexus.utilities.aes.AESUtility;
+import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
 import fr.theshark34.openlauncherlib.minecraft.AuthInfos;
-import live.nerotv.shademebaby.file.Config;
-import live.nerotv.shademebaby.utils.AESUtil;
 import live.nerotv.zyneon.auth.ZyneonAuth;
 
 import javax.crypto.KeyGenerator;
@@ -22,7 +22,7 @@ public class MicrosoftAuthenticator {
     private byte[] key;
     private AuthenticationResolver resolver;
     private Boolean isLoggedIn;
-    private Config saver;
+    private JsonStorage saver;
 
     public MicrosoftAuthenticator(MinecraftJavaAddon moduleInfo) {
         saveFile = null;
@@ -40,7 +40,7 @@ public class MicrosoftAuthenticator {
         keyGenerator.init(256);
         byte[] key = keyGenerator.generateKey().getEncoded();
         String key_ = new String(Base64.getEncoder().encode(key));
-        Config saver = new Config(getSaveFile());
+        JsonStorage saver = new JsonStorage(getSaveFile());
         try {
             if (saver.get("op.k") == null) {
                 saver.set("op.k", key_);
@@ -80,7 +80,7 @@ public class MicrosoftAuthenticator {
     public void setSaveFilePath(String newPath) {
         saveFile = new File(newPath);
         try {
-            saver = new Config(saveFile);
+            saver = new JsonStorage(saveFile);
             new File(saveFile.getParent()).mkdirs();
         } catch (Exception ignore) {}
     }
@@ -96,7 +96,7 @@ public class MicrosoftAuthenticator {
                         String r = (String) saver.get("opapi.ms.r");
                         try {
                             byte[] b = r.getBytes();
-                            b = AESUtil.decrypt(key, b);
+                            b = AESUtility.decrypt(key, b);
                             if(refresh_(new String(b))) {
                                 return true;
                             } else {
@@ -151,10 +151,10 @@ public class MicrosoftAuthenticator {
         if (saveFile != null) {
             if (key != null) {
                 try {
-                    byte[] a = AESUtil.encrypt(key, authData.get(ZyneonAuth.AuthInfo.ACCESS_TOKEN).getBytes());
-                    byte[] r = AESUtil.encrypt(key, authData.get(ZyneonAuth.AuthInfo.REFRESH_TOKEN).getBytes());
-                    byte[] n = AESUtil.encrypt(key, authData.get(ZyneonAuth.AuthInfo.USERNAME).getBytes());
-                    byte[] u = AESUtil.encrypt(key, authData.get(ZyneonAuth.AuthInfo.UUID).getBytes());
+                    byte[] a = AESUtility.encrypt(key, authData.get(ZyneonAuth.AuthInfo.ACCESS_TOKEN).getBytes());
+                    byte[] r = AESUtility.encrypt(key, authData.get(ZyneonAuth.AuthInfo.REFRESH_TOKEN).getBytes());
+                    byte[] n = AESUtility.encrypt(key, authData.get(ZyneonAuth.AuthInfo.USERNAME).getBytes());
+                    byte[] u = AESUtility.encrypt(key, authData.get(ZyneonAuth.AuthInfo.UUID).getBytes());
                     saver.set("opapi.ms.a", new String(a));
                     saver.set("opapi.ms.r", new String(r));
                     saver.set("opapi.ms.n", new String(n));

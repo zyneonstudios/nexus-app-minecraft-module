@@ -105,7 +105,7 @@ public class BasicInstaller implements Installer {
 
             return true;
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] (BASIC INSTALLER) Couldn't install Minecraft: "+e.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] (BASIC INSTALLER) Couldn't install Minecraft: "+e.getMessage());
         }
         return false;
     }

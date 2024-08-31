@@ -2,7 +2,7 @@ package com.zyneonstudios.application.minecraft.java.integrations.modrinth.searc
 
 import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.NexusApplication;
-import live.nerotv.shademebaby.utils.GsonUtil;
+import com.zyneonstudios.nexus.utilities.json.GsonUtility;
 
 import java.util.UUID;
 
@@ -131,9 +131,9 @@ public class ModrinthSearch {
 
                 searchRequest = search;
             }
-            return GsonUtil.getObject(searchRequest);
+            return GsonUtility.getObject(searchRequest);
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] Could not search through Modrinth: " + e.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] Could not search through Modrinth: " + e.getMessage());
             return null;
         }
     }

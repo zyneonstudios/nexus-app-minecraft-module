@@ -7,7 +7,7 @@ import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
-import live.nerotv.shademebaby.utils.GsonUtil;
+import com.zyneonstudios.nexus.utilities.json.GsonUtility;
 
 import java.util.UUID;
 
@@ -29,18 +29,18 @@ public class AuthenticationResolver {
         JavaStorage.map.set("auth.uuid", UUID.fromString(uuid));
         moduleInfo.setAuthState(MinecraftJavaAddon.AuthState.LOGGED_IN);
         try {
-            JsonArray team = GsonUtil.getObject("https://danieldieeins.github.io/ZyneonApplicationContent/i/team.json").getAsJsonArray("team");
+            JsonArray team = GsonUtility.getObject("https://danieldieeins.github.io/ZyneonApplicationContent/i/team.json").getAsJsonArray("team");
             for (JsonElement element : team) {
                 if (element.getAsString().equals(uuid.replace("-", ""))) {
-                    NexusApplication.getLogger().debug("[Minecraft] (AuthResolver) This account does have access to Zyneon Drive.");
+                    NexusApplication.getLogger().dbg("[Minecraft] (AuthResolver) This account does have access to Zyneon Drive.");
                     ApplicationStorage.enableDriveAccess();
                     break;
                 } else {
-                    NexusApplication.getLogger().debug("[Minecraft] (AuthResolver) This account doesn't have access to Zyneon Drive.");
+                    NexusApplication.getLogger().dbg("[Minecraft] (AuthResolver) This account doesn't have access to Zyneon Drive.");
                 }
             }
         } catch (Exception e) {
-            NexusApplication.getLogger().error("[Minecraft] (AuthResolver) Couldn't resolve Zyneon Drive access: " + e.getMessage());
+            NexusApplication.getLogger().err("[Minecraft] (AuthResolver) Couldn't resolve Zyneon Drive access: " + e.getMessage());
         }
 
         if (((ApplicationFrame) moduleInfo.getApplication().getFrame()).getBrowser().getURL().contains("mje-login.html")) {

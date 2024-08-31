@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.zyneonstudios.application.main.NexusApplication;
-import live.nerotv.shademebaby.utils.GsonUtil;
+import com.zyneonstudios.nexus.utilities.json.GsonUtility;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,7 @@ public class ModrinthResourceVersion {
         }
         if(versionExists) {
             this.url = "https://api.modrinth.com/v2/version/"+versionId;
-            this.json = GsonUtil.getObject(this.url);
+            this.json = GsonUtility.getObject(this.url);
             this.versionId = json.get("id").getAsString();
 
             JsonArray gameVersions = json.getAsJsonArray("game_versions");
@@ -55,7 +55,7 @@ public class ModrinthResourceVersion {
                             versions.add(version);
                         }
                     } catch (Exception e) {
-                        NexusApplication.getLogger().error("[Minecraft] Couldn't parse game version: "+e.getMessage());
+                        NexusApplication.getLogger().err("[Minecraft] Couldn't parse game version: "+e.getMessage());
                     }
                 }
                 String[] gV;
@@ -63,7 +63,7 @@ public class ModrinthResourceVersion {
                     gV = versions.toArray(new String[0]);
                 } catch (Exception e) {
                     gV = null;
-                    NexusApplication.getLogger().error("[Minecraft] Couldn't parse game versions: "+e.getMessage());
+                    NexusApplication.getLogger().err("[Minecraft] Couldn't parse game versions: "+e.getMessage());
                 }
                 this.gameVersions = gV;
             } else {
@@ -80,7 +80,7 @@ public class ModrinthResourceVersion {
                             loaders_.add(loader);
                         }
                     } catch (Exception e) {
-                        NexusApplication.getLogger().error("[Minecraft] Couldn't parse loader: "+e.getMessage());
+                        NexusApplication.getLogger().err("[Minecraft] Couldn't parse loader: "+e.getMessage());
                     }
                 }
                 String[] l;
@@ -88,7 +88,7 @@ public class ModrinthResourceVersion {
                     l = loaders_.toArray(new String[0]);
                 } catch (Exception e) {
                     l = null;
-                    NexusApplication.getLogger().error("[Minecraft] Couldn't parse loaders: "+e.getMessage());
+                    NexusApplication.getLogger().err("[Minecraft] Couldn't parse loaders: "+e.getMessage());
                 }
                 this.loaders = l;
             } else {

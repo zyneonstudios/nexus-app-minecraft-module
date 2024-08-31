@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
 import com.zyneonstudios.nexus.instance.Instance;
-import live.nerotv.shademebaby.file.Config;
+import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -17,8 +17,8 @@ public class LocalInstance implements Instance {
 
     // OBJECT STUFF
     private final File directory;
-    private final Config settings;
-    private final Config config;
+    private final JsonStorage settings;
+    private final JsonStorage config;
 
     // INFO STUFF
     private ArrayList<String> info_authors = new ArrayList<>();
@@ -217,11 +217,11 @@ public class LocalInstance implements Instance {
         } else {
             scheme = null;
         }
-        settings.checkEntry("settings.java.jvm-arguments",new JsonArray());
+        settings.ensure("settings.java.jvm-arguments",new JsonArray());
     }
 
     public LocalInstance(File file) {
-        config = new Config(file);
+        config = new JsonStorage(file);
         this.directory = file.getParentFile();
         String path = getPath().toString();
         if(path.endsWith("/")) {
@@ -229,7 +229,7 @@ public class LocalInstance implements Instance {
         } else {
             path = path + "/meta/instanceSettings.json";
         }
-        settings = new Config(path);
+        settings = new JsonStorage(path);
         init();
     }
 
@@ -245,7 +245,7 @@ public class LocalInstance implements Instance {
         return Path.of(URLDecoder.decode(directory.getAbsolutePath().replace("\\\\","\\").replace("\\","/"), StandardCharsets.UTF_8));
     }
 
-    public Config getSettings() {
+    public JsonStorage getSettings() {
         return settings;
     }
 
@@ -257,7 +257,7 @@ public class LocalInstance implements Instance {
                 try {
                     return settings.getInt("settings.memory");
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("[Minecraft] Couldn't read memory int ("+settings.getPath()+"): "+e.getMessage());
+                    NexusApplication.getLogger().err("[Minecraft] Couldn't read memory int ("+settings.getPath()+"): "+e.getMessage());
                 }
             }
         }
@@ -270,7 +270,7 @@ public class LocalInstance implements Instance {
                 return false;
             }
         }
-        settings.checkEntry("settings.game.isExperimental",false);
+        settings.ensure("settings.game.isExperimental",false);
         return settings.getBoolean("settings.game.isExperimental");
     }
 
@@ -444,7 +444,7 @@ public class LocalInstance implements Instance {
 
     public void scanMods() {
         modList.clear();
-        NexusApplication.getLogger().debug("[Minecraft] (Instance) Starting mod scan for "+meta_id+"...");
+        NexusApplication.getLogger().dbg("[Minecraft] (Instance) Starting mod scan for "+meta_id+"...");
         File mods = new File(getPath().toString().replace("\\","/")+"/mods");
         if(mods.exists()) {
             for(File file : Objects.requireNonNull(mods.listFiles())) {

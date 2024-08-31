@@ -7,7 +7,7 @@ import com.zyneonstudios.application.minecraft.java.installers.java.OperatingSys
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalInstance;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalZyndex;
 import com.zyneonstudios.application.utils.LocalStorage;
-import live.nerotv.shademebaby.file.Config;
+import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
 
 import java.io.File;
 import java.net.URLDecoder;
@@ -15,7 +15,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class JavaStorage extends LocalStorage {
@@ -25,7 +28,7 @@ public class JavaStorage extends LocalStorage {
     private static String urlBase = ApplicationStorage.getApplicationPath()+"temp/ui/";
 
     private static LocalZyndex zyndex = null;
-    private static Config config = null;
+    private static JsonStorage config = null;
 
     public static final JavaStorage map = new JavaStorage();
     public static final HashMap<String, UUID> runningInstances = new HashMap<>();
@@ -34,16 +37,16 @@ public class JavaStorage extends LocalStorage {
 
     public static void init(String id) {
         modulePath = ApplicationStorage.getApplicationPath()+"modules/"+id+"/";
-        config = new Config(modulePath + "config.json");
-        config.checkEntry("settings.zyndex.local.paths",new JsonArray());
+        config = new JsonStorage(modulePath + "config.json");
+        config.ensure("settings.zyndex.local.paths",new JsonArray());
         if(config.get("settings.values.last.instance")!=null) {
             lastInstance = config.getString("settings.values.last.instance");
         }
 
-        config.checkEntry("settings.global.memory",1024);
+        config.ensure("settings.global.memory",1024);
         map.setInteger("settings.global.memory",config.getInt("settings.global.memory"));
 
-        config.checkEntry("settings.global.minimizeApp",true);
+        config.ensure("settings.global.minimizeApp",true);
         map.setBoolean("settings.global.minimizeApp",config.getBoolean("settings.global.minimizeApp"));
 
         if(config.get("settings.search.source")!=null) {
@@ -103,7 +106,7 @@ public class JavaStorage extends LocalStorage {
             try {
                 reloading = true;
                 try {
-                    Config old = new Config(getApplicationStoragePath());
+                    JsonStorage old = new JsonStorage(getApplicationStoragePath());
                     String oldPath = old.getString("settings.path.instances");
                     if(oldPath!=null) {
                         if(!oldPath.endsWith("/instances")&&!oldPath.endsWith("/instances/")) {
@@ -128,9 +131,9 @@ public class JavaStorage extends LocalStorage {
                         config.set("settings.zyndex.local.paths",instancePaths);
                     }
                 } catch (Exception e) {
-                    NexusApplication.getLogger().error("Couldn't check old path: "+e.getMessage());
+                    NexusApplication.getLogger().err("Couldn't check old path: "+e.getMessage());
                 }
-                Config index = new Config(modulePath + "zyndex/index.json");
+                JsonStorage index = new JsonStorage(modulePath + "zyndex/index.json");
                 index.set("name", Strings.local + " Zyndex");
                 index.set("url", "file://" + URLDecoder.decode(index.getJsonFile().getAbsolutePath().replace("\\\\", "\\").replace("\\", "/"), StandardCharsets.UTF_8));
                 index.set("owner", "Zyneon Studios NEXUS Application");
@@ -140,7 +143,7 @@ public class JavaStorage extends LocalStorage {
                 reloading = false;
                 return true;
             } catch (Exception e) {
-                NexusApplication.getLogger().error("[Minecraft] Couldn't reload local zyndex: " + e.getMessage());
+                NexusApplication.getLogger().err("[Minecraft] Couldn't reload local zyndex: " + e.getMessage());
             }
         }
         reloading = false;
@@ -149,18 +152,18 @@ public class JavaStorage extends LocalStorage {
 
     @SuppressWarnings("unchecked")
     private static void scanInstances() {
-        NexusApplication.getLogger().debug("[Minecraft] Scanning Java Edition instance paths...");
+        NexusApplication.getLogger().dbg("[Minecraft] Scanning Java Edition instance paths...");
         ArrayList<String> instancePaths = (ArrayList<String>)config.get("settings.zyndex.local.paths");
         for(String instancePath_ : instancePaths) {
             File instancePath = new File(instancePath_);
             instancePath_ = instancePath.getAbsolutePath().replace("\\\\","\\").replace("\\","/");
             if(instancePath.exists()) {
                 if(instancePath.isDirectory()) {
-                    NexusApplication.getLogger().debug("[Minecraft]   -> Scanning "+instancePath_+"...");
+                    NexusApplication.getLogger().dbg("[Minecraft]   -> Scanning "+instancePath_+"...");
                     try {
                         for (File file : Objects.requireNonNull(instancePath.listFiles())) {
                             if(file.isDirectory()) {
-                                NexusApplication.getLogger().debug("[Minecraft]   -> Scanning "+file.getAbsolutePath().replace("\\\\","\\").replace("\\","/")+"...");
+                                NexusApplication.getLogger().dbg("[Minecraft]   -> Scanning "+file.getAbsolutePath().replace("\\\\","\\").replace("\\","/")+"...");
                                 try {
                                     for (File instance : Objects.requireNonNull(file.listFiles())) {
                                         if(instance.getAbsolutePath().replace("\\\\","\\").replace("\\","/").endsWith("/zyneonInstance.json")) {
@@ -182,11 +185,11 @@ public class JavaStorage extends LocalStorage {
 
     private static void scanFile(File file) {
         String path = file.getAbsolutePath().replace("\\\\","\\").replace("\\","/");
-        NexusApplication.getLogger().debug("[Minecraft]   -> Checking file "+path+"...");
+        NexusApplication.getLogger().dbg("[Minecraft]   -> Checking file "+path+"...");
         try {
-            Config instance = new Config(file);
+            JsonStorage instance = new JsonStorage(file);
             LocalInstance zynstance = new LocalInstance(instance.getJsonFile());
-            NexusApplication.getLogger().debug("[Minecraft]     -> Found instance "+zynstance.getName()+" v"+zynstance.getVersion()+" by "+zynstance.getAuthor()+"...");
+            NexusApplication.getLogger().dbg("[Minecraft]     -> Found instance "+zynstance.getName()+" v"+zynstance.getVersion()+" by "+zynstance.getAuthor()+"...");
             zynstance.scanMods();
             zyndex.addInstance(zynstance,path);
         } catch (Exception ignore) {}
@@ -208,7 +211,7 @@ public class JavaStorage extends LocalStorage {
         return urlBase+ApplicationStorage.language+"/";
     }
 
-    public static Config getConfig() {
+    public static JsonStorage getConfig() {
         return config;
     }
 
