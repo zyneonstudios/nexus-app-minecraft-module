@@ -30,7 +30,7 @@ public class MicrosoftAuthenticator {
         resolver = new AuthenticationResolver(moduleInfo);
         isLoggedIn = false;
 
-        setSaveFilePath(ApplicationStorage.getApplicationPath() +"libs/opapi/arnu.json");
+        setSaveFilePath(ApplicationStorage.getApplicationPath() +"libraries/opapi/arnu.json");
         KeyGenerator keyGenerator;
         try {
             keyGenerator = KeyGenerator.getInstance("AES");

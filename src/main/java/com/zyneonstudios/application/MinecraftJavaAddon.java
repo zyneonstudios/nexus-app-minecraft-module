@@ -9,6 +9,8 @@ import com.zyneonstudios.application.minecraft.java.authentication.MicrosoftAuth
 import com.zyneonstudios.application.minecraft.java.integrations.curseforge.CurseForgeCategories;
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.ZyndexIntegration;
 import com.zyneonstudios.application.modules.ApplicationModule;
+import com.zyneonstudios.nexus.desktop.NexusDesktop;
+import com.zyneonstudios.nexus.utilities.NexusUtilities;
 import com.zyneonstudios.nexus.utilities.file.FileExtractor;
 import com.zyneonstudios.nexus.utilities.logger.NexusLogger;
 import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
@@ -183,6 +185,8 @@ public class MinecraftJavaAddon extends ApplicationModule {
     }
 
     public static void main(String[] args) {
+        NexusUtilities.getLogger().enableDebug();
+        NexusDesktop.init();
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
         arguments.add("--debug");
@@ -190,7 +194,6 @@ public class MinecraftJavaAddon extends ApplicationModule {
         arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
         args = arguments.toArray(new String[0]);
         NexusApplication application = new NexusApplication(args);
-        NexusApplication.getLogger().enableDebug();
         try {
             String v = new SimpleDateFormat("yyyy.M.d/HH-mm-ss").format(Calendar.getInstance().getTime());
             NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application, "nexus-minecraft-module", "Minecraft (Test)", v + "_" + StringGenerator.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));

@@ -85,10 +85,10 @@ public class JavaInstaller implements Installer {
                 NexusApplication.getLogger().dbg("[INSTALLER] (JAVA) Gathering java information...");
                 JsonObject runtimes = new Gson().fromJson(GsonUtility.getFromURL("https://raw.githubusercontent.com/danieldieeins/ZyneonApplicationContent/main/l/application.json"), JsonObject.class).getAsJsonObject("runtime");
                 String download = runtimes.get(versionString).getAsString();
-                String zipPath = ApplicationStorage.getApplicationPath() + "libs/" + runtimeVersion + ".zip";
+                String zipPath = ApplicationStorage.getApplicationPath() + "libraries/" + runtimeVersion + ".zip";
                 NexusApplication.getLogger().dbg("[INSTALLER] (JAVA) Starting download from " + download + " to " + zipPath + "...");
                 FileGetter.downloadFile(download, zipPath);
-                FileExtractor.unzipFile(zipPath, ApplicationStorage.getApplicationPath() + "libs/");
+                FileExtractor.unzipFile(zipPath, ApplicationStorage.getApplicationPath() + "libraries/");
                 NexusApplication.getLogger().dbg("[INSTALLER] (JAVA) Deleted zip-File: " + new File(zipPath).delete());
                 NexusApplication.getLogger().log("[INSTALLER] (JAVA) Installed Java Runtime: " + versionString + "!");
             }

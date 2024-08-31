@@ -18,7 +18,7 @@ public class JavaSettings {
         NexusApplication.getLogger().log("[LAUNCHER] Detected Minecraft version type "+type+"!");
         if(type.equals(MinecraftVersion.Type.LEGACY)) {
             JavaUtil.setJavaCommand(null);
-            String java = ApplicationStorage.getApplicationPath() +"libs/jre-8/";
+            String java = ApplicationStorage.getApplicationPath() +"libraries/jre-8/";
             if(!new File(java).exists()) {
                 NexusApplication.getLogger().err("[LAUNCHER] Couldn't find compatible Java Runtime Environment!");
                 JavaInstaller javaInstaller = new JavaInstaller(Java.Runtime_8, (OperatingSystem)JavaStorage.map.get("system.os"), getArchitecture());
@@ -28,7 +28,7 @@ public class JavaSettings {
             System.setProperty("java.home", java);
         } else if(type.equals(MinecraftVersion.Type.SEMI_NEW)) {
             JavaUtil.setJavaCommand(null);
-            String java = ApplicationStorage.getApplicationPath()+"libs/jre-11/";
+            String java = ApplicationStorage.getApplicationPath()+"libraries/jre-11/";
             if(!new File(java).exists()) {
                 NexusApplication.getLogger().err("[LAUNCHER] Couldn't find compatible Java Runtime Environment!");
                 JavaInstaller javaInstaller = new JavaInstaller(Java.Runtime_11,(OperatingSystem)JavaStorage.map.get("system.os"), getArchitecture());
@@ -38,7 +38,7 @@ public class JavaSettings {
             System.setProperty("java.home", java);
         } else if(type.equals(MinecraftVersion.Type.NEW)) {
             JavaUtil.setJavaCommand(null);
-            String java = ApplicationStorage.getApplicationPath()+"libs/jre/";
+            String java = ApplicationStorage.getApplicationPath()+"libraries/jre/";
             if(!new File(java).exists()) {
                 NexusApplication.getLogger().err("[LAUNCHER] Couldn't find compatible Java Runtime Environment!");
                 JavaInstaller javaInstaller = new JavaInstaller(Java.Runtime_21,(OperatingSystem)JavaStorage.map.get("system.os"), getArchitecture());
