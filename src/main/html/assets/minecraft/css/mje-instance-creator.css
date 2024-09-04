@@ -1,5 +1,9 @@
 body {
     background: linear-gradient(70deg,var(--background),var(--background2),var(--background));
+    transition: all 0.25s ease !important;
+    * {
+        transition: all 0.25s ease !important;
+    }
 }
 
 .mje-main {
@@ -43,15 +47,66 @@ body {
 
 .card.button {
     background: var(--foreground);
-    border-color: var(--foreground2);
+    border-color: var(--shadow2);
     padding: 0.5rem 1rem 0.5rem 1rem;
     max-width: 100%;
     overflow: hidden;
+
+    h3 {
+        color: var(--background4);
+    }
+
+    i {
+        right: 0.5rem;
+        top: 0.525rem;
+        position: absolute;
+        font-size: 2rem;
+    }
 }
 
 .card.button.highlight {
     background: var(--accent);
     border-color: #a567f1;
+    color: var(--foreground2);
+
+    i {
+        opacity: 0.5;
+        top: -0.5rem; right: -1.75rem;
+        font-size: 4rem;
+        position: absolute;
+    }
+
+    h3 {
+        color: white;
+    }
+}
+
+.card.button.highlight:hover {
+    background: var(--accent2) !important;
+    border-color: var(--accent2) !important;
+    box-shadow: 0 0 0.4rem var(--accent) !important;
+    color: var(--foreground);
+}
+
+.card.button.danger {
+    background: #da3333 !important;
+    border-color: #ea4d4d !important;
+    box-shadow: 0 0 0.4rem var(--shadow3) !important;
+    color: var(--foreground) !important;
+
+    h3 {
+        color: var(--foreground2);
+    }
+}
+
+.card.button.danger:hover {
+    background: red !important;
+    border-color: red !important;
+    box-shadow: 0 0 0.4rem red !important;
+
+    h3 {
+        color: white !important;
+    }
 }
 
 .card.button.highlight h3 {
@@ -73,7 +128,7 @@ body {
 
 .mje-menu-content {
     min-height: 5rem;
-    height: calc(100% - 20.5rem);
+    height: calc(100% - 21.5rem);
 }
 
 @keyframes wiggle {

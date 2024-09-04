@@ -200,6 +200,8 @@ public class LocalInstance implements Instance {
             versions_quilt = null;
         }
 
+
+
         if(versions_quilt!=null) {
             modloader = "Quilt";
         } else if(versions_fabric!=null) {
@@ -211,6 +213,8 @@ public class LocalInstance implements Instance {
         } else {
             modloader = "Vanilla";
         }
+
+        config.set("instance.meta.modloader",modloader.toLowerCase());
 
         if(config.get("scheme")!=null) {
             scheme = config.getString("scheme");
@@ -453,5 +457,64 @@ public class LocalInstance implements Instance {
                 }
             }
         }
+    }
+
+    public void setModloader(String modloader, String version) {
+        modloader = modloader.toLowerCase();
+        switch (modloader) {
+            case "fabric": {
+                config.delete("instance.versions.forge");
+                config.delete("instance.versions.quilt");
+                config.delete("instance.versions.neoforge");
+            }
+            case "forge": {
+                config.delete("instance.versions.fabric");
+                config.delete("instance.versions.quilt");
+                config.delete("instance.versions.neoforge");
+            }
+            case "neoforge": {
+                config.delete("instance.versions.forge");
+                config.delete("instance.versions.quilt");
+                config.delete("instance.versions.fabric");
+            }
+            case "quilt": {
+                config.delete("instance.versions.forge");
+                config.delete("instance.versions.fabric");
+                config.delete("instance.versions.neoforge");
+            }
+            default: {
+                config.delete("instance.versions.fabric");
+                config.delete("instance.versions.forge");
+                config.delete("instance.versions.quilt");
+                config.delete("instance.versions.neoforge");
+            }
+        }
+        config.set("instance.meta.modloader",modloader);
+        this.modloader = modloader;
+        if(version!=null) {
+            if(!version.isEmpty()) {
+                config.set("instance.versions." + modloader, version);
+            }
+        }
+    }
+
+    public void setGameVersion(String version) {
+        versions_minecraft = version;
+        config.set("instance.versions.minecraft",version);
+    }
+
+    public void setName(String name) {
+        config.set("instance.info.name",name);
+        info_name = name;
+    }
+
+    public void setVersion(String version) {
+        config.set("instance.info.name",version);
+        info_version = version;
+    }
+
+    public void setSummary(String summary) {
+        config.set("instance.info.summary",summary);
+        info_summary = summary;
     }
 }

@@ -58,7 +58,7 @@
                 <div class="line"></div>
                 <p>Du vergibst <label><input onchange="this.style.width = this.value.toString().length * 9 + 'px';" style="font-size: 1rem;" type="number" id="value"></label>mb an Arbeitsspeicher.</p>
                 <br>
-                <a class="button" onclick="connector('java.settings.global.memory.'+document.getElementById('slider').value);">Bestätigen</a>
+                <a class="button" id="confirm-button">Bestätigen</a>
             </div>
         </div>
         <script>

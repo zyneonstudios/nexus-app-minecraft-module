@@ -67,6 +67,9 @@ public class JavaConnector extends ModuleConnector {
         } else if (request.startsWith("sync.button.library.menu.group.mje-instances.")) {
             request = request.replaceFirst("sync.button.library.menu.group.mje-instances.", "");
             resolveButtonRequest("view." + request);
+        } else if (request.equals("refresh.library")) {
+            JavaStorage.reloadLocalZyndex();
+            frame.getBrowser().reload();
         } else if (request.equals("init.library")) {
             frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId() + "_java" + "');");
         } else if (request.equals("init.discover")) {
@@ -82,7 +85,7 @@ public class JavaConnector extends ModuleConnector {
     private void syncSettings(String request) {
         if (request.equals("init")) {
             String group = "addSettingsGroup(\"Minecraft: Java Edition\",\"global\",\"global-mje\");";
-            String ram = "addValueToGroup('Memory (RAM)','global-mje','mje-global-memory','java.settings.global.memory','" + JavaStorage.map.getInteger("settings.global.memory") + "');";
+            String ram = "addValueToGroup('Memory (RAM)','global-mje','mje-global-memory','java.settings.global.memory','" + JavaStorage.map.getInteger("settings.global.memory") + "MB');";
             String minimize = "addToggleToGroup('Minimize app on game start','global-mje','mje-global-minimize','java.settings.global.minimize'," + JavaStorage.map.getBoolean("settings.global.minimizeApp") + ");";
             frame.executeJavaScript(group + ram + minimize);
         }
@@ -108,7 +111,7 @@ public class JavaConnector extends ModuleConnector {
             String name = module.getAuthenticator(authKey).getAuthInfos().getUsername();
             frame.executeJavaScript("setMenuPanel(\"https://cravatar.eu/helmhead/" + name + "/64.png\",\"" + name + "\",\"Profile options\",true);");
 
-            frame.executeJavaScript("addAction('" + JavaStorage.Strings.addInstance + "','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('" + JavaStorage.Strings.refreshInstances + "','bx bx-refresh','location.reload();','mje-refresh-instances'); addGroup('" + JavaStorage.Strings.instances + "','mje-instances');");
+            frame.executeJavaScript("addAction('" + JavaStorage.Strings.addInstance + "','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('" + JavaStorage.Strings.refreshInstances + "','bx bx-refresh',\"connector('refresh.library');\",'mje-refresh-instances'); addGroup('" + JavaStorage.Strings.instances + "','mje-instances');");
             frame.executeJavaScript("document.getElementById(\"select-game-module\").value = 'nexus-minecraft-module_java';");
 
             List<LocalInstance> instances = JavaStorage.getLocalZyndex().getLocalInstances();
@@ -182,6 +185,8 @@ public class JavaConnector extends ModuleConnector {
             showInstance(JavaStorage.getLocalZyndex().getLocalInstancesById().get(request.replaceFirst("view.", "")));
         } else if (request.equals("zyndex")) {
             JavaStorage.reloadLocalZyndex();
+        } else if (request.equals("search")) {
+            frame.executeJavaScript("location.href='discover.html?l=search';");
         } else if (request.equals("mje-settings")) {
             frame.executeJavaScript("setTitle('Minecraft: Java Edition'); highlight(document.getElementById('minecraft-about'));");
         } else if (request.equals("library")) {
@@ -221,7 +226,7 @@ public class JavaConnector extends ModuleConnector {
         if(instance.getBackgroundUrl()!=null) {
             background = instance.getBackgroundUrl();
         }
-        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; clearOverlay(); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<h3 id='mje-cog'><i class='bx bxs-cog'></i></h3>\"); setLaunch('LAUNCH','bx bx-rocket','active','java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getDescription().replace("\"","''")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); };";
+        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; setOverlayContent(\"<div id='library-overlay-loader'><h3>Loading... <i class='bx bx-loader-alt bx-spin' ></i></h3></div>\"); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<h3 id='mje-cog'><i class='bx bxs-cog'></i></h3>\"); setLaunch('LAUNCH','bx bx-rocket','active','java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getSummary().replace("\"","''")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); };";
 
         frame.executeJavaScript(command);
         JavaStorage.getConfig().set("settings.values.last.instance",instance.getId());
@@ -234,7 +239,7 @@ public class JavaConnector extends ModuleConnector {
         String uuid = UUID.randomUUID().toString();
         String id = instance.getId();
         String settingsBase = "<div class='option-group'><h4 class='option'>Game type and version</h4>%</div>";
-        String settingsGameType = "<h3 class='option'>Game type (modloader) <label><select id='"+uuid+"-type' onchange='connector(`java.settings."+id+".type.`+this.value);'><option value='vanilla'>Vanilla</option><option value='experimental'>Experimental</option><option value='fabric'>Fabric</option><option value='forge'>Forge</option><option value='neoforge'>NeoForge</option><option value='quilt'>Quilt</option></select></label></h3>";
+        String settingsGameType = "<h3 class='option'>Game type (modloader) <label><select id='"+uuid+"-type' onchange='connector(`java.settings."+id+".type."+uuid+".`+this.value);'><option value='vanilla'>Vanilla</option><option value='experimental'>Experimental</option><option value='fabric'>Fabric</option><option value='forge'>Forge</option><option value='neoforge'>NeoForge</option><option value='quilt'>Quilt</option></select></label></h3>";
         ArrayList<String> gameVersions = new ArrayList<>();
         try {
             gameVersions = switch (modLoader) {
@@ -253,7 +258,7 @@ public class JavaConnector extends ModuleConnector {
         for(String version:gameVersions) {
             settingsGameVersions.append("<option value='").append(version).append("'>").append(version).append("</option>");
         }
-        String settingsGameVersion = "<h3 class='option'>Game version <label><select id='"+uuid+"-game-version' onchange='connector(`java.settings."+id+".game-version.`+this.value);'>"+settingsGameVersions+"</select></label></h3>";
+        String settingsGameVersion = "<h3 class='option'>Game version <label><select id='"+uuid+"-game-version' onchange='connector(`java.settings."+id+".game-version."+uuid+".`+this.value);'>"+settingsGameVersions+"</select></label></h3>";
 
         ArrayList<String> loaderVersions = new ArrayList<>();
         try {
@@ -272,22 +277,37 @@ public class JavaConnector extends ModuleConnector {
             settingsLoaderVersions.append("<option value='").append(version).append("'>").append(version).append("</option>");
         }
 
-        String settingsGameLoaderVersion = "<h3 class='option'>Modloader version <label><select id='"+uuid+"-loader-version' onchange='connector(`java.settings."+id+".loader-version.`+this.value);'>"+settingsLoaderVersions+"</select></label></h3>";
+        String settingsGameLoaderVersion = "<h3 class='option'>Modloader version <label><select id='"+uuid+"-loader-version' onchange='connector(`java.settings."+id+".loader-version."+uuid+".`+this.value);'>"+settingsLoaderVersions+"</select></label></h3>";
         String settingsGame = settingsGameType+settingsGameVersion+settingsGameLoaderVersion;
 
-        String settingsJava = "<div class='option-group'><h4 class='option'>JVM (yes, this is a mess right now sorry)</h4>%</div>";
-        String settingsJVMArgs = "<h3 class='option input-list' id='java.settings."+id+".jvm-arguments'>JVM Arguments <span class='input-list-field'><span class='list-input-content'></span><label><input class='list' type='text'></label></span></h3>";
+        String settingsJava = "<div class='option-group'><h4 class='option'>Java settings</h4>%</div>";
+        String settingsJVMMemory = "<h3 class='option'>Memory (RAM) <span class='value-option'><span id='"+id+"-memory'><i class='bx bx-loader-alt bx-spin' ></i> Loading...</span> <i class='bx bxs-pencil' onclick='connector(`java.settings."+id+".memory`);'></i></span></h3>";
+        String settingsJVMArgs = "<h3 class='option input-list' id='java.settings."+id+".jvm-arguments'>JVM Arguments <span class='input-list-field'><span class='list-input-content'></span><label><input placeholder='Type here...' class='list' type='text'></label></span></h3>";
+        settingsJava = settingsJava.replace("%",settingsJVMMemory+settingsJVMArgs);
 
-        String settings = settingsBase.replace("%",settingsGame)+settingsJava.replace("%",settingsJVMArgs);
+        String settings = settingsBase.replace("%",settingsGame)+settingsJava;
 
-        StringBuilder contents = new StringBuilder("<div class='option-group'><h4 class='option'>Mods</h4>");
+
+        String managementBase = "<div class='option-group'><h4 class='option'>Instance information</h4>%</div>";
+        String managementName = "<h3 class='option'>Name <label><input class='text' id='"+uuid+"-name' type='text' value=\\\""+instance.getName().replace("\"","''")+"\\\"></label></h3>";
+        String managementVersion = "<h3 class='option'>Version <label><input class='text' id='"+uuid+"-version' type='text' value=\\\""+instance.getVersion().replace("\"","''")+"\\\"></label></h3>";
+        String managementDescription = "<h3 class='option'>Summary<br><label><textarea id='"+uuid+"-summary' onchange=\\\"log('Test');\\\">"+instance.getSummary().replace("\"","''")+"</textarea></label></h3>";
+
+        String managementAppearance = "<div class='option-group'><h4 class='option'>Instance appearance</h4>%</div>";
+        String appearanceIcon = "<h3 class='option'>Icon image</h3>";
+        String appearanceLogo = "<h3 class='option'>Logo image</h3>";
+        String appearanceBackground = "<h3 class='option'>Background image</h3>";
+
+        String management = managementBase.replace("%",managementName+managementVersion+managementDescription)+managementAppearance.replace("%",appearanceIcon+appearanceLogo+appearanceBackground);
+
+        /*StringBuilder contents = new StringBuilder("<div class='option-group'><h4 class='option'>Mods</h4>");
         for(String mod : modList) {
             contents.append("<h3 class='option'>").append(mod).append("</h3>");
         }
-        contents.append("</div>");
+        contents.append("</div>");*/
 
-        String content = "<div class='overlay-group' id='"+uuid+"-settings-content'>"+settings+"</div> <div class='overlay-group' id='"+uuid+"-management-content'>Management</div> <div class='overlay-group' id='"+uuid+"-content-content'>"+contents+"</div>";
-        String command = "addOverlayContent(\"<div class='tabs' id='"+uuid+"-tabs'></div> "+content+"\"); addTab('"+uuid+"-tabs','"+uuid+"-settings','Settings',''); addTab('"+uuid+"-tabs','"+uuid+"-management','Management',''); addTab('"+uuid+"-tabs','"+uuid+"-content','Content',''); switchTab('"+uuid+"-tabs','"+uuid+"-settings');";
+        String content = "<div class='overlay-group' id='"+uuid+"-settings-content'>"+settings+"</div> <div class='overlay-group' id='"+uuid+"-management-content'>"+management+"</div> <div class='overlay-group' id='"+uuid+"-content-content'>"+/*contents+*/"</div>";
+        String command = "setOverlayContent(\"<div class='tabs' id='"+uuid+"-tabs'></div> "+content+"\"); addTab('"+uuid+"-tabs','"+uuid+"-settings','Settings',''); addTab('"+uuid+"-tabs','"+uuid+"-management','Management',''); "/*addTab('"+uuid+"-tabs','"+uuid+"-content','Content','');*/ +"switchTab('"+uuid+"-tabs','"+uuid+"-settings');";
         frame.executeJavaScript(command); System.gc();
 
         String loaderVersion = switch(modLoader) {
@@ -299,7 +319,7 @@ public class JavaConnector extends ModuleConnector {
         };
 
         String syncSettingsType = "document.getElementById('"+uuid+"-type').value = '"+modLoader.toLowerCase()+"'; document.getElementById('"+uuid+"-game-version').value = '"+minecraftVersion+"'; document.getElementById('"+uuid+"-loader-version').value = '"+loaderVersion+"';";
-        String syncSettingsJava = "initializeListInput('java.settings."+id+".jvm-arguments'); ";
+        String syncSettingsJava = "document.getElementById('"+id+"-memory').innerText = '"+instance.getMemory()+"MB'; initializeListInput('java.settings."+id+".jvm-arguments'); ";
         try {
             StringBuilder args = new StringBuilder();
             for (String arg : (ArrayList<String>) instance.getSettings().get("settings.java.jvm-arguments")) {
@@ -310,7 +330,8 @@ public class JavaConnector extends ModuleConnector {
         } catch (Exception ex) {
             NexusApplication.getLogger().err("[Minecraft] (CONNECTOR) Couldn't resolve jvm arguments for "+id+": "+ex.getMessage());
         }
-        frame.executeJavaScript(syncSettingsType+syncSettingsJava); System.gc();
+        String listeners = "document.getElementById('"+uuid+"-name').addEventListener('input', function() { clearTimeout(this.timeout); this.timeout = setTimeout(() => { connector('java.settings."+id+".name.'+this.value); }, 250); }); document.getElementById('"+uuid+"-version').addEventListener('input', function() { clearTimeout(this.timeout); this.timeout = setTimeout(() => { connector('java.settings."+id+".version.'+this.value); }, 250); }); document.getElementById('"+uuid+"-summary').addEventListener('input', function() { clearTimeout(this.timeout); this.timeout = setTimeout(() => { connector('java.settings."+id+".summary.'+this.value); }, 250); });";
+        frame.executeJavaScript(syncSettingsType+syncSettingsJava+listeners); System.gc();
     }
 
     private void resolveInstanceSync(String request) {
@@ -379,7 +400,7 @@ public class JavaConnector extends ModuleConnector {
                 OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
                 long c = 1024L * 1024L;
                 long max = os.getTotalMemorySize() / c;
-                String url = ApplicationStorage.urlBase + ApplicationStorage.language + "/mje-memory.html?min=0&max=" + max + "&value=" + JavaStorage.map.getInteger("settings.global.memory");
+                String url = ApplicationStorage.urlBase + ApplicationStorage.language + "/mje-memory.html?min=0&max=" + max + "&id=global&value=" + JavaStorage.map.getInteger("settings.global.memory");
                 url = url.replace("\\", "/");
                 frame.executeJavaScript("enableOverlay('" + url + "');");
             } else if (request.startsWith("memory.")) {
@@ -400,11 +421,107 @@ public class JavaConnector extends ModuleConnector {
             if(JavaStorage.getLocalZyndex().getLocalInstancesById().containsKey(id)) {
                 LocalInstance instance = JavaStorage.getLocalZyndex().getLocalInstancesById().get(id);
                 if(request.startsWith("type.")) {
+                    r = request.split("\\.",3);
+                    String type = r[2];
+                    String uuid = r[1];
 
+                    ArrayList<String> gameVersions;
+                    String gameVersion;
+                    try {
+                        gameVersions = switch (type) {
+                            case "fabric" -> Verget.getFabricGameVersions(true);
+                            case "forge" -> Verget.getForgeGameVersions();
+                            case "neoforge" -> Verget.getNeoForgeGameVersions();
+                            case "quilt" -> Verget.getQuiltGameVersions(true);
+                            case "vanilla" -> Verget.getMinecraftVersions(MinecraftVerget.Filter.RELEASES);
+                            case "experimental" -> Verget.getMinecraftVersions(MinecraftVerget.Filter.EXPERIMENTAL);
+                            default -> Verget.getMinecraftVersions(MinecraftVerget.Filter.BOTH);
+                        };
+                        gameVersion = gameVersions.getFirst();
+                    } catch (Exception e) {
+                        NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't fetch available game versions for "+type+": "+e.getMessage());
+                        gameVersions = new ArrayList<>();
+                        gameVersion = null;
+                    }
+                    StringBuilder settingsGameVersions = new StringBuilder();
+                    for(String version:gameVersions) {
+                        settingsGameVersions.append("<option value='").append(version).append("'>").append(version).append("</option>");
+                    }
+
+                    ArrayList<String> loaderVersions;
+                    String loaderVersion;
+                    try {
+                        loaderVersions = switch (type) {
+                            case "fabric" -> Verget.getFabricVersions(true,gameVersion);
+                            case "forge" -> Verget.getForgeVersions(gameVersion);
+                            case "neoforge" -> Verget.getNeoForgeVersions(gameVersion);
+                            case "quilt" -> Verget.getQuiltVersions(gameVersion);
+                            default -> new ArrayList<>();
+                        };
+                        if(loaderVersions.isEmpty()) {
+                            loaderVersion = null;
+                        } else {
+                            loaderVersion = loaderVersions.getFirst();
+                        }
+                    } catch (Exception e) {
+                        NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't fetch available game versions for "+type+": "+e.getMessage());
+                        loaderVersions = new ArrayList<>();
+                        loaderVersion = null;
+                    }
+                    StringBuilder settingsLoaderVersions = new StringBuilder();
+                    for(String version:loaderVersions) {
+                        settingsLoaderVersions.append("<option value='").append(version).append("'>").append(version).append("</option>");
+                    }
+
+                    String command = "document.getElementById('"+uuid+"-game-version').innerHTML = \""+settingsGameVersions+"\"; document.getElementById('"+uuid+"-loader-version').innerHTML = \""+settingsLoaderVersions+"\";";
+                    frame.executeJavaScript(command);
+
+                    if(gameVersion!=null) {
+                        instance.setModloader(type.toLowerCase(), loaderVersion);
+                        instance.setGameVersion(gameVersion);
+                    }
                 } else if(request.startsWith("game-version.")) {
+                    System.out.println(request);
+                    r = request.split("\\.",3);
+                    String gameVersion = r[2];
+                    String uuid = r[1];
+                    String type = instance.getModloader().toLowerCase();
 
+                    ArrayList<String> loaderVersions;
+                    String loaderVersion;
+                    try {
+                        loaderVersions = switch (type) {
+                            case "fabric" -> Verget.getFabricVersions(true,gameVersion);
+                            case "forge" -> Verget.getForgeVersions(gameVersion);
+                            case "neoforge" -> Verget.getNeoForgeVersions(gameVersion);
+                            case "quilt" -> Verget.getQuiltVersions(gameVersion);
+                            default -> new ArrayList<>();
+                        };
+                        if(loaderVersions.isEmpty()) {
+                            loaderVersion = null;
+                        } else {
+                            loaderVersion = loaderVersions.getFirst();
+                        }
+                    } catch (Exception e) {
+                        NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't fetch available game versions for "+type+": "+e.getMessage());
+                        loaderVersions = new ArrayList<>();
+                        loaderVersion = null;
+                    }
+                    StringBuilder settingsLoaderVersions = new StringBuilder();
+                    for(String version:loaderVersions) {
+                        settingsLoaderVersions.append("<option value='").append(version).append("'>").append(version).append("</option>");
+                    }
+
+                    String command = "document.getElementById('"+uuid+"-loader-version').innerHTML = \""+settingsLoaderVersions+"\";";
+                    frame.executeJavaScript(command);
+
+                    instance.setModloader(type.toLowerCase(), loaderVersion);
+                    instance.setGameVersion(gameVersion);
                 } else if(request.startsWith("loader-version.")) {
-
+                    String version = request.split("\\.",3)[2];
+                    instance.setModloader(instance.getModloader(),version);
+                    String command = "";
+                    frame.executeJavaScript(command);
                 } else if(request.startsWith("jvm-arguments.add.")) {
                     ArrayList<String> args = (ArrayList<String>)instance.getSettings().get("settings.java.jvm-arguments");
                     String arg = request.replaceFirst("jvm-arguments.add.","");
@@ -416,6 +533,23 @@ public class JavaConnector extends ModuleConnector {
                     ArrayList<String> args = (ArrayList<String>)instance.getSettings().get("settings.java.jvm-arguments");
                     args.remove(request.replaceFirst("jvm-arguments.remove.",""));
                     instance.getSettings().set("settings.java.jvm-arguments",args);
+                } else if(request.equals("memory")) {
+                    id = instance.getId();
+                    OperatingSystemMXBean os = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+                    long c = 1024L * 1024L;
+                    long max = os.getTotalMemorySize() / c;
+                    String url = ApplicationStorage.urlBase + ApplicationStorage.language + "/mje-memory.html?min=0&max=" + max + "&id="+id+"&value=" + instance.getMemory();
+                    url = url.replace("\\", "/");
+                    frame.executeJavaScript("enableOverlay('" + url + "');");
+                } else if(request.startsWith("memory.")) {
+                    instance.getSettings().set("settings.java.memory",Integer.parseInt(request.replaceFirst("memory.","")));
+                    frame.executeJavaScript("disableOverlay(); document.getElementById('"+id+"-memory').innerText = '"+instance.getMemory()+"MB';");
+                } else if(request.startsWith("name.")) {
+                    instance.setName(request.replaceFirst("name.",""));
+                } else if(request.startsWith("version.")) {
+                    instance.setVersion(request.replaceFirst("version.",""));
+                } else if(request.startsWith("summary.")) {
+                    instance.setSummary(request.replaceFirst("summary.",""));
                 }
             }
         }
