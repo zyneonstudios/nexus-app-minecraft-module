@@ -517,4 +517,39 @@ public class LocalInstance implements Instance {
         config.set("instance.info.summary",summary);
         info_summary = summary;
     }
+
+    public void setIconUrl(String url) {
+        if(url==null) {
+            config.delete("instance.resources.icon");
+            resources_icon = null;
+            return;
+        }
+        config.set("instance.resources.icon",url);
+        resources_icon = url;
+    }
+
+    public void setLogoUrl(String url) {
+        if(url==null) {
+            config.delete("instance.resources.logo");
+            resources_logo = null;
+            return;
+        }
+        config.set("instance.resources.logo",url);
+        resources_logo = url;
+    }
+
+    public void setBackgroundUrl(String url) {
+        if(url==null) {
+            config.delete("instance.resources.background");
+            resources_background = null;
+            return;
+        }
+        config.set("instance.resources.background",url);
+        resources_background = url;
+    }
+
+    public void setEditable(boolean editable) {
+        config.set("instance.meta.isEditable",editable);
+        meta_isEditable = editable;
+    }
 }

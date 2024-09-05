@@ -14,13 +14,22 @@ import com.zyneonstudios.application.minecraft.java.launchers.InstanceLauncher;
 import com.zyneonstudios.application.modules.ModuleConnector;
 import com.zyneonstudios.nexus.instance.Instance;
 import com.zyneonstudios.nexus.instance.ReadableZynstance;
+import com.zyneonstudios.nexus.utilities.file.FileActions;
+import com.zyneonstudios.nexus.utilities.strings.StringConverter;
 import com.zyneonstudios.verget.Verget;
 import com.zyneonstudios.verget.minecraft.MinecraftVerget;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 
 public class JavaConnector extends ModuleConnector {
 
@@ -226,7 +235,7 @@ public class JavaConnector extends ModuleConnector {
         if(instance.getBackgroundUrl()!=null) {
             background = instance.getBackgroundUrl();
         }
-        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; setOverlayContent(\"<div id='library-overlay-loader'><h3>Loading... <i class='bx bx-loader-alt bx-spin' ></i></h3></div>\"); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<h3 id='mje-cog'><i class='bx bxs-cog'></i></h3>\"); setLaunch('LAUNCH','bx bx-rocket','active','java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getSummary().replace("\"","''")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); };";
+        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; setOverlayContent(\"<div id='library-overlay-loader'><h3>Loading... <i class='bx bx-loader-alt bx-spin' ></i></h3></div>\"); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<div class='flex'><h3 id='mje-folder' style='margin-right: 0.25rem !important;'><i class='bx bxs-folder-open'></i></h3><h3 id='mje-cog'><i class='bx bxs-cog'></i></h3></div>\"); setLaunch('LAUNCH','bx bx-rocket','active','java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getSummary().replace("\"","''")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); }; document.getElementById('mje-folder').onclick = function() { connector('java.settings."+instance.getId()+".folder'); };";
 
         frame.executeJavaScript(command);
         JavaStorage.getConfig().set("settings.values.last.instance",instance.getId());
@@ -285,8 +294,12 @@ public class JavaConnector extends ModuleConnector {
         String settingsJVMArgs = "<h3 class='option input-list' id='java.settings."+id+".jvm-arguments'>JVM Arguments <span class='input-list-field'><span class='list-input-content'></span><label><input placeholder='Type here...' class='list' type='text'></label></span></h3>";
         settingsJava = settingsJava.replace("%",settingsJVMMemory+settingsJVMArgs);
 
-        String settings = settingsBase.replace("%",settingsGame)+settingsJava;
+        boolean isEditable = instance.isEditable();
 
+        if(!isEditable) {
+            settingsBase = "";
+        }
+        String settings = settingsBase.replace("%",settingsGame)+settingsJava;
 
         String managementBase = "<div class='option-group'><h4 class='option'>Instance information</h4>%</div>";
         String managementName = "<h3 class='option'>Name <label><input class='text' id='"+uuid+"-name' type='text' value=\\\""+instance.getName().replace("\"","''")+"\\\"></label></h3>";
@@ -294,12 +307,38 @@ public class JavaConnector extends ModuleConnector {
         String managementDescription = "<h3 class='option'>Summary<br><label><textarea id='"+uuid+"-summary' onchange=\\\"log('Test');\\\">"+instance.getSummary().replace("\"","''")+"</textarea></label></h3>";
 
         String managementAppearance = "<div class='option-group'><h4 class='option'>Instance appearance</h4>%</div>";
-        String appearanceIcon = "<h3 class='option'>Icon image</h3>";
-        String appearanceLogo = "<h3 class='option'>Logo image</h3>";
-        String appearanceBackground = "<h3 class='option'>Background image</h3>";
 
-        String management = managementBase.replace("%",managementName+managementVersion+managementDescription)+managementAppearance.replace("%",appearanceIcon+appearanceLogo+appearanceBackground);
+        String icon = instance.getIconUrl();
+        String appearanceIcon;
+        if(icon==null) {
+            appearanceIcon = "<h3 class='option' style='padding: 0.5rem;'>Icon image <a class='button' onclick=\\\"connector('java.settings."+id+".icon."+uuid+"');\\\">Select</a></h3>";
+        } else {
+            appearanceIcon = "<h3 class='option'>Icon image <span class='flex'><img id='"+uuid+"-icon' onclick=\\\"this.classList.toggle('active');\\\" src='" + icon + "'></span> <a class='button danger' onclick=\\\"connector('java.settings."+id+".removeIcon."+uuid+"');\\\">Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".icon."+uuid+"');\\\">Change</a></h3>";
+        }
 
+        String logo = instance.getLogoUrl();
+        String appearanceLogo;
+        if(logo==null) {
+            appearanceLogo = "<h3 class='option' style='padding: 0.5rem;'>Logo image <a onclick=\\\"connector('java.settings."+id+".logo."+uuid+"');\\\" class='button'>Select</a></h3>";
+        } else {
+            appearanceLogo = "<h3 class='option'>Logo image <span class='flex'><img id='"+uuid+"-logo' onclick=\\\"this.classList.toggle('active');\\\" src='" + logo + "'></span> <a class='button danger' onclick=\\\"connector('java.settings."+id+".removeLogo."+uuid+"');\\\">Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".logo."+uuid+"');\\\">Change</a></h3>";
+        }
+
+        String background = instance.getBackgroundUrl();
+        String appearanceBackground;
+        if(background==null) {
+            appearanceBackground = "<h3 class='option' style='padding: 0.5rem;'>Background image <a class='button' onclick=\\\"connector('java.settings."+id+".background."+uuid+"');\\\">Select</a></h3>";
+        } else {
+            appearanceBackground = "<h3 class='option'>Background image <span class='flex'><img id='"+uuid+"-background' onclick=\\\"this.classList.toggle('active');\\\" src='" + background + "'></span> <a onclick=\\\"connector('java.settings."+id+".removeBackground."+uuid+"');\\\" class='button danger'>Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".background."+uuid+"');\\\">Change</a></h3>";
+        }
+
+        String deleteInstance = "<h3 class='option' style='padding: 0.5rem;'>Delete instance <a class='button delete' onclick=\\\"connector('java.settings."+id+".delete');\\\">Delete</a></h3>";
+        String instanceActions = "<div class='option-group'><h4 class='option'>Instance actions (danger zone)</h4>%</div>";
+
+        String management = managementBase.replace("%",managementName+managementVersion+managementDescription)+managementAppearance.replace("%",appearanceIcon+appearanceLogo+appearanceBackground)+instanceActions.replace("%","<h3 class='option' style='padding: 0.5rem;'>Disable instance management <a onclick=\\\"connector('java.settings."+id+".disableEdit');\\\" class='button disable'>Disable</a></h3>"+deleteInstance);
+        if(!isEditable) {
+            management = instanceActions.replace("%","<h3 class='option' style='padding: 0.5rem;'>Enable instance management <a onclick=\\\"connector('java.settings."+id+".enableEdit');\\\" class='button'>Enable</a></h3>"+deleteInstance);
+        }
         /*StringBuilder contents = new StringBuilder("<div class='option-group'><h4 class='option'>Mods</h4>");
         for(String mod : modList) {
             contents.append("<h3 class='option'>").append(mod).append("</h3>");
@@ -331,7 +370,9 @@ public class JavaConnector extends ModuleConnector {
             NexusApplication.getLogger().err("[Minecraft] (CONNECTOR) Couldn't resolve jvm arguments for "+id+": "+ex.getMessage());
         }
         String listeners = "document.getElementById('"+uuid+"-name').addEventListener('input', function() { clearTimeout(this.timeout); this.timeout = setTimeout(() => { connector('java.settings."+id+".name.'+this.value); }, 250); }); document.getElementById('"+uuid+"-version').addEventListener('input', function() { clearTimeout(this.timeout); this.timeout = setTimeout(() => { connector('java.settings."+id+".version.'+this.value); }, 250); }); document.getElementById('"+uuid+"-summary').addEventListener('input', function() { clearTimeout(this.timeout); this.timeout = setTimeout(() => { connector('java.settings."+id+".summary.'+this.value); }, 250); });";
-        frame.executeJavaScript(syncSettingsType+syncSettingsJava+listeners); System.gc();
+        frame.executeJavaScript(syncSettingsType+listeners);
+        frame.executeJavaScript(syncSettingsJava);
+        System.gc();
     }
 
     private void resolveInstanceSync(String request) {
@@ -513,6 +554,7 @@ public class JavaConnector extends ModuleConnector {
                     }
 
                     String command = "document.getElementById('"+uuid+"-loader-version').innerHTML = \""+settingsLoaderVersions+"\";";
+
                     frame.executeJavaScript(command);
 
                     instance.setModloader(type.toLowerCase(), loaderVersion);
@@ -550,8 +592,82 @@ public class JavaConnector extends ModuleConnector {
                     instance.setVersion(request.replaceFirst("version.",""));
                 } else if(request.startsWith("summary.")) {
                     instance.setSummary(request.replaceFirst("summary.",""));
+                } else if(request.startsWith("icon.")) {
+                    File icon = openImageChooser();
+                    if(icon!=null) {
+                        instance.setIconUrl(StringConverter.getURLString(icon.getAbsolutePath()));
+                        showInstanceSettings(instance);
+                    }
+                } else if(request.startsWith("removeIcon.")) {
+                    instance.setIconUrl(null);
+                    showInstanceSettings(instance);
+                } else if(request.startsWith("logo.")) {
+                    File logo = openImageChooser();
+                    if(logo!=null) {
+                        instance.setLogoUrl(StringConverter.getURLString(logo.getAbsolutePath()));
+                        showInstanceSettings(instance);
+                    }
+                } else if(request.startsWith("removeLogo.")) {
+                    instance.setLogoUrl(null);
+                    showInstanceSettings(instance);
+                } else if(request.startsWith("background.")) {
+                    File background = openImageChooser();
+                    if(background!=null) {
+                        instance.setBackgroundUrl(StringConverter.getURLString(background.getAbsolutePath()));
+                        showInstanceSettings(instance);
+                    }
+                } else if(request.startsWith("removeBackground.")) {
+                    instance.setBackgroundUrl(null);
+                    showInstanceSettings(instance);
+                } else if(request.equals("enableEdit")) {
+                    instance.setEditable(true);
+                    JavaStorage.reloadLocalZyndex();
+                    showInstanceSettings(instance);
+                } else if(request.equals("disableEdit")) {
+                    instance.setEditable(false);
+                    JavaStorage.reloadLocalZyndex();
+                    showInstanceSettings(instance);
+                } else if(request.equals("folder")) {
+                    try {
+                        if(Desktop.isDesktopSupported()) {
+                            Desktop.getDesktop().browse(instance.getDirectory().toURI());
+                        }
+                    } catch (Exception e) {
+                        NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't open folder: "+e.getMessage());
+                    }
+                } else if(request.equals("delete")) {
+                    String url = ApplicationStorage.urlBase + ApplicationStorage.language + "/mje-delete.html?id="+id;
+                    url = url.replace("\\", "/");
+                    frame.executeJavaScript("enableOverlay('" + url + "');");
+                } else if(request.equals("delete.confirmed")) {
+                    File directory = instance.getDirectory();
+                    instance = null;
+                    FileActions.deleteFolder(directory);
+                    System.gc();
+                    JavaStorage.reloadLocalZyndex();
+                    frame.getBrowser().reload();
                 }
             }
         }
+    }
+
+    private File openImageChooser() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Select an image file");
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image files", "png", "gif", "jpeg", "jpg", "webp");
+        chooser.addChoosableFileFilter(filter);
+        int answer = chooser.showOpenDialog(null);
+        if (answer == JFileChooser.APPROVE_OPTION) {
+            try {
+                String path = URLDecoder.decode(chooser.getSelectedFile().getAbsolutePath().replace("\\", "/"), StandardCharsets.UTF_8);
+                return new File(path);
+            } catch (Exception e) {
+                NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't get image file: "+e.getMessage());
+            }
+        }
+        return null;
     }
 }
