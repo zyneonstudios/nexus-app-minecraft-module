@@ -124,7 +124,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
         NexusApplication.getLogger().log(prefix + "Caching NEX...");
         try {
-            ZyndexIntegration.searchModpacks("", (ApplicationFrame) getApplication().getFrame());
+            ZyndexIntegration.searchModpacks("", 0, (ApplicationFrame) getApplication().getFrame());
         } catch (Exception e) {
             NexusApplication.getLogger().err("[Minecraft] Couldn't cache NEX: " + e.getMessage());
         }
@@ -185,6 +185,7 @@ public class MinecraftJavaAddon extends ApplicationModule {
     }
 
     public static void main(String[] args) {
+        NexusUtilities.getLogger().setName("TEST-APP",true);
         NexusUtilities.getLogger().enableDebug();
         NexusDesktop.init();
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
@@ -199,5 +200,6 @@ public class MinecraftJavaAddon extends ApplicationModule {
             NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application, "nexus-minecraft-module", "Minecraft (Test)", v + "_" + StringGenerator.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
         } catch (Exception ignore) {}
         application.launch();
+        System.out.println(JavaStorage.getFallbackInstancePath());
     }
 }

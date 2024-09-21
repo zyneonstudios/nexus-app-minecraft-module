@@ -53,7 +53,9 @@ public class InstanceLauncher extends BasicLauncher {
 
     @Override
     public boolean launch() {
+        JavaStorage.runningInstances.put(instance.getId(),uuid);
         parentFrame.executeJavaScript("setLaunch(\"UPDATING\",\"bx bx-loader-alt bx-spin\",\"active wiggle\",\"\");");
+        NexusApplication.getLogger().deb("[Minecraft] (Instance) Is "+instance.getId()+" up to date: "+instance.update());
         BasicInstaller gameInstaller = new BasicInstaller(getMinecraftVersion(),getInstancePath());
         if(getModloader()!=null&&getModloaderVersion()!=null) {
             gameInstaller.setModloader(getModloader());
@@ -92,7 +94,6 @@ public class InstanceLauncher extends BasicLauncher {
             try {
                 parentFrame.executeJavaScript("setLaunch(\"RUNNING\",\"bx bx-check-circle\",\"active hover-wiggle\",\"java.button.launch."+instance.getId()+"\");");
                 JavaSettings.setJava(Objects.requireNonNull(MinecraftVersion.getType(getMinecraftVersion())));
-                JavaStorage.runningInstances.put(instance.getId(),uuid);
                 showApp(false);
                 gameProcess = framework.launch(getMinecraftVersion(), loaderVersion, loader);
                 gameProcess.onExit().thenRun(() -> {

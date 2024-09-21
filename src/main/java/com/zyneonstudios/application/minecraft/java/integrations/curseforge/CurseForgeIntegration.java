@@ -11,42 +11,49 @@ import fr.flowarg.flowupdater.utils.IOUtils;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class CurseForgeIntegration {
 
-    public static void searchModpacks(String query, ApplicationFrame frame) {
-        frame.executeJavaScript(
-                "addFilterGroup('mje-curseforge-loaders','Mod Loaders');" +
-                "addToggleFilter(\"Forge\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.forge\",true,true);" +
-                "addToggleFilter(\"Fabric\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.fabric\",true,true);" +
-                "addToggleFilter(\"Quilt\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.quilt\",true,true);" +
-                "addToggleFilter(\"NeoForge\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.neoforge\",true,true);" +
+    public static void searchModpacks(String query, int offset, ApplicationFrame frame) {
+        if(offset==0) {
+            frame.executeJavaScript(
+                    "addFilterGroup('mje-curseforge-loaders','Mod Loaders');" +
+                            "addToggleFilter(\"Forge\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.forge\",true,true);" +
+                            "addToggleFilter(\"Fabric\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.fabric\",true,true);" +
+                            "addToggleFilter(\"Quilt\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.quilt\",true,true);" +
+                            "addToggleFilter(\"NeoForge\",\"mje-curseforge-loaders\",\"java.searchFilter.curseforge.loader.neoforge\",true,true);" +
 
-                "addFilterGroup('mje-curseforge-minecraft','Game Version');" +
-                "addSelectFilter('minecraftVersions','mje-curseforge-minecraft','java.searchFilter.curseforge.minecraft.versions',\"<option>All</option>\",true);" +
+                            "addFilterGroup('mje-curseforge-minecraft','Game Version');" +
+                            "addSelectFilter('minecraftVersions','mje-curseforge-minecraft','java.searchFilter.curseforge.minecraft.versions',\"<option>All</option>\",true);" +
 
-                "addFilterGroup('mje-curseforge-categories','Categories');" +
-                "addToggleFilter(\"Adventure and RPG\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Combat / PvP\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Exploration\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Extra Large\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"FTB Official Pack\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Hardcore\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Magic\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Map Based\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Mini Game\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Multiplayer\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Quests\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Sci-Fi\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Skyblock\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Small / Light\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Tech\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
-                "addToggleFilter(\"Vanilla+\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);"
-        );
+                            "addFilterGroup('mje-curseforge-categories','Categories');" +
+                            "addToggleFilter(\"Adventure and RPG\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Combat / PvP\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Exploration\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Extra Large\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"FTB Official Pack\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Hardcore\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Magic\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Map Based\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Mini Game\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Multiplayer\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Quests\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Sci-Fi\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Skyblock\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Small / Light\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Tech\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);" +
+                            "addToggleFilter(\"Vanilla+\",\"mje-curseforge-categories\",\"java.searchFilter.curseforge.category.\",true,true);"
+            );
+        }
+        frame.executeJavaScript("document.getElementById('load-more').style.display = 'unset';");
 
         CurseForgeSearch curseforgeSearch = new CurseForgeSearch();
+        curseforgeSearch.setLimit(20);
+        curseforgeSearch.setOffset(offset);
         if(!query.isEmpty()) {
-            curseforgeSearch.setQuery(query);
+            curseforgeSearch.setQuery(URLEncoder.encode(query, StandardCharsets.UTF_8));
         }
         CurseForgeFacetsBuilder facets = new CurseForgeFacetsBuilder();
         facets.withClassId(4471);
@@ -56,6 +63,9 @@ public class CurseForgeIntegration {
 
         if(json.has("data")) {
             JsonArray results = json.getAsJsonArray("data");
+            if(results.size() < 20) {
+                frame.executeJavaScript("document.getElementById('load-more').style.display = 'none';");
+            }
             for(JsonElement element:results) {
                 try {
                     JsonObject result = element.getAsJsonObject();
@@ -95,6 +105,8 @@ public class CurseForgeIntegration {
                     e.printStackTrace();
                 }
             }
+        } else {
+            frame.executeJavaScript("document.getElementById('load-more').style.display = 'none';");
         }
     }
 

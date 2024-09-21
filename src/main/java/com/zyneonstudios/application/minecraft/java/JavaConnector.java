@@ -12,6 +12,7 @@ import com.zyneonstudios.application.minecraft.java.integrations.zyndex.LocalIns
 import com.zyneonstudios.application.minecraft.java.integrations.zyndex.ZyndexIntegration;
 import com.zyneonstudios.application.minecraft.java.launchers.InstanceLauncher;
 import com.zyneonstudios.application.modules.ModuleConnector;
+import com.zyneonstudios.nexus.index.ReadableZyndex;
 import com.zyneonstudios.nexus.instance.Instance;
 import com.zyneonstudios.nexus.instance.ReadableZynstance;
 import com.zyneonstudios.nexus.utilities.file.FileActions;
@@ -47,8 +48,8 @@ public class JavaConnector extends ModuleConnector {
     @Override
     @SuppressWarnings("deprecation")
     public void resolveRequest(String request) {
-        if (request.startsWith("sync.discover.search.nexus-minecraft-module_java")) {
-            resolveSearchRequest(request.replaceFirst("sync.discover.search.nexus-minecraft-module_java", ""));
+        if (request.startsWith("sync.discover.search.nexus-minecraft-module_java.")) {
+            resolveSearchRequest(request.replaceFirst("sync.discover.search.nexus-minecraft-module_java.", ""));
         } else if (request.startsWith("java.auth.")) {
             resolveAuthRequest(request.replaceFirst("java.auth.", ""));
         } else if (request.equals("sync.library.module.nexus-minecraft-module_java") || request.equals("sync.library.module.minecraft-java-edition")) {
@@ -79,6 +80,8 @@ public class JavaConnector extends ModuleConnector {
         } else if (request.equals("refresh.library")) {
             JavaStorage.reloadLocalZyndex();
             frame.getBrowser().reload();
+        } else if (request.startsWith("java.install.")) {
+            resolveInstallRequest(request.replaceFirst("java.install.",""));
         } else if (request.equals("init.library")) {
             frame.executeJavaScript("addModuleToList('Minecraft: Java Edition','" + module.getId() + "_java" + "');");
         } else if (request.equals("init.discover")) {
@@ -91,12 +94,22 @@ public class JavaConnector extends ModuleConnector {
         }
     }
 
+    private void resolveInstallRequest(String request) {
+        String[] info = request.split("\\.",2);
+        String type = info[0];
+        String slugId = info[1];
+        switch(type) {
+            case "nexInstance": ZyndexIntegration.install(new ReadableZyndex("https://raw.githubusercontent.com/zyneonstudios/nexus-nex/main/zyndex/index.json").getInstancesById().get(slugId),JavaStorage.getFallbackInstancePath()+slugId.replace("\\","/").replace("/","-")+"/");
+        }
+    }
+
     private void syncSettings(String request) {
         if (request.equals("init")) {
             String group = "addSettingsGroup(\"Minecraft: Java Edition\",\"global\",\"global-mje\");";
             String ram = "addValueToGroup('Memory (RAM)','global-mje','mje-global-memory','java.settings.global.memory','" + JavaStorage.map.getInteger("settings.global.memory") + "MB');";
+            String installPath = "addValueToGroup(\"Instance installation path\",\"global-mje\",\"mje-global-path\",\"java.settings.global.path\",\""+JavaStorage.getFallbackInstancePath()+"\");";
             String minimize = "addToggleToGroup('Minimize app on game start','global-mje','mje-global-minimize','java.settings.global.minimize'," + JavaStorage.map.getBoolean("settings.global.minimizeApp") + ");";
-            frame.executeJavaScript(group + ram + minimize);
+            frame.executeJavaScript(group + ram + installPath + minimize);
         }
     }
 
@@ -235,7 +248,7 @@ public class JavaConnector extends ModuleConnector {
         if(instance.getBackgroundUrl()!=null) {
             background = instance.getBackgroundUrl();
         }
-        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; setOverlayContent(\"<div id='library-overlay-loader'><h3>Loading... <i class='bx bx-loader-alt bx-spin' ></i></h3></div>\"); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<div class='flex'><h3 id='mje-folder' style='margin-right: 0.25rem !important;'><i class='bx bxs-folder-open'></i></h3><h3 id='mje-cog'><i class='bx bxs-cog'></i></h3></div>\"); setLaunch('LAUNCH','bx bx-rocket','active','java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getSummary().replace("\"","''")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); }; document.getElementById('mje-folder').onclick = function() { connector('java.settings."+instance.getId()+".folder'); };";
+        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; setOverlayContent(\"<div id='library-overlay-loader'><h3>Loading... <i class='bx bx-loader-alt bx-spin' ></i></h3></div>\"); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<div class='flex'><h3 id='mje-folder' style='margin-right: 0.25rem !important;'><i class='bx bxs-folder-open'></i></h3><h3 id='mje-cog'><i class='bx bxs-cog'></i></h3></div>\"); setLaunch('LAUNCH','bx bx-rocket','active','java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getSummary().replace("\"","''").replace("\n","<br>")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); }; document.getElementById('mje-folder').onclick = function() { connector('java.settings."+instance.getId()+".folder'); };";
 
         frame.executeJavaScript(command);
         JavaStorage.getConfig().set("settings.values.last.instance",instance.getId());
@@ -246,7 +259,7 @@ public class JavaConnector extends ModuleConnector {
         String modLoader = instance.getModloader().toLowerCase();
         String minecraftVersion = instance.getMinecraftVersion();
         String uuid = UUID.randomUUID().toString();
-        String id = instance.getId();
+        String id = instance.getId().replace(".","%dot%");
         String settingsBase = "<div class='option-group'><h4 class='option'>Game type and version</h4>%</div>";
         String settingsGameType = "<h3 class='option'>Game type (modloader) <label><select id='"+uuid+"-type' onchange='connector(`java.settings."+id+".type."+uuid+".`+this.value);'><option value='vanilla'>Vanilla</option><option value='experimental'>Experimental</option><option value='fabric'>Fabric</option><option value='forge'>Forge</option><option value='neoforge'>NeoForge</option><option value='quilt'>Quilt</option></select></label></h3>";
         ArrayList<String> gameVersions = new ArrayList<>();
@@ -313,7 +326,7 @@ public class JavaConnector extends ModuleConnector {
         if(icon==null) {
             appearanceIcon = "<h3 class='option' style='padding: 0.5rem;'>Icon image <a class='button' onclick=\\\"connector('java.settings."+id+".icon."+uuid+"');\\\">Select</a></h3>";
         } else {
-            appearanceIcon = "<h3 class='option'>Icon image <span class='flex'><img id='"+uuid+"-icon' onclick=\\\"this.classList.toggle('active');\\\" src='" + icon + "'></span> <a class='button danger' onclick=\\\"connector('java.settings."+id+".removeIcon."+uuid+"');\\\">Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".icon."+uuid+"');\\\">Change</a></h3>";
+            appearanceIcon = "<h3 class='option' style='height: 9rem;'>Icon image <img id='"+uuid+"-icon' onclick=\\\"this.classList.toggle('active');\\\" src='" + icon + "'> <a class='button danger' onclick=\\\"connector('java.settings."+id+".removeIcon."+uuid+"');\\\">Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".icon."+uuid+"');\\\">Change</a></h3>";
         }
 
         String logo = instance.getLogoUrl();
@@ -321,7 +334,7 @@ public class JavaConnector extends ModuleConnector {
         if(logo==null) {
             appearanceLogo = "<h3 class='option' style='padding: 0.5rem;'>Logo image <a onclick=\\\"connector('java.settings."+id+".logo."+uuid+"');\\\" class='button'>Select</a></h3>";
         } else {
-            appearanceLogo = "<h3 class='option'>Logo image <span class='flex'><img id='"+uuid+"-logo' onclick=\\\"this.classList.toggle('active');\\\" src='" + logo + "'></span> <a class='button danger' onclick=\\\"connector('java.settings."+id+".removeLogo."+uuid+"');\\\">Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".logo."+uuid+"');\\\">Change</a></h3>";
+            appearanceLogo = "<h3 class='option' style='height: 9rem;'>Logo image <img id='"+uuid+"-logo' onclick=\\\"this.classList.toggle('active');\\\" src='" + logo + "'> <a class='button danger' onclick=\\\"connector('java.settings."+id+".removeLogo."+uuid+"');\\\">Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".logo."+uuid+"');\\\">Change</a></h3>";
         }
 
         String background = instance.getBackgroundUrl();
@@ -329,7 +342,7 @@ public class JavaConnector extends ModuleConnector {
         if(background==null) {
             appearanceBackground = "<h3 class='option' style='padding: 0.5rem;'>Background image <a class='button' onclick=\\\"connector('java.settings."+id+".background."+uuid+"');\\\">Select</a></h3>";
         } else {
-            appearanceBackground = "<h3 class='option'>Background image <span class='flex'><img id='"+uuid+"-background' onclick=\\\"this.classList.toggle('active');\\\" src='" + background + "'></span> <a onclick=\\\"connector('java.settings."+id+".removeBackground."+uuid+"');\\\" class='button danger'>Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".background."+uuid+"');\\\">Change</a></h3>";
+            appearanceBackground = "<h3 class='option' style='height: 9rem;'>Background image <img id='"+uuid+"-background' onclick=\\\"this.classList.toggle('active');\\\" src='" + background + "'> <a onclick=\\\"connector('java.settings."+id+".removeBackground."+uuid+"');\\\" class='button danger'>Remove</a><a class='button' onclick=\\\"connector('java.settings."+id+".background."+uuid+"');\\\">Change</a></h3>";
         }
 
         String deleteInstance = "<h3 class='option' style='padding: 0.5rem;'>Delete instance <a class='button delete' onclick=\\\"connector('java.settings."+id+".delete');\\\">Delete</a></h3>";
@@ -419,8 +432,19 @@ public class JavaConnector extends ModuleConnector {
     }
 
     private void resolveSearchRequest(String request) {
+        int offset;
+        if(request.contains(".")) {
+            String[] req = request.split("\\.",2);
+            offset = Integer.parseInt(req[0]);
+            request = "."+req[1];
+        } else {
+            offset = Integer.parseInt(request);
+            request = "";
+        }
 
-        frame.executeJavaScript("addFilterGroup('mje-source','Source'); addSelectFilter('source','mje-source','java.searchFilter.source',\"<option value='official'>Zyneon NEX</option><option value='modrinth'>Modrinth</option><option value='curseforge'>CurseForge</option>\",false); document.getElementById('mje-source-source-select').value = \"" + JavaStorage.getSearchSource() + "\"; deactivateMenu('menu',true);");
+        if(offset==0) {
+            frame.executeJavaScript("addFilterGroup('mje-source','Source'); addSelectFilter('source','mje-source','java.searchFilter.source',\"<option value='official'>Zyneon NEX</option><option value='modrinth'>Modrinth</option><option value='curseforge'>CurseForge</option>\",false); document.getElementById('mje-source-source-select').value = \"" + JavaStorage.getSearchSource() + "\"; deactivateMenu('menu',true);");
+        }
 
         String query = "";
         if (request.startsWith(".")) {
@@ -428,9 +452,9 @@ public class JavaConnector extends ModuleConnector {
         }
 
         switch (JavaStorage.getSearchSource()) {
-            case "official" -> ZyndexIntegration.searchModpacks(query, frame);
-            case "curseforge" -> CurseForgeIntegration.searchModpacks(query, frame);
-            case "modrinth" -> ModrinthIntegration.searchModpacks(query, frame);
+            case "official" -> ZyndexIntegration.searchModpacks(query, offset, frame);
+            case "curseforge" -> CurseForgeIntegration.searchModpacks(query, offset, frame);
+            case "modrinth" -> ModrinthIntegration.searchModpacks(query, offset, frame);
         }
     }
 
@@ -455,10 +479,16 @@ public class JavaConnector extends ModuleConnector {
                 boolean minimize = Boolean.parseBoolean(request.replace("minimize.", ""));
                 JavaStorage.getConfig().set("settings.global.minimizeApp", minimize);
                 JavaStorage.map.setBoolean("settings.global.minimizeApp", minimize);
+            } else if (request.equals("path")) {
+                File path = openDirectoryChooser();
+                if (path != null) {
+                    JavaStorage.setFallbackInstancePath(path.toString());
+                    frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/settings.html?t=global");
+                }
             }
         } else {
             String[] r = request.split("\\.",2);
-            String id = r[0]; request = r[1];
+            String id = r[0].replace("%dot%","."); request = r[1];
             if(JavaStorage.getLocalZyndex().getLocalInstancesById().containsKey(id)) {
                 LocalInstance instance = JavaStorage.getLocalZyndex().getLocalInstancesById().get(id);
                 if(request.startsWith("type.")) {
@@ -662,10 +692,35 @@ public class JavaConnector extends ModuleConnector {
         int answer = chooser.showOpenDialog(null);
         if (answer == JFileChooser.APPROVE_OPTION) {
             try {
-                String path = URLDecoder.decode(chooser.getSelectedFile().getAbsolutePath().replace("\\", "/"), StandardCharsets.UTF_8);
+                String path = chooser.getSelectedFile().getAbsolutePath().replace("\\", "/");
                 return new File(path);
             } catch (Exception e) {
                 NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't get image file: "+e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private File openDirectoryChooser() {
+        JFileChooser chooser;
+        try {
+            chooser = new JFileChooser(JavaStorage.getFallbackInstancePath());
+        } catch (Exception ignore) {
+            chooser = new JFileChooser(ApplicationStorage.getApplicationPath());
+        }
+        chooser.setDialogTitle("Select instances fallback path");
+        chooser.setMultiSelectionEnabled(false);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter standardFilter = new FileNameExtensionFilter("Folders only", "*.*");
+        chooser.addChoosableFileFilter(standardFilter);
+        int answer = chooser.showOpenDialog(null);
+        if (answer == JFileChooser.APPROVE_OPTION) {
+            try {
+                String path = chooser.getSelectedFile().getAbsolutePath().replace("\\", "/");
+                return new File(path);
+            } catch (Exception e) {
+                NexusApplication.getLogger().err("[Minecraft] (Connector) Couldn't get directory: "+e.getMessage());
             }
         }
         return null;

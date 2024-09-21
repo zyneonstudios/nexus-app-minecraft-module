@@ -34,6 +34,7 @@ public class JavaStorage extends LocalStorage {
     public static final HashMap<String, UUID> runningInstances = new HashMap<>();
 
     private static String searchSource = "official";
+    private static String fallbackInstancePath;
 
     public static void init(String id) {
         modulePath = ApplicationStorage.getApplicationPath()+"modules/"+id+"/";
@@ -44,6 +45,11 @@ public class JavaStorage extends LocalStorage {
         }
 
         config.ensure("settings.global.memory",1024);
+        config.ensure("settings.global.fallbackPath","default");
+        fallbackInstancePath = config.getString("settings.global.fallbackPath");
+        if(fallbackInstancePath.equalsIgnoreCase("default")) {
+            fallbackInstancePath = ApplicationStorage.getApplicationPath()+"instances/";
+        }
         map.setInteger("settings.global.memory",config.getInt("settings.global.memory"));
 
         config.ensure("settings.global.minimizeApp",true);
@@ -99,6 +105,19 @@ public class JavaStorage extends LocalStorage {
         return searchSource;
     }
 
+    public static String getFallbackInstancePath() {
+        if(!fallbackInstancePath.endsWith("/")) {
+            fallbackInstancePath += "/";
+        }
+        return fallbackInstancePath.replace("\\","/");
+    }
+
+    public static void setFallbackInstancePath(String path) {
+        config.set("settings.global.fallbackPath",path);
+        fallbackInstancePath = path;
+        reloadLocalZyndex();
+    }
+
     private static boolean reloading = false;
     @SuppressWarnings("unchecked")
     public static boolean reloadLocalZyndex() {
@@ -119,6 +138,9 @@ public class JavaStorage extends LocalStorage {
                         String officialPath = oldPath+"official/";
                         String zyneonPath = officialPath+"zyneonplus/";
                         ArrayList<String> instancePaths = (ArrayList<String>)config.get("settings.zyndex.local.paths");
+                        if(!instancePaths.contains(fallbackInstancePath)) {
+                            instancePaths.add(fallbackInstancePath);
+                        }
                         if(!instancePaths.contains(oldPath)) {
                             instancePaths.add(oldPath);
                         }

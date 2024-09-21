@@ -3,7 +3,10 @@ package com.zyneonstudios.application.minecraft.java.integrations.zyndex;
 import com.google.gson.JsonArray;
 import com.zyneonstudios.application.main.NexusApplication;
 import com.zyneonstudios.application.minecraft.java.JavaStorage;
+import com.zyneonstudios.nexus.index.ReadableZyndex;
 import com.zyneonstudios.nexus.instance.Instance;
+import com.zyneonstudios.nexus.instance.ReadableZynstance;
+import com.zyneonstudios.nexus.utilities.file.FileActions;
 import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
 
 import java.io.File;
@@ -551,5 +554,38 @@ public class LocalInstance implements Instance {
     public void setEditable(boolean editable) {
         config.set("instance.meta.isEditable",editable);
         meta_isEditable = editable;
+    }
+
+    public boolean update() {
+        if(meta_origin.toLowerCase().startsWith("https://")&&meta_location.startsWith("https://")) {
+            try {
+                ReadableZyndex origin = new ReadableZyndex(meta_origin);
+                if(origin.getInstancesById().containsKey(meta_id)) {
+                    ReadableZynstance update = origin.getInstancesById().get(meta_id);
+                    NexusApplication.getLogger().deb("[Minecraft] (Instance) Found instance \""+meta_id+"\" on origin server!");
+                    if(!update.getVersion().equals(info_version)) {
+                        NexusApplication.getLogger().log("[Minecraft] (Instance) Found update for instance \""+meta_id+"\": "+info_version+" -> "+update.getVersion());
+                        String path = this.getPath().toString().replace("\\","/");
+                        if(!path.endsWith("/")) {
+                            path = path+"/";
+                        }
+                        File mods = new File(path+"mods/");
+                        if(mods.exists()) {
+                            if(mods.isDirectory()) {
+                                FileActions.deleteFolder(mods);
+                            }
+                            if(mods.exists()) {
+                                throw new RuntimeException("Could not delete old mods folder!");
+                            }
+                        }
+                        return ZyndexIntegration.install(update,path);
+                    }
+                    return true;
+                }
+            } catch (Exception e) {
+                NexusApplication.getLogger().err("[Minecraft] (Instance) Couldn't update zyndex instance "+meta_id+": "+e.getMessage());
+            }
+        }
+        return false;
     }
 }
