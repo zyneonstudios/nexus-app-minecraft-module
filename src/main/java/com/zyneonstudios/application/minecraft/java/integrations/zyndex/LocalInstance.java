@@ -9,6 +9,7 @@ import com.zyneonstudios.nexus.instance.ReadableZynstance;
 import com.zyneonstudios.nexus.utilities.file.FileActions;
 import com.zyneonstudios.nexus.utilities.storage.JsonStorage;
 
+import javax.swing.*;
 import java.io.File;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -38,6 +39,7 @@ public class LocalInstance implements Instance {
     private String meta_infoText = null;
     private boolean meta_isEditable = false;
     private boolean meta_isHidden = true;
+    private boolean meta_forceUpdates = true;
     private String meta_location = null;
     private String meta_origin = null;
     private ArrayList<String> meta_tags = new ArrayList<>();
@@ -135,6 +137,12 @@ public class LocalInstance implements Instance {
         } else {
             meta_isHidden = true;
         }
+        if(config.has("instance.meta.forceUpdates")) {
+            meta_forceUpdates = config.getBoolean("instance.meta.forceUpdates");
+        } else {
+            meta_forceUpdates = false;
+        }
+
         if(config.get("instance.meta.location")!=null) {
             meta_location = config.getString("instance.meta.location");
         } else {
@@ -225,6 +233,7 @@ public class LocalInstance implements Instance {
             scheme = null;
         }
         settings.ensure("settings.java.jvm-arguments",new JsonArray());
+        settings.ensure("settings.instance.updates","always");
     }
 
     public LocalInstance(File file) {
@@ -360,6 +369,11 @@ public class LocalInstance implements Instance {
     }
 
     @Override
+    public Boolean forceUpdates() {
+        return meta_forceUpdates;
+    }
+
+    @Override
     public String getLocation() {
         return meta_location;
     }
@@ -411,6 +425,11 @@ public class LocalInstance implements Instance {
     @Override
     public String getFabricVersion() {
         return versions_fabric;
+    }
+
+    @Override
+    public String getForgeType() {
+        return "";
     }
 
     @Override
@@ -512,7 +531,7 @@ public class LocalInstance implements Instance {
     }
 
     public void setVersion(String version) {
-        config.set("instance.info.name",version);
+        config.set("instance.info.version",version);
         info_version = version;
     }
 
@@ -557,35 +576,55 @@ public class LocalInstance implements Instance {
     }
 
     public boolean update() {
-        if(meta_origin.toLowerCase().startsWith("https://")&&meta_location.startsWith("https://")) {
+        if (meta_origin.toLowerCase().startsWith("https://") && meta_location.startsWith("https://")) {
             try {
                 ReadableZyndex origin = new ReadableZyndex(meta_origin);
-                if(origin.getInstancesById().containsKey(meta_id)) {
+                if (origin.getInstancesById().containsKey(meta_id)) {
                     ReadableZynstance update = origin.getInstancesById().get(meta_id);
-                    NexusApplication.getLogger().deb("[Minecraft] (Instance) Found instance \""+meta_id+"\" on origin server!");
-                    if(!update.getVersion().equals(info_version)) {
-                        NexusApplication.getLogger().log("[Minecraft] (Instance) Found update for instance \""+meta_id+"\": "+info_version+" -> "+update.getVersion());
-                        String path = this.getPath().toString().replace("\\","/");
-                        if(!path.endsWith("/")) {
-                            path = path+"/";
-                        }
-                        File mods = new File(path+"mods/");
-                        if(mods.exists()) {
-                            if(mods.isDirectory()) {
-                                FileActions.deleteFolder(mods);
+                    NexusApplication.getLogger().deb("[Minecraft] (Instance) Found instance \"" + meta_id + "\" on origin server!");
+                    if (!update.getVersion().equals(info_version)) {
+                        NexusApplication.getLogger().log("[Minecraft] (Instance) Found update for instance \"" + meta_id + "\": " + info_version + " -> " + update.getVersion());
+                        if(shouldUpdate()) {
+                            String path = this.getPath().toString().replace("\\", "/");
+                            if (!path.endsWith("/")) {
+                                path = path + "/";
                             }
-                            if(mods.exists()) {
-                                throw new RuntimeException("Could not delete old mods folder!");
+                            File mods = new File(path + "mods/");
+                            if (mods.exists()) {
+                                if (mods.isDirectory()) {
+                                    FileActions.deleteFolder(mods);
+                                }
+                                if (mods.exists()) {
+                                    throw new RuntimeException("Could not delete old mods folder!");
+                                }
                             }
+                            return ZyndexIntegration.install(update, path);
+                        } else {
+                            return false;
                         }
-                        return ZyndexIntegration.install(update,path);
                     }
                     return true;
                 }
             } catch (Exception e) {
-                NexusApplication.getLogger().err("[Minecraft] (Instance) Couldn't update zyndex instance "+meta_id+": "+e.getMessage());
+                NexusApplication.getLogger().err("[Minecraft] (Instance) Couldn't update zyndex instance " + meta_id + ": " + e.getMessage());
             }
         }
         return false;
+    }
+
+    private boolean shouldUpdate() {
+        if (meta_forceUpdates || settings.getString("settings.instance.updates").equals("always")) {
+            return true;
+        } else if(settings.getString("settings.instance.updates").equals("never")) {
+            return false;
+        }
+        int result = JOptionPane.showConfirmDialog(
+                null,
+                "There is an instance update available, would you like to install it?",
+                "Update available!",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        return result == JOptionPane.YES_OPTION;
     }
 }

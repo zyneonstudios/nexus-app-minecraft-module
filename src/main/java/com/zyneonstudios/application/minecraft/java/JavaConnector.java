@@ -309,10 +309,17 @@ public class JavaConnector extends ModuleConnector {
 
         boolean isEditable = instance.isEditable();
 
+        String instanceSettings = "";
+        if(!instance.forceUpdates()) {
+            instanceSettings = "<div class='option-group'><h4 class='option'>Instance settings</h4>%</div>";
+            String updates = "<h3 class='option'>Update instance <label><select onchange='connector(`java.settings."+id+".updates.`+this.value);' id='"+uuid+"-updates'><option value='always'>Always</option><option value='ask'>Ask</option><option value='never'>Never</option></select></label></h3>";
+            instanceSettings = instanceSettings.replace("%",updates);
+        }
+
         if(!isEditable) {
             settingsBase = "";
         }
-        String settings = settingsBase.replace("%",settingsGame)+settingsJava;
+        String settings = settingsBase.replace("%",settingsGame)+settingsJava+instanceSettings;
 
         String managementBase = "<div class='option-group'><h4 class='option'>Instance information</h4>%</div>";
         String managementName = "<h3 class='option'>Name <label><input class='text' id='"+uuid+"-name' type='text' value=\\\""+instance.getName().replace("\"","''")+"\\\"></label></h3>";
@@ -371,7 +378,7 @@ public class JavaConnector extends ModuleConnector {
         };
 
         String syncSettingsType = "document.getElementById('"+uuid+"-type').value = '"+modLoader.toLowerCase()+"'; document.getElementById('"+uuid+"-game-version').value = '"+minecraftVersion+"'; document.getElementById('"+uuid+"-loader-version').value = '"+loaderVersion+"';";
-        String syncSettingsJava = "document.getElementById('"+id+"-memory').innerText = '"+instance.getMemory()+"MB'; initializeListInput('java.settings."+id+".jvm-arguments'); ";
+        String syncSettingsJava = "document.getElementById('"+id+"-memory').innerText = '"+instance.getMemory()+"MB'; initializeListInput('java.settings."+id+".jvm-arguments'); document.getElementById('"+uuid+"-updates').value = '"+instance.getSettings().getString("settings.instance.updates")+"';";
         try {
             StringBuilder args = new StringBuilder();
             for (String arg : (ArrayList<String>) instance.getSettings().get("settings.java.jvm-arguments")) {
@@ -551,8 +558,11 @@ public class JavaConnector extends ModuleConnector {
                         instance.setModloader(type.toLowerCase(), loaderVersion);
                         instance.setGameVersion(gameVersion);
                     }
+
+                } else if(request.startsWith("updates.")) {
+                    instance.getSettings().set("settings.instance.updates",request.replaceFirst("updates.",""));
+
                 } else if(request.startsWith("game-version.")) {
-                    System.out.println(request);
                     r = request.split("\\.",3);
                     String gameVersion = r[2];
                     String uuid = r[1];
