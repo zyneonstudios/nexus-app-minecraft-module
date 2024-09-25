@@ -200,6 +200,5 @@ public class MinecraftJavaAddon extends ApplicationModule {
             NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application, "nexus-minecraft-module", "Minecraft (Test)", v + "_" + StringGenerator.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
         } catch (Exception ignore) {}
         application.launch();
-        System.out.println(JavaStorage.getFallbackInstancePath());
     }
 }

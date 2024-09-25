@@ -89,7 +89,7 @@ public class ModrinthIntegration {
                     String clientSide = result.get("client_side").getAsString();
                     String serverSide = result.get("server_side").getAsString();
                     String meta = id + " (" + result.get("project_id").getAsString() + ") | " + downloads + " downloads | " + follows + " follows | created: " + dateCreated + " | modified: " + dateModified + " | " + license + " license | client: " + clientSide + " | server: " + serverSide;
-                    String actions = "<a onclick=\\\"connector('java.init.details.modrinthInstance." + id + "');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('java.install.modrinthInstance." + id + "');\\\"><i class='bx bx-download'></i> Install</a>";
+                    String actions = "<a onclick=\\\"connector('java.init.details.modrinthInstance." + id + "');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('async.java.install.modrinthInstance." + id + "');\\\"><i class='bx bx-download'></i> Install</a>";
                     String command = "addResult(\"" + id + "\",\"" + iconUrl + "\",\"" + name + "\",\"" + author + "\",\"" + description + "\",\"" + meta + "\",\"" + actions + "\",\"https://api.modrinth.com/v2/project/" + id + "\",\"java.init.details.modrinthInstance." + id + "\");";
                     frame.executeJavaScript(command);
                 } catch (Exception e) {

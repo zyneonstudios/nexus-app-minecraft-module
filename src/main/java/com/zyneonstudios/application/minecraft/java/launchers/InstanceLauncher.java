@@ -66,7 +66,7 @@ public class InstanceLauncher extends BasicLauncher {
         }
 
         if(gameInstaller.install()) {
-            parentFrame.executeJavaScript("setLaunch(\"LAUNCHING\",\"bx bx-loader-circle bx-spin\",\"active wiggle\",\"java.button.launch."+instance.getId()+"\");");
+            parentFrame.executeJavaScript("setLaunch(\"LAUNCHING\",\"bx bx-loader-circle bx-spin\",\"active wiggle\",\"async.java.button.launch."+instance.getId()+"\");");
             framework = new NoFramework(
                     getInstancePath(),
                     authInfos,
@@ -92,12 +92,12 @@ public class InstanceLauncher extends BasicLauncher {
             }
 
             try {
-                parentFrame.executeJavaScript("setLaunch(\"RUNNING\",\"bx bx-check-circle\",\"active hover-wiggle\",\"java.button.launch."+instance.getId()+"\");");
+                parentFrame.executeJavaScript("setLaunch(\"RUNNING\",\"bx bx-check-circle\",\"active hover-wiggle\",\"async.java.button.launch."+instance.getId()+"\");");
                 JavaSettings.setJava(Objects.requireNonNull(MinecraftVersion.getType(getMinecraftVersion())));
                 showApp(false);
                 gameProcess = framework.launch(getMinecraftVersion(), loaderVersion, loader);
                 gameProcess.onExit().thenRun(() -> {
-                    parentFrame.executeJavaScript("setLaunch(\"LAUNCH\",\"bx bx-rocket\",\"active hover-wiggle\",\"java.button.launch."+instance.getId()+"\");");
+                    parentFrame.executeJavaScript("setLaunch(\"LAUNCH\",\"bx bx-rocket\",\"active hover-wiggle\",\"async.java.button.launch."+instance.getId()+"\");");
                     JavaStorage.runningInstances.remove(instance.getId(),uuid);
                     showApp(true);
                     System.gc();
@@ -107,7 +107,7 @@ public class InstanceLauncher extends BasicLauncher {
                 NexusApplication.getLogger().err("[MINECRAFT] (INSTANCE LAUNCHER) Couldn't start the game: " + e.getMessage());
             }
         }
-        parentFrame.executeJavaScript("setLaunch(\"LAUNCH\",\"bx bx-rocket\",\"active hover-wiggle\",\"java.button.launch."+instance.getId()+"\");");
+        parentFrame.executeJavaScript("setLaunch(\"LAUNCH\",\"bx bx-rocket\",\"active hover-wiggle\",\"async.java.button.launch."+instance.getId()+"\");");
         JavaStorage.runningInstances.remove(instance.getId(),uuid);
         showApp(true);
         return false;

@@ -4,7 +4,7 @@ function enableMicrosoftLogin() {
         button.classList.add("active");
     }
     button.onclick = function () {
-        connector("java.auth.login");
+        connector("async.java.auth.login");
     };
     if(!document.getElementById("mje-back-to-select").classList.contains("active")) {
         document.getElementById("mje-back-to-select").classList.add("active");
@@ -31,16 +31,16 @@ function initLogin() {
         }
     }
     disableMicrosoftLogin();
-    connector("java.init.auth.login");
+    connector("async.java.init.auth.login");
     setInterval(refresh, 5000);
 }
 
 function refresh() {
-    connector("java.init.auth.login");
+    connector("async.java.init.auth.login");
 }
 
 function backToSelect() {
     if(document.getElementById("mje-back-to-select").classList.contains("active")) {
-        connector("java.init.library.select");
+        connector("async.java.init.library.select");
     }
 }

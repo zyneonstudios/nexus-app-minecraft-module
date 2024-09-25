@@ -9,7 +9,10 @@
       "main": "com.zyneonstudios.application.MinecraftJavaAddon",
       "id": "nexus-minecraft-module",
       "name": "Minecraft",
-      "version": "${project.version}"
+      "version": "${project.version}",
+      "app": {
+        "min": "2024.9.1-prerelease.2"
+      }
     }
   ]
 }

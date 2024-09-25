@@ -131,7 +131,7 @@ public class JavaConnector extends ModuleConnector {
                 return;
             }
             String name = module.getAuthenticator(authKey).getAuthInfos().getUsername();
-            frame.executeJavaScript("setMenuPanel(\"https://cravatar.eu/helmhead/" + name + "/64.png\",\"" + name + "\",\"Profile options\",true);");
+            frame.executeJavaScript("setMenuPanel(\"https://cravatar.eu/helmhead/" + name + "/64.png\",\"" + name + "\",\"<a onclick='connector(`java.auth.logout`);'>Logout</a>\",true);");
 
             frame.executeJavaScript("addAction('" + JavaStorage.Strings.addInstance + "','bx bx-plus','connector(\\'java.init.instances.creator\\');','mje-add-instance'); addAction('" + JavaStorage.Strings.refreshInstances + "','bx bx-refresh',\"connector('refresh.library');\",'mje-refresh-instances'); addGroup('" + JavaStorage.Strings.instances + "','mje-instances');");
             frame.executeJavaScript("document.getElementById(\"select-game-module\").value = 'nexus-minecraft-module_java';");
@@ -248,7 +248,7 @@ public class JavaConnector extends ModuleConnector {
         if(instance.getBackgroundUrl()!=null) {
             background = instance.getBackgroundUrl();
         }
-        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; setOverlayContent(\"<div id='library-overlay-loader'><h3>Loading... <i class='bx bx-loader-alt bx-spin' ></i></h3></div>\"); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<div class='flex'><h3 id='mje-folder' style='margin-right: 0.25rem !important;'><i class='bx bxs-folder-open'></i></h3><h3 id='mje-cog'><i class='bx bxs-cog'></i></h3></div>\"); setLaunch('LAUNCH','bx bx-rocket','active','java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getSummary().replace("\"","''").replace("\n","<br>")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); }; document.getElementById('mje-folder').onclick = function() { connector('java.settings."+instance.getId()+".folder'); };";
+        String command = "document.querySelector('.cnt').style.backgroundImage = \"url('"+background+"')\"; setOverlayContent(\"<div id='library-overlay-loader'><h3>Loading... <i class='bx bx-loader-alt bx-spin' ></i></h3></div>\"); setViewImage('"+logo+"'); setTitle(\""+icon+"\",\""+instance.getName().replace("\"","''")+"\",\"<div class='flex'><h3 id='mje-folder' style='margin-right: 0.25rem !important;'><i class='bx bxs-folder-open'></i></h3><h3 id='mje-cog'><i class='bx bxs-cog'></i></h3></div>\"); setLaunch('LAUNCH','bx bx-rocket','active','async.java.button.launch."+instance.getId()+"'); enableLaunch(); setViewDescription(\""+instance.getSummary().replace("\"","''").replace("\n","<br>")+"\"); document.getElementById('mje-cog').onclick = function() { toggleOverlay('mje-cog'); connector('java.sync.view-settings."+instance.getId()+"'); }; document.getElementById('mje-folder').onclick = function() { connector('java.settings."+instance.getId()+".folder'); };";
 
         frame.executeJavaScript(command);
         JavaStorage.getConfig().set("settings.values.last.instance",instance.getId());
@@ -310,7 +310,7 @@ public class JavaConnector extends ModuleConnector {
         boolean isEditable = instance.isEditable();
 
         String instanceSettings = "";
-        if(!instance.forceUpdates()) {
+        if(!instance.forceUpdates()&&instance.getIndexUrl().startsWith("http")&&instance.getLocation().startsWith("http")) {
             instanceSettings = "<div class='option-group'><h4 class='option'>Instance settings</h4>%</div>";
             String updates = "<h3 class='option'>Update instance <label><select onchange='connector(`java.settings."+id+".updates.`+this.value);' id='"+uuid+"-updates'><option value='always'>Always</option><option value='ask'>Ask</option><option value='never'>Never</option></select></label></h3>";
             instanceSettings = instanceSettings.replace("%",updates);
@@ -421,11 +421,11 @@ public class JavaConnector extends ModuleConnector {
         } else if (request.equals("logout")) {
             ApplicationStorage.disableDriveAccess();
             if (module.getAuthState() == MinecraftJavaAddon.AuthState.LOGGED_IN) {
-                frame.executeJavaScript("mjeLogout('" + JavaStorage.Strings.notLoggedIn + "','" + JavaStorage.Strings.login + "');");
                 JavaStorage.map.delete("auth.username");
                 JavaStorage.map.delete("auth.uuid");
                 module.setAuthState(MinecraftJavaAddon.AuthState.LOGGED_OUT);
                 module.createNewAuthenticator();
+                frame.getBrowser().loadURL(ApplicationStorage.urlBase + ApplicationStorage.language + "/start.html");
             }
         }
     }

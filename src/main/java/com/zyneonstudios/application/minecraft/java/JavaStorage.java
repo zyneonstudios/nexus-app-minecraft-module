@@ -50,6 +50,17 @@ public class JavaStorage extends LocalStorage {
         if(fallbackInstancePath.equalsIgnoreCase("default")) {
             fallbackInstancePath = ApplicationStorage.getApplicationPath()+"instances/";
         }
+        try {
+            if (JavaStorage.config.getString("settings.global.fallbackPath").equals("default")) {
+                if (new File(getApplicationStoragePath()).exists()) {
+                    JsonStorage config = new JsonStorage(getApplicationStoragePath());
+                    if (config.has("settings.path.instances")) {
+                        fallbackInstancePath = config.getString("settings.path.instances");
+                        JavaStorage.config.set("settings.global.fallbackPath", fallbackInstancePath);
+                    }
+                }
+            }
+        } catch (Exception ignore) {}
         map.setInteger("settings.global.memory",config.getInt("settings.global.memory"));
 
         config.ensure("settings.global.minimizeApp",true);

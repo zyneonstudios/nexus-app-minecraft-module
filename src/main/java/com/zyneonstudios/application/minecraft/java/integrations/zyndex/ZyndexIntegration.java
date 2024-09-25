@@ -56,7 +56,7 @@ public class ZyndexIntegration {
         for (ReadableZynstance instance : results) {
             String tags = "Tags: " + instance.getTagString();
             String meta = instance.getId() + " | v" + instance.getVersion() + " | Hidden: " + instance.isHidden() + "<br>" + tags;
-            String actions = "<a onclick=\\\"connector('java.init.details.instance." + URLEncoder.encode(instance.getLocation(), StandardCharsets.UTF_8) + "');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('java.install.nexInstance."+instance.getId()+"');\\\"><i class='bx bx-download'></i> Install</a>";
+            String actions = "<a onclick=\\\"connector('java.init.details.instance." + URLEncoder.encode(instance.getLocation(), StandardCharsets.UTF_8) + "');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('async.java.install.nexInstance."+instance.getId()+"');\\\"><i class='bx bx-download'></i> Install</a>";
             String command = "addResult(\"" + instance.getId() + "\",\"" + instance.getThumbnailUrl() + "\",\"" + instance.getName() + "\",\"" + instance.getAuthor() + "\",\"" + instance.getSummary() + "\",\"" + meta + "\",\"" + actions + "\",\"" + instance.getLocation() + "\",\"java.init.details.instance." + instance.getLocation() + "\");";
             frame.executeJavaScript(command);
         }

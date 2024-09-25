@@ -97,7 +97,7 @@ public class CurseForgeIntegration {
                     String dateModified = result.get("dateModified").getAsString();
                     String dateReleased = result.get("dateReleased").getAsString();
                     String meta = id + " (" + result.get("slug").getAsString() + ") | " + downloads + " downloads | created: " + dateCreated + " | modified: " + dateModified + " | released:" + dateReleased;
-                    String actions = "<a onclick=\\\"connector('java.init.details.curseForgeInstance." + id + "');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('java.install.curseForgeInstance." + id + "');\\\"><i class='bx bx-download'></i> Install</a>";
+                    String actions = "<a onclick=\\\"connector('java.init.details.curseForgeInstance." + id + "');\\\"><i class='bx bx-spreadsheet'></i> More</a> <a style=\\\"background: #5632a8; color: white;\\\" onclick=\\\"connector('async.java.install.curseForgeInstance." + id + "');\\\"><i class='bx bx-download'></i> Install</a>";
                     String command = "addResult(\"" + id + "\",\"" + iconUrl + "\",\"" + name + "\",\"" + author + "\",\"" + description + "\",\"" + meta + "\",\"" + actions + "\",\"https://api.curseforge.com/v1/mods/" + id + "\",\"java.init.details.curseForgeInstance." + id + "\");";
                     frame.executeJavaScript(command);
                 } catch (Exception e) {
