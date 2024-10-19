@@ -18,7 +18,13 @@
         <script>connector("java.init.creator"); connector("java.sync.creator"); init();</script>
     </head>
     <body>
-        <div class="mje-main">
+        <div class="card button create" onclick="createInstance();">
+            <h3>Erstellen <i class='bx bxs-add-to-queue'></i></h3>
+        </div>
+        <div class="mje-main flex">
+            <div class="menu">
+
+            </div>
             <div class="flex">
                 <div class="mje-main-menu">
                     <div class="card card-disabled">
@@ -31,12 +37,9 @@
                     <div id="mje-discover-modpacks" onclick="connector('java.sync.search')" class="card button highlight">
                         <h3>Modpacks entdecken <i id="mje-discover-modpacks-i" class='bx bx-world'></i></h3>
                     </div><script>initHover();</script>
-                    <div onclick="" class="card button">
+                    <!--div onclick="" class="card button">
                         <h3>Instanz importieren <i class='bx bxs-folder-plus'></i></h3>
-                    </div>
-                    <div class="card mje-menu-content">
-
-                    </div>
+                    </div-->
                 </div>
                 <div class="mje-main-content">
                     <div class="card card-disabled">
@@ -51,64 +54,43 @@
                                     <div class="flex">
                                         <div>
                                             <h2><label><input type="text" id="mje-creator-name" placeholder="Instanz-Name*" required></label></h2>
-                                            <h3><label><textarea placeholder="Instanz-Beschreibung" required></textarea></label></h3>
+                                            <h3><label><textarea id="mje-creator-description" placeholder="Instanz-Beschreibung" required></textarea></label></h3>
                                         </div>
                                         <div class="row2">
-                                            <h3><label><input type="text" id="mje-creator-id" placeholder="instance-name (id)" disabled></label></h3>
-                                            <h3><label><input type="text" id="mje-creator-version" placeholder="Instanz-Version*" required></label></h3>
-                                            <div class="flex">
-                                                <h3>
-                                                    <label>
-                                                        <select required id="mje-creator-type">
-                                                            <option disabled>Minecraft: Java Edition</option>
-                                                            <option value="vanilla">Vanilla</option>
-                                                            <option value="experimental">Experimental</option>
-                                                            <option value="fabric">Fabric Modloader</option>
-                                                            <option value="forge">Forge Modloader</option>
-                                                            <option value="neoforge">NeoForge Modloader</option>
-                                                            <option value="quilt">Quilt Modloader</option>
-                                                        </select>
-                                                    </label>
-                                                </h3>
-                                                <h3>
-                                                    <label>
-                                                        <select id="mje-creator-minecraft" required>
-
-                                                        </select><script>connector("java.sync.minecraft");</script>
-                                                    </label>
-                                                </h3>
-                                            </div>
+                                            <h3><label><input type="text" id="mje-creator-version" placeholder="v1.0.0"></label></h3>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="mje-creator-settings">
-                                <h2>Zusätzliche Einstellungen</h2>
-                                <div id="mje-creator-modloader">
-                                    <h4>Modloader Einstellungen</h4>
-                                    <h3>
-                                        <span id="mje-creator-mlname">Modloader</span> Version:
-                                        <label>
-                                            <select id="mje-creator-mlversion">
-
-                                            </select><script></script>
-                                        </label>
-                                    </h3>
-                                </div>
-                                <h4>JVM Einstellungen</h4>
-                                <h3>Arbeitsspeicher (RAM)
+                                <h2>Einstellungen</h2>
+                                <h4>Spiel-Einstellungen</h4>
+                                <h3>
+                                    Spieltyp
                                     <label>
-                                        <select id="mje-settings-memory-select">
-                                            <option value="default">Standardeinstellung verwenden</option>
+                                        <select id="mje-settings-game" onchange="initSelects(true);">
+                                            <option value="vanilla">Vanilla</option>
+                                            <option value="experimental">Experimentell</option>
+                                            <option value="fabric">Fabric (Modloader)</option>
+                                            <option value="forge">Forge (Modloader)</option>
+                                            <option value="neoforge">NeoForge (Modloader)</option>
+                                            <option value="quilt">Quilt (Modloader)</option>
                                         </select>
                                     </label>
                                 </h3>
-                                <h4>Erscheinung</h4>
                                 <h3>
-                                    Instanz-Logo
+                                    Spiel-Version
+                                    <label>
+                                        <select id="mje-settings-game-version" onchange="initSelects(false);">
+                                        </select>
+                                    </label>
                                 </h3>
                                 <h3>
-                                    Instanz-Hintergrund
+                                    Modloader-Version
+                                    <label>
+                                        <select id="mje-settings-modloader-version">
+                                        </select>
+                                    </label>
                                 </h3>
                             </div>
                         </form>
@@ -117,4 +99,9 @@
             </div>
         </div>
     </body>
+    <script>
+        addEventListener("DOMContentLoaded", function() {
+           initSelects(true);
+        });
+    </script>
 </html>

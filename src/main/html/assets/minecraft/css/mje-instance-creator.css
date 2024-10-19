@@ -1,5 +1,5 @@
 body {
-    background: linear-gradient(70deg,var(--background),var(--background2),var(--background));
+    background: var(--background);
     transition: all 0.25s ease !important;
     * {
         transition: all 0.25s ease !important;
@@ -7,7 +7,15 @@ body {
 }
 
 .mje-main {
+    background: var(--background);
+}
 
+.mje-main {
+    .menu {
+        background: var(--background5);
+        width: 2rem;
+        height: 100%;
+    }
 }
 
 .mje-main .flex {
@@ -43,6 +51,24 @@ body {
     left: -0.75rem;
     width: calc(100% - 3.4rem);
     height: calc(100% - 2.3rem);
+}
+
+.card.button.create {
+    position: absolute;
+    height: 2rem;
+    width: 7rem;
+    right: 2.15rem;
+    top: 1.6rem;
+    z-index: 9999999;
+    background: #47c647 !important;
+    border-color: #38aa38 !important;
+    box-shadow: 0 0 0.3rem var(--shadow3) !important;
+}
+
+.card.button.create:hover {
+    background: #27ff27 !important;
+    border-color: #67ff67 !important;
+    box-shadow: 0 0 0.3rem #27ff27 !important;
 }
 
 .card.button {
@@ -281,7 +307,7 @@ body {
     margin-bottom: 0.75rem;
     color: var(--foreground);
     font-size: 1.5rem;
-    width: calc(100% - 1rem);
+    width: calc(200%);
     border-radius: 0.5rem;
     padding: 0.5rem;
     background: var(--background2);
@@ -315,4 +341,31 @@ body {
 
 select, option {
     cursor: pointer;
+}
+
+.mje-creator-settings {
+
+    h3 {
+        position: relative;
+
+        select {
+            position: absolute;
+            top: 0.4rem;
+            right: 0.5rem;
+            font-size: 1.15rem;
+            color: var(--foreground2);
+            text-align: right;
+
+            option {
+                color: var(--foreground2);
+                background: var(--background);
+                text-align: left;
+            }
+
+            option:checked {
+                color: var(--foreground);
+                text-align: right;
+            }
+        }
+    }
 }

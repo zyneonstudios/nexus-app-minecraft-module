@@ -64,7 +64,7 @@
                     id = urlParams.get("id");
                     document.getElementById("instance").innerText = "\""+id+"\"";
                     document.getElementById("confirm-button").onclick = function () {
-                        connector('java.settings.'+id+'.delete.confirmed');
+                        connector('java.settings.'+id.replace(".","%dot%")+'.delete.confirmed');
                     }
                 } else {
                     document.body.innerText = "Error";

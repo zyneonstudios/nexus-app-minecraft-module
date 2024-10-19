@@ -1,5 +1,7 @@
 package com.zyneonstudios.application;
 
+import com.zyneonstudios.Main;
+import com.zyneonstudios.application.frame.ZyneonSplash;
 import com.zyneonstudios.application.frame.web.ApplicationFrame;
 import com.zyneonstudios.application.main.ApplicationStorage;
 import com.zyneonstudios.application.main.NexusApplication;
@@ -85,8 +87,8 @@ public class MinecraftJavaAddon extends ApplicationModule {
         return authenticator;
     }
 
-    @Override
-    public void onLoad() {
+
+    private void load() {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
         NexusApplication.getLogger().log("Module: " + getName() + " (id: " + getId() + ")");
@@ -135,6 +137,13 @@ public class MinecraftJavaAddon extends ApplicationModule {
 
     @Override
     public void onEnable() {
+        CompletableFuture.runAsync(()->{
+            load();
+            enable();
+        });
+    }
+
+    private void enable() {
         NexusApplication.getLogger().log(" ");
         NexusApplication.getLogger().log("==(GAME MODULE)===================================================================");
         NexusApplication.getLogger().log("Module: " + getName() + " (id: " + getId() + ")");
@@ -185,14 +194,14 @@ public class MinecraftJavaAddon extends ApplicationModule {
     }
 
     public static void main(String[] args) {
+        Main.splash = new ZyneonSplash();
+        Main.splash.setVisible(true);
         NexusUtilities.getLogger().setName("TEST-APP",true);
         NexusUtilities.getLogger().enableDebug();
         NexusDesktop.init();
         ArrayList<String> arguments = new ArrayList<>(Arrays.stream(args).toList());
         arguments.add("--test");
-        arguments.add("--debug");
-        arguments.add("--path:D:/Workspaces/IntelliJ/nexus-app/application-main/target/run/");
-        arguments.add("--ui:file://D:/Workspaces/IntelliJ/nexus-app/application-ui/content/");
+        arguments.add("--path:D:/Workspaces/IntelliJ/nexus-app-minecraft-module/target/run/");
         args = arguments.toArray(new String[0]);
         NexusApplication application = new NexusApplication(args);
         try {
@@ -200,5 +209,6 @@ public class MinecraftJavaAddon extends ApplicationModule {
             NexusApplication.getModuleLoader().loadModule(new MinecraftJavaAddon(application, "nexus-minecraft-module", "Minecraft (Test)", v + "_" + StringGenerator.generateAlphanumericString(4), "Zyneon Studios, Zyneon Nexus"));
         } catch (Exception ignore) {}
         application.launch();
+        System.out.println(ApplicationStorage.urlBase+ApplicationStorage.language+"/start.html");
     }
 }
