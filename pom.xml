@@ -6,7 +6,7 @@
 
     <groupId>com.zyneonstudios.nexus</groupId>
     <artifactId>application-minecraft-module</artifactId>
-    <version>2024.10-pre.1</version>
+    <version>2024.12-pre.1</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>com.zyneonstudios.nexus</groupId>
             <artifactId>application</artifactId>
-            <version>2024.10.4</version>
+            <version>2024.10.5</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

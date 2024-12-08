@@ -358,6 +358,10 @@ public class JavaConnector extends ModuleConnector {
 
         frame.executeJavaScript(command);
         JavaStorage.getConfig().set("settings.values.last.instance",instance.getId());
+
+        if(JavaStorage.runningInstances.containsKey(instance.getId())) {
+            frame.executeJavaScript("setLaunch(\"RUNNING\",\"bx bx-check-circle\",\"active hover-wiggle\",\"async.java.button.launch."+instance.getId()+"\");");
+        }
     }
 
     private void showInstanceSettings(LocalInstance instance) {
@@ -780,7 +784,7 @@ public class JavaConnector extends ModuleConnector {
                     File background = openImageChooser();
                     if(background!=null) {
                         try {
-                            String path = instance.getDirectory().toString()+"/meta/instanceIcon.png";
+                            String path = instance.getDirectory().toString()+"/meta/instanceBackground.png";
                             Files.copy(background.toPath(), Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
                             File backgroundFile = new File(path);
                             if(backgroundFile.exists()) {

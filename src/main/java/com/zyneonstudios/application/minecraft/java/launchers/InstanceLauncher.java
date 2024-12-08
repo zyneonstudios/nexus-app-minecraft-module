@@ -60,8 +60,11 @@ public class InstanceLauncher extends BasicLauncher {
         if(getModloader()!=null&&getModloaderVersion()!=null) {
             gameInstaller.setModloader(getModloader());
             gameInstaller.setModloaderVersion(getModloaderVersion());
-            if(getModloader().equals(NoFramework.ModLoader.VERY_OLD_FORGE)||getModloader().equals(NoFramework.ModLoader.OLD_FORGE)) {
-                gameInstaller.setModloaderVersion(getMinecraftVersion()+"-"+getModloaderVersion());
+            if(getModloader().equals(NoFramework.ModLoader.VERY_OLD_FORGE)||getModloader().equals(NoFramework.ModLoader.OLD_FORGE)||getModloader().equals(NoFramework.ModLoader.FORGE)) {
+                if(!getModloaderVersion().startsWith(getMinecraftVersion())) {
+                    gameInstaller.setModloaderVersion(getMinecraftVersion() + "-" + getModloaderVersion());
+                    setModloaderVersion(gameInstaller.getModloaderVersion());
+                }
             }
         }
 
